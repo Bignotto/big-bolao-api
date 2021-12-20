@@ -6,6 +6,7 @@ WORKDIR /usr/app
 # Install app dependencies
 COPY package*.json ./
 RUN npm install
+# run babel here
 
 COPY . .
 
