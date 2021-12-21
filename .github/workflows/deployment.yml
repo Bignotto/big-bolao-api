@@ -41,7 +41,7 @@ jobs:
       - run: echo "Deploy"
   deploy-production:
     needs: test-ci
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04
     concurrency: deploy-to-production
     environment: production
