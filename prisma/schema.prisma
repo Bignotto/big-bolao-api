@@ -17,4 +17,5 @@ model User {
   password  String
   favTeam   String?
   profile   String?
+  avatar    String?
 }
