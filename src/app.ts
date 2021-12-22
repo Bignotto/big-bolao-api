@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 //import "dotenv/config";
 import express, { NextFunction, Request, Response } from 'express';
+import { CreateUserController } from './modules/accounts/useCases/createUser/CreateUserController';
 
 const app = express();
+const createUserController = new CreateUserController();
 
 app.use(express.json());
 
@@ -15,4 +17,5 @@ app.get('/', (request, response) =>
   }),
 );
 
+app.post('/users', createUserController.handle);
 export { app };
