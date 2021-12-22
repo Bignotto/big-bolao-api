@@ -4,8 +4,6 @@ import { User } from '../../entities/User';
 import { IUserRepository } from '../IUserRepository';
 
 class UserPrismaRepository implements IUserRepository {
-  private prisma = new PrismaClient();
-
   async create({
     name,
     email,
@@ -14,9 +12,20 @@ class UserPrismaRepository implements IUserRepository {
     favTeam,
     profile,
   }: ICreateUserDTO): Promise<User> {
+    const prisma = new PrismaClient();
+
     const newUser = new User();
     Object.assign(newUser, { name, email, password, avatar, favTeam, profile });
-    const createdUser = await this.prisma.user.create({ data: newUser });
+    let createdUser: User;
+
+    try {
+      createdUser = await prisma.user.create({ data: newUser });
+    } catch (error) {
+      console.log({ error });
+      throw new Error('CreateUserRepository Database Error');
+    } finally {
+      prisma.$disconnect();
+    }
     return createdUser;
   }
 }
