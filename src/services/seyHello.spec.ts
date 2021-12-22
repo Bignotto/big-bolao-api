@@ -10,8 +10,4 @@ describe('Say Hello Tests', () => {
     const hello = sayHello('Big');
     expect(hello).toBe('Hello Big!');
   });
-
-  it('shoul not pass', () => {
-    expect(true).toBe(false);
-  });
 });
