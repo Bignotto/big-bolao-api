@@ -9,7 +9,7 @@
     "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules --respawn src/server.ts",
     "start": "node src/server.ts",
     "test": "NODE_ENV=test jest --runInBand --detectOpenHandles",
-    "test:watch": "NODE_ENV=test jest --runInBand --detectOpenHandles --watchAll"
+    "test:watch": "NODE_ENV=test jest --runInBand --detectOpenHandles --verbose --watchAll"
   },
   "dependencies": {
     "@prisma/client": "^3.7.0",
