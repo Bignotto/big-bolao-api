@@ -1,3 +1,4 @@
+import { AppError } from '../../../../shared/errors/AppError';
 import { UserInMemoryRepository } from '../../repositories/inMemory/UserInMemoryRepository';
 import { CreateUserUseCase } from './CreateUserUseCase';
 
@@ -9,6 +10,7 @@ describe('Create User Use Case', () => {
     userRepository = new UserInMemoryRepository();
     createUserUseCase = new CreateUserUseCase(userRepository);
   });
+
   it('should create a new user object', async () => {
     const createdUser = await createUserUseCase.execute({
       name: 'Test User',
@@ -17,5 +19,21 @@ describe('Create User Use Case', () => {
     });
 
     expect(createdUser).toHaveProperty('id');
+  });
+
+  it('should not be able to register a user with email address already in use', async () => {
+    const user1 = await createUserUseCase.execute({
+      name: 'Test User 1',
+      email: 'test@server.com',
+      password: '12345',
+    });
+
+    expect(async () => {
+      await createUserUseCase.execute({
+        name: 'Test User 2',
+        email: 'testa@server.com',
+        password: '12345',
+      });
+    }).rejects.toBeInstanceOf(AppError);
   });
 });

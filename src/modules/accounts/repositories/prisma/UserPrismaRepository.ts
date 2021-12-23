@@ -4,6 +4,9 @@ import { User } from '../../entities/User';
 import { IUserRepository } from '../IUserRepository';
 
 class UserPrismaRepository implements IUserRepository {
+  findByEmail(email: string): Promise<User> {
+    throw new Error('Method not implemented.');
+  }
   async create({
     name,
     email,
@@ -16,16 +19,11 @@ class UserPrismaRepository implements IUserRepository {
 
     const newUser = new User();
     Object.assign(newUser, { name, email, password, avatar, favTeam, profile });
-    let createdUser: User;
 
-    try {
-      createdUser = await prisma.user.create({ data: newUser });
-    } catch (error) {
-      console.log({ error });
-      throw new Error('CreateUserRepository Database Error');
-    } finally {
-      prisma.$disconnect();
-    }
+    const createdUser = await prisma.user.create({ data: newUser });
+
+    prisma.$disconnect();
+
     return createdUser;
   }
 }
