@@ -28,12 +28,12 @@ describe('Create User Use Case', () => {
       password: '12345',
     });
 
-    expect(async () => {
-      await createUserUseCase.execute({
+    await expect(async () => 
+      (createUserUseCase.execute({
         name: 'Test User 2',
-        email: 'testa@server.com',
-        password: '12345',
-      });
-    }).rejects.toBeInstanceOf(AppError);
+        email: 'test@server.com',
+        password: '12345',}
+      ))
+    ).rejects.toBeInstanceOf(AppError);
   });
 });
