@@ -14,6 +14,9 @@ class CreateUserUseCase {
     profile,
     avatar,
   }: ICreateUserDTO): Promise<User> {
+    if (!email || !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))
+      throw new AppError('E-Mail address is invalid.', 400);
+
     const foundEmail = await this.usersRepository.findByEmail(email);
     if (foundEmail) throw new AppError('E-Mail address already taken.', 400);
 
