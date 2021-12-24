@@ -8,14 +8,18 @@
   "scripts": {
     "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules --respawn src/server.ts",
     "start": "node src/server.ts",
+    "typeorm": "ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli",
     "test": "NODE_ENV=test jest --runInBand --detectOpenHandles",
     "test:watch": "NODE_ENV=test jest --runInBand --detectOpenHandles --verbose --watchAll"
   },
   "dependencies": {
     "@prisma/client": "^3.7.0",
     "express": "^4.17.2",
+    "jest": "^27.4.5",
+    "pg": "^8.7.1",
     "prisma": "^3.7.0",
     "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.41",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -29,7 +33,6 @@
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import-helpers": "^1.2.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^27.4.5",
     "prettier": "^2.5.1",
     "ts-jest": "^27.1.2",
     "ts-node-dev": "^1.1.8",
