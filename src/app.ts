@@ -3,6 +3,10 @@ import 'reflect-metadata';
 import express, { NextFunction, Request, Response } from 'express';
 import { CreateUserController } from './modules/accounts/useCases/createUser/CreateUserController';
 
+import createConnection from './shared/infra/typeorm';
+
+createConnection();
+
 const app = express();
 const createUserController = new CreateUserController();
 
