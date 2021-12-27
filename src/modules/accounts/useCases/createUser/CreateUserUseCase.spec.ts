@@ -15,7 +15,7 @@ describe('Create User Use Case', () => {
     const createdUser = await createUserUseCase.execute({
       name: 'Test User',
       email: 'test@server.com',
-      password: '12345',
+      password: '123456',
     });
 
     expect(createdUser).toHaveProperty('id');
@@ -25,14 +25,14 @@ describe('Create User Use Case', () => {
     await createUserUseCase.execute({
       name: 'Test User 1',
       email: 'test@server.com',
-      password: '12345',
+      password: '123456',
     });
 
     await expect(async () =>
       createUserUseCase.execute({
         name: 'Test User 2',
         email: 'test@server.com',
-        password: '12345',
+        password: '123456',
       }),
     ).rejects.toBeInstanceOf(AppError);
   });
@@ -42,7 +42,7 @@ describe('Create User Use Case', () => {
       createUserUseCase.execute({
         name: 'Test user',
         email: '',
-        password: '12345',
+        password: '123456',
       }),
     ).rejects.toBeInstanceOf(AppError);
 
@@ -50,7 +50,7 @@ describe('Create User Use Case', () => {
       createUserUseCase.execute({
         name: 'Test user',
         email: 'test',
-        password: '12345',
+        password: '123456',
       }),
     ).rejects.toBeInstanceOf(AppError);
   });
@@ -59,10 +59,10 @@ describe('Create User Use Case', () => {
     const testUser = await createUserUseCase.execute({
       name: 'Test user',
       email: 'test@test.com',
-      password: '12345',
+      password: '123456',
     });
 
-    expect(testUser.password).not.toBe('12345');
+    expect(testUser.password).not.toBe('123456');
   });
 
   it('should not be able to create user with password less than 6 characters', async () => {

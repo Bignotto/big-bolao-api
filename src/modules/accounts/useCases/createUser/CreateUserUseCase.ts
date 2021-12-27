@@ -20,6 +20,9 @@ class CreateUserUseCase {
     const foundEmail = await this.usersRepository.findByEmail(email);
     if (foundEmail) throw new AppError('E-Mail address already taken.', 400);
 
+    if (password.length < 6)
+      throw new AppError('Password must have at least 6 characters.', 400);
+
     const newUser = await this.usersRepository.create({
       name,
       email,
