@@ -13,6 +13,7 @@
     "test:watch": "NODE_ENV=test jest --runInBand --detectOpenHandles --verbose --watchAll"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.17.2",
     "jest": "^27.4.5",
     "pg": "^8.7.1",

@@ -54,4 +54,24 @@ describe('Create User Use Case', () => {
       }),
     ).rejects.toBeInstanceOf(AppError);
   });
+
+  it('should encrypt user password', async () => {
+    const testUser = await createUserUseCase.execute({
+      name: 'Test user',
+      email: 'test@test.com',
+      password: '12345',
+    });
+
+    expect(testUser.password).not.toBe('12345');
+  });
+
+  it('should not be able to create user with password less than 6 characters', async () => {
+    await expect(async () =>
+      createUserUseCase.execute({
+        name: 'Test user',
+        email: 'test@test.com',
+        password: '12345',
+      }),
+    ).rejects.toBeInstanceOf(AppError);
+  });
 });
