@@ -5,10 +5,14 @@ import { IUserRepository } from '../../repositories/IUserRepository';
 import { UserMap } from '@modules/accounts/mapper/UserMap';
 
 import { hash } from 'bcryptjs';
-import { IUserResponseDTO } from '@modules/accounts/dtos/UserResponseDTO';
 
+import { inject, injectable } from 'tsyringe';
+
+@injectable()
 class CreateUserUseCase {
-  constructor(private usersRepository: IUserRepository) {}
+  constructor(
+    @inject('UsersRepository') private usersRepository: IUserRepository,
+  ) {}
 
   async execute({
     name,

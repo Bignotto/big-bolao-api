@@ -4,6 +4,7 @@ import { IUserRepository } from '../../repositories/IUserRepository';
 
 import { sign } from 'jsonwebtoken';
 import auth from '@config/auth';
+import { inject, injectable } from 'tsyringe';
 
 interface IRequest {
   email: string;
@@ -19,8 +20,11 @@ interface IResponse {
   // refresh_token: string;
 }
 
+@injectable()
 class AuthenticateUserUseCase {
-  constructor(private usersRepository: IUserRepository) {}
+  constructor(
+    @inject('UsersRepository') private usersRepository: IUserRepository,
+  ) {}
 
   async execute({ email, password }: IRequest): Promise<IResponse> {
     const user = await this.usersRepository.findByEmail(email);
