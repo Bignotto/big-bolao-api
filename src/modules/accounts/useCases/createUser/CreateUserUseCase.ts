@@ -1,5 +1,5 @@
 import { User } from '../../entities/User';
-import { AppError } from '../../../../shared/errors/AppError';
+import { AppError } from '@shared/errors/AppError';
 import { ICreateUserDTO } from '../../dtos/CreateUserDTO';
 import { IUserRepository } from '../../repositories/IUserRepository';
 

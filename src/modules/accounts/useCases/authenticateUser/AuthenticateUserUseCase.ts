@@ -1,9 +1,9 @@
 import { compare } from 'bcryptjs';
-import { AppError } from '../../../../shared/errors/AppError';
+import { AppError } from '@shared/errors/AppError';
 import { IUserRepository } from '../../repositories/IUserRepository';
 
 import { sign } from 'jsonwebtoken';
-import auth from '../../../../config/auth';
+import auth from '@config/auth';
 
 interface IRequest {
   email: string;

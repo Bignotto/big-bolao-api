@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { User } from '../../entities/User';
-import { UserPrismaRepository } from '../../repositories/prisma/UserPrismaRepository';
 import { UserTypeOrmRepository } from '../../repositories/typeorm/UserTypeOrmRepository';
 import { CreateUserUseCase } from './CreateUserUseCase';
 
