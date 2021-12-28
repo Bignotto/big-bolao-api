@@ -4,9 +4,13 @@ import { ICreateUserDTO } from '../../dtos/CreateUserDTO';
 import { IUserRepository } from '../../repositories/IUserRepository';
 
 import { hash } from 'bcryptjs';
+import { inject, injectable } from 'tsyringe';
 
+@injectable()
 class CreateUserUseCase {
-  constructor(private usersRepository: IUserRepository) {}
+  constructor(
+    @inject('UsersRepository') private usersRepository: IUserRepository,
+  ) {}
 
   async execute({
     name,

@@ -1,8 +1,14 @@
 import 'reflect-metadata';
+import 'express-async-errors';
 //import "dotenv/config";
-import express from 'express';
-import { usersRoutes } from './routes/users.routes';
+
+import express, { NextFunction, Request, Response } from 'express';
 import createConnection from '../typeorm';
+
+import { usersRoutes } from './routes/users.routes';
+import { AppError } from '@shared/errors/AppError';
+
+import '@shared/container';
 
 createConnection();
 
@@ -19,6 +25,22 @@ app.get('/', (request, response) =>
     author: 'Thiago Bignotto',
     contact: 'bignotto@gmail.com',
   }),
+);
+
+app.use(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (err: Error, request: Request, response: Response, next: NextFunction) => {
+    if (err instanceof AppError) {
+      return response.status(err.statusCode).json({
+        message: err.message,
+      });
+    }
+    return response.status(500).json({
+      status: 'error',
+      message: `Internal server error - ${err.message}`,
+      err,
+    });
+  },
 );
 
 export { app };
