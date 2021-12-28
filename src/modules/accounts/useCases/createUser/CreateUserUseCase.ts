@@ -2,8 +2,10 @@ import { User } from '../../entities/User';
 import { AppError } from '@shared/errors/AppError';
 import { ICreateUserDTO } from '../../dtos/CreateUserDTO';
 import { IUserRepository } from '../../repositories/IUserRepository';
+import { UserMap } from '@modules/accounts/mapper/UserMap';
 
 import { hash } from 'bcryptjs';
+
 import { inject, injectable } from 'tsyringe';
 
 @injectable()
@@ -19,7 +21,7 @@ class CreateUserUseCase {
     favTeam,
     profile,
     avatar,
-  }: ICreateUserDTO): Promise<User> {
+  }: ICreateUserDTO): Promise<IUserResponseDTO> {
     if (!email || !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))
       throw new AppError('E-Mail address is invalid.', 400);
 
@@ -39,7 +41,8 @@ class CreateUserUseCase {
       profile,
       avatar,
     });
-    return newUser;
+    const user = UserMap.toDto(newUser);
+    return user;
   }
 }
 
