@@ -1,16 +1,16 @@
 import 'reflect-metadata';
 //import "dotenv/config";
-import express, { NextFunction, Request, Response } from 'express';
-import { CreateUserController } from './modules/accounts/useCases/createUser/CreateUserController';
-
-import createConnection from './shared/infra/typeorm';
+import express from 'express';
+import { usersRoutes } from './routes/users.routes';
+import createConnection from '../typeorm';
 
 createConnection();
 
 const app = express();
-const createUserController = new CreateUserController();
 
 app.use(express.json());
+
+app.use('/users', usersRoutes);
 
 app.get('/', (request, response) =>
   response.status(200).json({
@@ -21,5 +21,4 @@ app.get('/', (request, response) =>
   }),
 );
 
-app.post('/users', createUserController.handle);
 export { app };
