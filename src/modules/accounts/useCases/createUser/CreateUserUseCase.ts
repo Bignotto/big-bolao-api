@@ -1,4 +1,3 @@
-import { User } from '../../entities/User';
 import { AppError } from '@shared/errors/AppError';
 import { ICreateUserDTO } from '../../dtos/CreateUserDTO';
 import { IUserRepository } from '../../repositories/IUserRepository';
@@ -7,6 +6,7 @@ import { UserMap } from '@modules/accounts/mapper/UserMap';
 import { hash } from 'bcryptjs';
 
 import { inject, injectable } from 'tsyringe';
+import { IUserResponseDTO } from '@modules/accounts/dtos/UserResponseDTO';
 
 @injectable()
 class CreateUserUseCase {
