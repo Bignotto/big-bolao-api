@@ -2,6 +2,8 @@ import { AppError } from '@shared/errors/AppError';
 import { UserInMemoryRepository } from '../../repositories/inMemory/UserInMemoryRepository';
 import { CreateUserUseCase } from './CreateUserUseCase';
 
+import bcryptjs from 'bcryptjs';
+
 let createUserUseCase: CreateUserUseCase;
 let userRepository: UserInMemoryRepository;
 
@@ -56,13 +58,14 @@ describe('Create User Use Case', () => {
   });
 
   it('should encrypt user password', async () => {
-    const testUser = await createUserUseCase.execute({
+    const hashPassword = jest.spyOn(bcryptjs, 'hash');
+    await createUserUseCase.execute({
       name: 'Test user',
       email: 'test@test.com',
       password: '123456',
     });
 
-    expect(testUser.password).not.toBe('123456');
+    expect(hashPassword).toHaveBeenCalledWith('123456', 8);
   });
 
   it('should not be able to create user with password less than 6 characters', async () => {
