@@ -6,6 +6,8 @@ import express, { NextFunction, Request, Response } from 'express';
 import createConnection from '../typeorm';
 
 import { usersRoutes } from './routes/users.routes';
+import { authRoutes } from './routes/authentication.routes';
+
 import { AppError } from '@shared/errors/AppError';
 
 import '@shared/container';
@@ -17,6 +19,7 @@ const app = express();
 app.use(express.json());
 
 app.use('/users', usersRoutes);
+app.use('/auth', authRoutes);
 
 app.get('/', (request, response) =>
   response.status(200).json({
