@@ -15,11 +15,13 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "express": "^4.17.2",
+    "express-async-errors": "^3.1.1",
     "jest": "^27.4.5",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.7.1",
     "prisma": "^3.7.0",
     "reflect-metadata": "^0.1.13",
+    "tsyringe": "^4.6.0",
     "typeorm": "^0.2.41",
     "uuid": "^8.3.2"
   },
