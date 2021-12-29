@@ -1,5 +1,14 @@
 # Changelog
 
+## [2021-12-29] version 0.0.2
+
+### User Authentication
+
+Implemented user authentication and an express middleware to ensure authentication in certain routes
+
+- implemented `GetUserRepository` class to resolve dependcy in middleware
+- implemented listing users to validate middleware implementation
+
 ## [2021-12-24] version 0.0.1
 
 ### Added TypeORM
@@ -9,7 +18,7 @@ Added TypeORM and configured it to work with Postgress.
 - Refactored `User.ts` file to include TypeORM anotations.
 - Created `ormconfig.json` file to define database connection to TypeORM.
 
-TypeORM connects to database when app.ts runs. Connection is created by calling `createConnection` function.
+TypeORM connects to database when `app.ts` runs. Connection is created by calling `createConnection` function.
 
 ## [2021-12-21] version 0.0.1
 
