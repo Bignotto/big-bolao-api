@@ -7,7 +7,6 @@ services:
     restart: always
     ports:
       - 5432:5432
-      - 9229:9229
     environment:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=ottongib
@@ -26,6 +25,7 @@ services:
       - PORT=3333
     ports:
       - 3333:3333
+      - 9229:9229
 
 volumes:
   dbdata:
