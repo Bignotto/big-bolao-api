@@ -5,6 +5,10 @@ import { IUserRepository } from '../IUserRepository';
 class UserInMemoryRepository implements IUserRepository {
   users: User[] = [];
 
+  list(): Promise<User[]> {
+    return Promise.resolve(this.users);
+  }
+
   create({
     email,
     name,
@@ -27,7 +31,7 @@ class UserInMemoryRepository implements IUserRepository {
   }
 
   findByEmail(email: string): Promise<User> {
-    const found = this.users.find(u => (u.email === email));
+    const found = this.users.find(u => u.email === email);
     return Promise.resolve(found);
   }
 }
