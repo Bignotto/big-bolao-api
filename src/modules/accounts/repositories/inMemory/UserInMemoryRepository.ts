@@ -34,6 +34,11 @@ class UserInMemoryRepository implements IUserRepository {
     const found = this.users.find(u => u.email === email);
     return Promise.resolve(found);
   }
+
+  findById(id: string): Promise<User> {
+    const found = this.users.find(u => u.id === id);
+    return Promise.resolve(found);
+  }
 }
 
 export { UserInMemoryRepository };
