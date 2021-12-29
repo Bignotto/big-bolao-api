@@ -40,6 +40,16 @@ class UserTypeOrmRepository implements IUserRepository {
     });
     return found;
   }
+
+  async list(): Promise<User[]> {
+    const userList = await this.repository.find();
+    return userList;
+  }
+
+  async findById(id: string): Promise<User> {
+    const found = await this.repository.findByIds([id]);
+    return found[0];
+  }
 }
 
 export { UserTypeOrmRepository };
