@@ -1,6 +1,6 @@
 {
   "name": "big-bolao-api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Bolao da Copa API",
   "main": "index.js",
   "author": "Thiago Bignotto",
@@ -17,6 +17,7 @@
     "class-transformer": "^0.5.1",
     "express": "^4.17.2",
     "express-async-errors": "^3.1.1",
+    "generate-template-files": "^3.2.0",
     "jest": "^27.4.5",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.7.1",
