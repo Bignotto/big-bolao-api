@@ -2,9 +2,9 @@ import { getRepository, Repository } from 'typeorm';
 
 import { ICreateGroupDTO } from '@modules/groups/dtos/ICreateGroupDTO';
 import { Group } from '@modules/groups/entities/Group';
-import { IGropupRepository } from '../IGroupRepository';
+import { IGroupRepository } from '../IGroupRepository';
 
-class GroupTypeOrmRepository implements IGropupRepository {
+class GroupTypeOrmRepository implements IGroupRepository {
   private repository: Repository<Group>;
 
   constructor() {
@@ -31,3 +31,5 @@ class GroupTypeOrmRepository implements IGropupRepository {
     return newGroup;
   }
 }
+
+export { GroupTypeOrmRepository };

@@ -7,6 +7,7 @@ import createConnection from '../typeorm';
 
 import { usersRoutes } from './routes/users.routes';
 import { authRoutes } from './routes/authentication.routes';
+import { groupsRoutes } from './routes/groups.routes';
 
 import { AppError } from '@shared/errors/AppError';
 
@@ -20,6 +21,7 @@ app.use(express.json());
 
 app.use('/users', usersRoutes);
 app.use('/auth', authRoutes);
+app.use('/groups', groupsRoutes);
 
 app.get('/', (request, response) =>
   response.status(200).json({
@@ -41,7 +43,7 @@ app.use(
     return response.status(500).json({
       status: 'error',
       message: `Internal server error - ${err.message}`,
-      err,
+      erro: err,
     });
   },
 );
