@@ -1,5 +1,4 @@
 import { User } from '@modules/accounts/entities/User';
-import { Match } from '@modules/matches/entities/Match';
 import {
   Column,
   Entity,
