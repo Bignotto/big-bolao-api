@@ -16,7 +16,7 @@ generateTemplateFiles([
       pathAndFileNameDefaultCase: CaseConverterEnum.PascalCase,
     },
     onComplete: results => {
-      console.log(`results`, results);
+      console.log({ results });
     },
   },
 ]);

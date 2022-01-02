@@ -30,5 +30,7 @@ class Group {
     joinColumns: [{ name: 'group_id' }],
     inverseJoinColumns: [{ name: 'user_id' }],
   })
-  users: User[];
+  users?: User[];
 }
+
+export { Group };
