@@ -1,18 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('teams')
 class Team {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
+  @PrimaryColumn()
+  cuontry_code: string;
 
   @Column()
   name: string;
 
   @Column()
   foreign_name: string;
-
-  @Column()
-  cuontry_code: string;
 
   @Column()
   country_flag: string;
