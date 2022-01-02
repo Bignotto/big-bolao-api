@@ -4,11 +4,13 @@ import { IGroupRepository } from '../../repositories/IGroupRepository';
 
 import { Group } from '@modules/groups/entities/Group';
 import { ICreateGroupDTO } from '@modules/groups/dtos/ICreateGroupDTO';
+import { IUserRepository } from '@modules/accounts/repositories/IUserRepository';
 
 @injectable()
 class CreateGroupUseCase {
   constructor(
     @inject('GroupRepository') private groupRepository: IGroupRepository,
+    @inject('UsersRepository') private userRepository: IUserRepository,
   ) {}
 
   async execute({
@@ -17,12 +19,19 @@ class CreateGroupUseCase {
     password,
     users,
   }: ICreateGroupDTO): Promise<Group> {
+    const owner = await this.userRepository.findById(owner_id);
+
     const group = await this.groupRepository.create({
       description,
       owner_id,
       password,
-      users,
     });
+
+    group.users = [owner];
+
+    console.log({ group });
+
+    await this.groupRepository.create(group);
 
     return group;
   }

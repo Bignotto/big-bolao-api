@@ -13,7 +13,7 @@ export class CreateGroupsUsersTable1641133334988 implements MigrationInterface {
         columns: [
           {
             name: 'group_id',
-            type: 'int',
+            type: 'varchar',
           },
           {
             name: 'user_id',
