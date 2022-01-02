@@ -19,7 +19,10 @@ class Group {
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'id' })
-  owner_id: User;
+  owner: User;
+
+  @Column()
+  owner_id: string;
 
   @Column()
   password: string;
