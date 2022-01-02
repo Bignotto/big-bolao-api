@@ -9,10 +9,13 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 
+import ShortUniqueId from 'short-unique-id';
+const uid = new ShortUniqueId({ length: 8 });
+
 @Entity('groups')
 class Group {
   @PrimaryColumn()
-  id: number;
+  id: string;
 
   @Column()
   description: string;
@@ -34,6 +37,10 @@ class Group {
     inverseJoinColumns: [{ name: 'user_id' }],
   })
   users?: User[];
+
+  constructor() {
+    if (!this.id) this.id = uid();
+  }
 }
 
 export { Group };

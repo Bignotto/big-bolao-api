@@ -25,13 +25,8 @@ class CreateGroupUseCase {
       description,
       owner_id,
       password,
+      users: [owner],
     });
-
-    group.users = [owner];
-
-    console.log({ group });
-
-    await this.groupRepository.create(group);
 
     return group;
   }

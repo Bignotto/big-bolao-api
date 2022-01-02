@@ -13,9 +13,12 @@ let userRepository: UserInMemoryRepository;
 describe('Create Group Use Case', () => {
   beforeEach(() => {
     groupRepository = new GroupInMemoryRepository();
-    createGroupUseCase = new CreateGroupUseCase(groupRepository);
-
     userRepository = new UserInMemoryRepository();
+
+    createGroupUseCase = new CreateGroupUseCase(
+      groupRepository,
+      userRepository,
+    );
     createUserUseCase = new CreateUserUseCase(userRepository);
   });
 
@@ -34,7 +37,6 @@ describe('Create Group Use Case', () => {
       users: [user],
     });
 
-    console.log(createdGroup);
     expect(createdGroup).toHaveProperty('id');
   });
 });
