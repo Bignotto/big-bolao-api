@@ -11,22 +11,26 @@ class Guess {
 
   @ManyToOne(() => Match)
   @JoinColumn({ name: 'id' })
-  match_id: Match;
+  match: Match;
+
+  @Column()
+  match_id: number;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'id' })
+  user: User;
+
+  @Column()
   user_id: string;
 
   @ManyToOne(() => Group)
   @JoinColumn({ name: 'id' })
   group_id: string;
 
-  @ManyToOne(() => Team)
-  @JoinColumn({ name: 'country_code' })
+  @Column()
   home_team: number;
 
-  @ManyToOne(() => Team)
-  @JoinColumn({ name: 'country_code' })
+  @Column()
   away_team: number;
 }
 
