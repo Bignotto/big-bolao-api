@@ -1,6 +1,5 @@
 import { User } from '@modules/accounts/entities/User';
 import { Match } from '@modules/matches/entities/Match';
-import { Team } from '@modules/matches/entities/Team';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Group } from './Group';
 
@@ -25,6 +24,9 @@ class Guess {
 
   @ManyToOne(() => Group)
   @JoinColumn({ name: 'id' })
+  group: Group;
+
+  @Column()
   group_id: string;
 
   @Column()
