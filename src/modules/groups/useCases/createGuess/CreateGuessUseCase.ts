@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { inject, injectable } from 'tsyringe';
 
 import { IGuessRepository } from '../../repositories/IGuessRepository';
@@ -26,11 +25,11 @@ class CreateGuessUseCase {
   }: ICreateGuessDTO): Promise<Guess> {
     const user = await this.usersRepository.findById(user_id);
     if (!user)
-      throw new AppError("Can't register guess with invalid user.", 400);
+      throw new AppError("Can't register guess with invalid user.", 401);
 
-    //TODO: implement group repository function findById(id)
-
-    //const group = await this.groupRepository
+    const group = await this.groupRepository.findById(group_id);
+    if (!group)
+      throw new AppError("Cant't register guess with invalid group.", 401);
 
     const newGuess = await this.guessRepository.create({
       user_id,

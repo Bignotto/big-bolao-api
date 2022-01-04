@@ -23,6 +23,11 @@ class GroupInMemoryRepository implements IGroupRepository {
     this.groups.push(group);
     return Promise.resolve(group);
   }
+
+  findById(group_id: string): Promise<Group> {
+    const found = this.groups.find(g => g.id === group_id);
+    return Promise.resolve(found);
+  }
 }
 
 export { GroupInMemoryRepository };

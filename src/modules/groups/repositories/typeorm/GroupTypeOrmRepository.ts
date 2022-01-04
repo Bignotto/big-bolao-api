@@ -30,6 +30,11 @@ class GroupTypeOrmRepository implements IGroupRepository {
 
     return newGroup;
   }
+
+  async findById(group_id: string): Promise<Group> {
+    const found = await this.repository.findOne({ id: group_id });
+    return found;
+  }
 }
 
 export { GroupTypeOrmRepository };
