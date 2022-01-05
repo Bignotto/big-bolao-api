@@ -65,7 +65,7 @@ describe('Create Guess Use Case', () => {
       password: '123',
     });
 
-    const createdGuess = await createGuessUseCase.execute({
+    await createGuessUseCase.execute({
       user_id: user.id,
       group_id: group.id,
       match_id: 7,
@@ -73,7 +73,15 @@ describe('Create Guess Use Case', () => {
       away_team: 0,
     });
 
-    expect(createdGuess).toHaveProperty('id');
+    await expect(() =>
+      createGuessUseCase.execute({
+        user_id: user.id,
+        group_id: group.id,
+        match_id: 7,
+        home_team: 1,
+        away_team: 0,
+      }),
+    ).rejects.toBeInstanceOf(AppError);
   });
 
   it('should not be able to register guess with invalid user', async () => {

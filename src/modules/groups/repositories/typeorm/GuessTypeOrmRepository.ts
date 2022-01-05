@@ -2,13 +2,34 @@ import { getRepository, Repository } from 'typeorm';
 
 import { ICreateGuessDTO } from '@modules/groups/dtos/ICreateGuessDTO';
 import { Guess } from '@modules/groups/entities/Guess';
-import { IGuessRepository } from '../IGuessRepository';
+import { IGroupMatchUser, IGuessRepository } from '../IGuessRepository';
 
 class GuessTypeOrmRepository implements IGuessRepository {
   private repository: Repository<Guess>;
 
   constructor() {
     this.repository = getRepository(Guess);
+  }
+
+  async findByGroupMatchUser({
+    group_id,
+    match_id,
+    user_id,
+  }: IGroupMatchUser): Promise<Guess> {
+    const found = await this.repository.findOne({
+      user_id,
+      group_id,
+      match_id,
+    });
+    return found;
+  }
+
+  async findByUserId(user_id: string): Promise<Guess[]> {
+    const guesses = await this.repository.find({
+      user_id,
+    });
+
+    return guesses;
   }
 
   async create({

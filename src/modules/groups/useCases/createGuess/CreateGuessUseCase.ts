@@ -31,6 +31,13 @@ class CreateGuessUseCase {
     if (!group)
       throw new AppError("Cant't register guess with invalid group.", 401);
 
+    const guess = await this.guessRepository.findByGroupMatchUser({
+      group_id,
+      match_id,
+      user_id,
+    });
+    if (guess) throw new AppError("Cant't register guess twice.", 401);
+
     const newGuess = await this.guessRepository.create({
       user_id,
       group_id,
