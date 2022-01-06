@@ -11,7 +11,7 @@ class UpdateMatchResultUseCase {
   ) {}
 
   async execute(): Promise<Match> {
-    const result = await this.matchRepository.action();
+    const result = await this.matchRepository.updateMatch();
 
     return result;
   }
