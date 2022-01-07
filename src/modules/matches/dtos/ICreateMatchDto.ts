@@ -6,8 +6,8 @@ interface ICreateMatchDTO {
   match_location: string;
   match_stadium: string;
   match_date: Date;
-  home_team_score: number;
-  away_team_score: number;
+  home_team_score?: number;
+  away_team_score?: number;
 }
 
 export { ICreateMatchDTO };

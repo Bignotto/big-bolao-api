@@ -42,8 +42,17 @@ class MatchInMemoryRepository implements IMatchRepository {
     return Promise.resolve(this.matches);
   }
 
-  updateMatch(data: IMatchResultDTO): Promise<Match> {
-    throw new Error('Method not implemented.');
+  updateMatch({
+    match_id,
+    home_team_score,
+    away_team_score,
+  }: IMatchResultDTO): Promise<Match> {
+    const matchIdx = this.matches.findIndex(m => m.id === match_id);
+    if (matchIdx >= 0) {
+      this.matches[matchIdx].home_team_score = home_team_score;
+      this.matches[matchIdx].away_team_score = away_team_score;
+    }
+    return Promise.resolve(this.matches[matchIdx]);
   }
 }
 
