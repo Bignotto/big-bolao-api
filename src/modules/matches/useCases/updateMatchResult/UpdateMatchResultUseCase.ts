@@ -16,6 +16,7 @@ class UpdateMatchResultUseCase {
     home_team_score,
     away_team_score,
   }: IMatchResultDTO): Promise<Match> {
+    //TODO: implement this method in TypeORM Repository
     const result = await this.matchRepository.updateMatch({
       match_id,
       home_team_score,

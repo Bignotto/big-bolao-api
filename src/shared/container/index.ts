@@ -8,6 +8,8 @@ import { IGroupRepository } from '@modules/groups/repositories/IGroupRepository'
 
 import { GuessTypeOrmRepository } from '@modules/groups/repositories/typeorm/GuessTypeOrmRepository';
 import { IGuessRepository } from '@modules/groups/repositories/IGuessRepository';
+import { IMatchRepository } from '@modules/matches/repositories/IMatchRepository';
+import { MatchTypeOrmRepository } from '@modules/matches/repositories/typeorm/MatchTypeOrmRepository';
 
 container.registerSingleton<IUserRepository>(
   'UsersRepository',
@@ -22,4 +24,9 @@ container.registerSingleton<IGroupRepository>(
 container.registerSingleton<IGuessRepository>(
   'GuessRepository',
   GuessTypeOrmRepository,
+);
+
+container.registerSingleton<IMatchRepository>(
+  'MatchRepository',
+  MatchTypeOrmRepository,
 );
