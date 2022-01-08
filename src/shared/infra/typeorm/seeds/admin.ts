@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import { hash } from 'bcryptjs';
 import { v4 as uuidV4 } from 'uuid';
 

@@ -10,12 +10,18 @@ class Match {
   description: string;
 
   @ManyToOne(() => Team)
-  @JoinColumn({ name: 'country_code' })
-  home_team: Team;
+  @JoinColumn({ name: 'home_team' })
+  home_team_obj: Team;
+
+  @Column()
+  home_team: string;
 
   @ManyToOne(() => Team)
-  @JoinColumn({ name: 'country_code' })
-  away_team: Team;
+  @JoinColumn({ name: 'away_team' })
+  away_team_obj: Team;
+
+  @Column()
+  away_team: string;
 
   @Column()
   match_location: string;

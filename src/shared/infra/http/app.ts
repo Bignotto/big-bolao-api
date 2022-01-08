@@ -8,6 +8,7 @@ import createConnection from '../typeorm';
 import { usersRoutes } from './routes/users.routes';
 import { authRoutes } from './routes/authentication.routes';
 import { groupsRoutes } from './routes/groups.routes';
+import { matchRoutes } from './routes/matches.routes';
 
 import { AppError } from '@shared/errors/AppError';
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use('/users', usersRoutes);
 app.use('/auth', authRoutes);
 app.use('/groups', groupsRoutes);
+app.use('/matches', matchRoutes);
 
 app.get('/', (request, response) =>
   response.status(200).json({
