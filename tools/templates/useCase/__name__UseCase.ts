@@ -2,7 +2,7 @@ import { inject, injectable } from 'tsyringe';
 
 import { I__repo__(pascalCase)Repository } from '../../repositories/I__repo__(pascalCase)Repository';
 
-import { __repo__(pascalCase)} from "@modules/__module__(lowerCase)/entities/__repo__(pascalCase)"
+import { __repo__(pascalCase) } from "@modules/__module__(lowerCase)/entities/__repo__(pascalCase)"
 
 @injectable()
 class __name__(pascalCase)UseCase {
