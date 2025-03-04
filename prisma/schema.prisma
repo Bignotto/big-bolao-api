@@ -1,0 +1,254 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int                      @id @default(autoincrement())
+  username           String                   @unique
+  email              String                   @unique
+  passwordHash       String
+  fullName           String?
+  profileImageUrl    String?
+  createdAt          DateTime                 @default(now())
+  lastLogin          DateTime?
+  pools              PoolParticipant[]
+  createdPools       Pool[]                   @relation("PoolCreator")
+  predictions        Prediction[]
+  specialPredictions SpecialEventPrediction[]
+  notifications      Notification[]
+  leaderboardEntries Leaderboard[]
+
+  @@map("users")
+}
+
+model Tournament {
+  id        Int              @id @default(autoincrement())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  logoUrl   String?
+  status    TournamentStatus @default(UPCOMING)
+  createdAt DateTime         @default(now())
+  teams     TournamentTeam[]
+  matches   Match[]
+  pools     Pool[]
+
+  @@map("tournaments")
+}
+
+model Team {
+  id          Int              @id @default(autoincrement())
+  name        String
+  countryCode String?          @db.Char(3)
+  flagUrl     String?
+  createdAt   DateTime         @default(now())
+  homeMatches Match[]          @relation("HomeTeam")
+  awayMatches Match[]          @relation("AwayTeam")
+  tournaments TournamentTeam[]
+
+  @@map("teams")
+}
+
+model TournamentTeam {
+  tournamentId Int
+  teamId       Int
+  groupName    String?
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  team         Team       @relation(fields: [teamId], references: [id])
+
+  @@id([tournamentId, teamId])
+  @@map("tournament_teams")
+}
+
+model Match {
+  id               Int          @id @default(autoincrement())
+  tournamentId     Int
+  homeTeamId       Int
+  awayTeamId       Int
+  matchDatetime    DateTime
+  stadium          String?
+  stage            String
+  homeTeamScore    Int?
+  awayTeamScore    Int?
+  matchStatus      MatchStatus  @default(SCHEDULED)
+  hasExtraTime     Boolean      @default(false)
+  hasPenalties     Boolean      @default(false)
+  penaltyHomeScore Int?
+  penaltyAwayScore Int?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime?
+  tournament       Tournament   @relation(fields: [tournamentId], references: [id])
+  homeTeam         Team         @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam         Team         @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  predictions      Prediction[]
+
+  @@map("matches")
+}
+
+model Pool {
+  id                   Int                      @id @default(autoincrement())
+  tournamentId         Int
+  name                 String
+  description          String?
+  creatorId            Int
+  isPrivate            Boolean                  @default(false)
+  inviteCode           String?                  @unique
+  createdAt            DateTime                 @default(now())
+  maxParticipants      Int?
+  registrationDeadline DateTime?
+  tournament           Tournament               @relation(fields: [tournamentId], references: [id])
+  creator              User                     @relation("PoolCreator", fields: [creatorId], references: [id])
+  participants         PoolParticipant[]
+  scoringRules         ScoringRule?
+  specialEvents        SpecialEvent[]
+  predictions          Prediction[]
+  specialPredictions   SpecialEventPrediction[]
+  leaderboard          Leaderboard[]
+  prizeInformation     PrizeInformation[]
+
+  @@map("pools")
+}
+
+model PoolParticipant {
+  poolId   Int
+  userId   Int
+  joinedAt DateTime @default(now())
+  pool     Pool     @relation(fields: [poolId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@id([poolId, userId])
+  @@map("pool_participants")
+}
+
+model ScoringRule {
+  id                          Int     @id @default(autoincrement())
+  poolId                      Int     @unique
+  exactScorePoints            Int
+  correctWinnerGoalDiffPoints Int
+  correctWinnerPoints         Int
+  correctDrawPoints           Int
+  specialEventPoints          Int     @default(0)
+  knockoutMultiplier          Decimal @default(1.0) @db.Decimal(3, 2)
+  finalMultiplier             Decimal @default(1.0) @db.Decimal(3, 2)
+  pool                        Pool    @relation(fields: [poolId], references: [id])
+
+  @@map("scoring_rules")
+}
+
+model SpecialEvent {
+  id          Int                      @id @default(autoincrement())
+  poolId      Int
+  name        String
+  description String?
+  points      Int                      @default(5)
+  pool        Pool                     @relation(fields: [poolId], references: [id])
+  predictions SpecialEventPrediction[]
+
+  @@map("special_events")
+}
+
+model Prediction {
+  id                        Int       @id @default(autoincrement())
+  poolId                    Int
+  matchId                   Int
+  userId                    Int
+  predictedHomeScore        Int
+  predictedAwayScore        Int
+  predictedHasExtraTime     Boolean   @default(false)
+  predictedHasPenalties     Boolean   @default(false)
+  predictedPenaltyHomeScore Int?
+  predictedPenaltyAwayScore Int?
+  submittedAt               DateTime  @default(now())
+  updatedAt                 DateTime?
+  pointsEarned              Int?
+  pool                      Pool      @relation(fields: [poolId], references: [id])
+  match                     Match     @relation(fields: [matchId], references: [id])
+  user                      User      @relation(fields: [userId], references: [id])
+
+  @@unique([poolId, matchId, userId])
+  @@map("predictions")
+}
+
+model SpecialEventPrediction {
+  id           Int          @id @default(autoincrement())
+  eventId      Int
+  userId       Int
+  poolId       Int
+  prediction   String
+  submittedAt  DateTime     @default(now())
+  isCorrect    Boolean?
+  pointsEarned Int?
+  event        SpecialEvent @relation(fields: [eventId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  pool         Pool         @relation(fields: [poolId], references: [id])
+
+  @@unique([eventId, userId, poolId])
+  @@map("special_event_predictions")
+}
+
+model Leaderboard {
+  id                  Int       @id @default(autoincrement())
+  poolId              Int
+  userId              Int
+  totalPoints         Int       @default(0)
+  exactScoresCount    Int       @default(0)
+  correctWinnersCount Int       @default(0)
+  rank                Int?
+  lastUpdated         DateTime?
+  pool                Pool      @relation(fields: [poolId], references: [id])
+  user                User      @relation(fields: [userId], references: [id])
+
+  @@unique([poolId, userId])
+  @@map("leaderboard")
+}
+
+model Notification {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  message          String
+  isRead           Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  notificationType String?
+  user             User     @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model PrizeInformation {
+  id          Int    @id @default(autoincrement())
+  poolId      Int
+  rank        Int
+  description String
+  pool        Pool   @relation(fields: [poolId], references: [id])
+
+  @@unique([poolId, rank])
+  @@map("prize_information")
+}
+
+enum TournamentStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+
+  @@map("tournament_status")
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  POSTPONED
+
+  @@map("match_status")
+}
