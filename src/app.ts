@@ -3,6 +3,7 @@ import fastifyJwt from '@fastify/jwt';
 import fastify, { FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import { env } from './env/config';
+import { routes } from './http/routes';
 import { prisma } from './lib/prisma';
 
 // Create Fastify server
@@ -31,7 +32,7 @@ export const createServer = async (): Promise<FastifyInstance> => {
   //server.decorateRequest('user', null);
 
   // Register routes
-  //   await server.register(routes);
+  await server.register(routes);
 
   // Health check route
   server.get('/health', async () => {

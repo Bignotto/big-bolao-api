@@ -1,0 +1,14 @@
+GET http://localhost:3333/health
+
+###
+
+POST http://localhost:3333/users
+Content-Type: application/json
+
+{
+  "username": "bignotto",
+  "email": "dunha@gmail.com",
+  "passwordHash": "açldkjfalkjdflçakjsdf",
+  "fullName": "Dunha Dunha",
+  "profileImageUrl": ""
+}
