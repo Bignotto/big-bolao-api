@@ -13,15 +13,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AccountProvider {
+  GOOGLE
+  APPLE
+  EMAIL
+}
+
 model User {
-  id                 Int                      @id @default(autoincrement())
-  username           String                   @unique
+  id                 String                   @id @default(cuid())
+  fullName           String
   email              String                   @unique
-  passwordHash       String
-  fullName           String?
+  passwordHash       String?
   profileImageUrl    String?
   createdAt          DateTime                 @default(now())
   lastLogin          DateTime?
+  accountId          String?
+  accountProvider    AccountProvider?         @default(EMAIL)
   pools              PoolParticipant[]
   createdPools       Pool[]                   @relation("PoolCreator")
   predictions        Prediction[]
@@ -101,7 +108,7 @@ model Pool {
   tournamentId         Int
   name                 String
   description          String?
-  creatorId            Int
+  creatorId            String
   isPrivate            Boolean                  @default(false)
   inviteCode           String?                  @unique
   createdAt            DateTime                 @default(now())
@@ -122,7 +129,7 @@ model Pool {
 
 model PoolParticipant {
   poolId   Int
-  userId   Int
+  userId   String
   joinedAt DateTime @default(now())
   pool     Pool     @relation(fields: [poolId], references: [id])
   user     User     @relation(fields: [userId], references: [id])
@@ -162,7 +169,7 @@ model Prediction {
   id                        Int       @id @default(autoincrement())
   poolId                    Int
   matchId                   Int
-  userId                    Int
+  userId                    String
   predictedHomeScore        Int
   predictedAwayScore        Int
   predictedHasExtraTime     Boolean   @default(false)
@@ -183,7 +190,7 @@ model Prediction {
 model SpecialEventPrediction {
   id           Int          @id @default(autoincrement())
   eventId      Int
-  userId       Int
+  userId       String
   poolId       Int
   prediction   String
   submittedAt  DateTime     @default(now())
@@ -200,7 +207,7 @@ model SpecialEventPrediction {
 model Leaderboard {
   id                  Int       @id @default(autoincrement())
   poolId              Int
-  userId              Int
+  userId              String
   totalPoints         Int       @default(0)
   exactScoresCount    Int       @default(0)
   correctWinnersCount Int       @default(0)
@@ -215,7 +222,7 @@ model Leaderboard {
 
 model Notification {
   id               Int      @id @default(autoincrement())
-  userId           Int
+  userId           String
   message          String
   isRead           Boolean  @default(false)
   createdAt        DateTime @default(now())
