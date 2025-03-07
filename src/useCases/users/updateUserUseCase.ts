@@ -9,7 +9,7 @@ interface IUpdateUserRequest {
 }
 
 export class UpdateUserUseCase {
-  constructor(private usersRepository: IUsersRepository) {}
+  constructor(private usersRepository: IUsersRepository) { }
 
   async execute({ userId, email, fullName, profileImageUrl }: IUpdateUserRequest) {
     const user = await this.usersRepository.findById(userId);
@@ -18,15 +18,10 @@ export class UpdateUserUseCase {
       throw new ResourceNotFoundError(userId);
     }
 
-    const updatedData = {
-      ...(fullName && { fullName }),
-      ...(email && { email }),
-      ...(profileImageUrl && { profileImageUrl }),
-    };
-
-    const updatedUser = await this.usersRepository.update(userId, updatedData);
+    const updatedUser = await this.usersRepository.update(userId, {
+      fullName, email, profileImageUrl,
+    });
 
     return updatedUser;
   }
 }
-//NEXT: implement the controller and route for the updateUserUseCase

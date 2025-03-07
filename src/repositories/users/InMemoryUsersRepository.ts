@@ -40,7 +40,7 @@ export class InMemoryUsersRepository implements IUsersRepository {
 
     const user: User = {
       id: this.users[userIndex].id,
-      email: this.users[userIndex].email,
+      email: `${data.email ?? this.users[userIndex].email}`,
       passwordHash: this.users[userIndex].passwordHash,
       fullName: `${data.fullName ?? this.users[userIndex].fullName}`,
       profileImageUrl: `${data.profileImageUrl ?? this.users[userIndex].profileImageUrl}`,

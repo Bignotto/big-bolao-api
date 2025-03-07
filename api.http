@@ -11,3 +11,13 @@ Content-Type: application/json
   "fullName": "Dunha Dunha",
   "profileImageUrl": ""
 }
+
+###
+PUT http://localhost:3333/users/cm7z54t4d00002l6k4h2bvnw6
+Content-Type: application/json
+
+{
+  "email": "dunha2@gmail.com",
+  "fullName": "Dunha Dunha Dunha",
+  "profileImageUrl": ""
+}
