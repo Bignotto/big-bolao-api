@@ -37,6 +37,6 @@ export class CreateUserUseCase {
       accountProvider,
     });
 
-    return { user };
+    return user;
   }
 }

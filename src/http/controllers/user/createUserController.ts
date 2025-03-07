@@ -4,7 +4,6 @@ import { EmailInUseError } from '../../../global/errors/EmailInUseError';
 import { makeCreateUserUseCase } from '../../../useCases/users/factory/makeCreateUserUseCase';
 
 interface CreateUserControllerRequest {
-  username: string;
   email: string;
   passwordHash: string;
   fullName: string;
@@ -13,7 +12,6 @@ interface CreateUserControllerRequest {
 
 interface CreateUserControllerResponse {
   id: string;
-  username: string;
   email: string;
   fullName: string;
   profileImageUrl: string;
@@ -26,14 +24,13 @@ export async function CreateUserController(
   reply: FastifyReply
 ) {
   const createUserBodySchema = z.object({
-    username: z.string(),
     email: z.string().email(),
     passwordHash: z.string(),
     fullName: z.string(),
     profileImageUrl: z.string(),
   });
 
-  const { username, email, passwordHash, fullName, profileImageUrl } = createUserBodySchema.parse(
+  const { email, passwordHash, fullName, profileImageUrl } = createUserBodySchema.parse(
     request.body
   );
 
@@ -41,7 +38,6 @@ export async function CreateUserController(
     const createUserUseCase = makeCreateUserUseCase();
 
     const user = await createUserUseCase.execute({
-      username,
       email,
       passwordHash,
       fullName,
@@ -49,11 +45,7 @@ export async function CreateUserController(
     });
 
     return reply.status(201).send({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      fullName: user.fullName,
-      profileImageUrl: user.profileImageUrl,
+      user,
     });
   } catch (error) {
     if (error instanceof EmailInUseError) {

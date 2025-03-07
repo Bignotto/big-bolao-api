@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { IUsersRepository } from './IUsersRepository';
 
@@ -17,5 +17,22 @@ export class PrismaUsersRepository implements IUsersRepository {
     });
 
     return user;
+  }
+
+  async findById(id: string): Promise<User | null> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    return user;
+  }
+
+  async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data,
+    });
+    return updatedUser;
   }
 }
