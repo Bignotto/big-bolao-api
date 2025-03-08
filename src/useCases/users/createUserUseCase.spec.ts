@@ -14,7 +14,7 @@ describe('User Registration', () => {
   });
 
   it('should be able create new user', async () => {
-    const { user } = await sut.execute({
+    const user = await sut.execute({
       email: 'user@email.com',
       fullName: 'John Doe',
       accountProvider: 'EMAIL',
@@ -37,5 +37,16 @@ describe('User Registration', () => {
         accountProvider: 'EMAIL',
       })
     ).rejects.toBeInstanceOf(EmailInUseError);
+  });
+
+  it('should be able to create user with google account', async () => {
+    const user = await sut.execute({
+      email: 'user@email.com',
+      fullName: 'John Doe',
+      accountProvider: 'GOOGLE',
+    });
+
+    expect(user.id).toEqual(expect.any(String));
+    expect(user.accountProvider).toEqual('GOOGLE');
   });
 });
