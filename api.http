@@ -21,3 +21,6 @@ Content-Type: application/json
   "fullName": "Dunha Dunha Dunha",
   "profileImageUrl": ""
 }
+
+###
+GET http://localhost:3333/users/cm7yj4qnv000008gv6mueoiea
