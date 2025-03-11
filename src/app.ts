@@ -9,12 +9,12 @@ import { prisma } from './lib/prisma';
 // Create Fastify server
 export const createServer = async (): Promise<FastifyInstance> => {
   const server = fastify({
-    logger: {
-      level: process.env.LOG_LEVEL || 'info',
-      transport: {
-        target: 'pino-pretty',
-      },
-    },
+    // logger: {
+    //   level: process.env.LOG_LEVEL || 'error',
+    //   transport: {
+    //     target: 'pino-pretty',
+    //   },
+    // },
   });
 
   // Register plugins

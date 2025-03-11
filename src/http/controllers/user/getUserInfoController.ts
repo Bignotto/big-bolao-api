@@ -10,7 +10,7 @@ export async function GetUserInfoController(
   reply: FastifyReply
 ) {
   const getUserParamsSchema = z.object({
-    userId: z.string().cuid(),
+    userId: z.string(), //.cuid(),
   });
 
   const { userId } = getUserParamsSchema.parse(request.params);
