@@ -9,17 +9,20 @@ import { prisma } from './lib/prisma';
 // Create Fastify server
 export const createServer = async (): Promise<FastifyInstance> => {
   const server = fastify({
-    // logger: {
-    //   level: process.env.LOG_LEVEL || 'error',
-    //   transport: {
-    //     target: 'pino-pretty',
-    //   },
-    // },
+    logger:
+      env.NODE_ENV !== 'test'
+        ? {
+            level: env.LOG_LEVEL || 'error',
+            transport: {
+              target: 'pino-pretty',
+            },
+          }
+        : false,
   });
 
   // Register plugins
   await server.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET || 'super-secret-jwt-token',
+    secret: env.THE_APP_SECRET || 'super-secret-jwt-token',
   });
 
   await server.register(cors, {
