@@ -13,8 +13,9 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:3333/users/cm7z54t4d00002l6k4h2bvnw6
+PUT http://localhost:3333/users/cm7yj4qnv000008gv6mueoiea
 Content-Type: application/json
+Authorization: Bearer 
 
 {
   "email": "dunha2@gmail.com",
