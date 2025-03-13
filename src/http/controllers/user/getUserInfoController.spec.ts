@@ -1,13 +1,17 @@
 import { createServer } from '@/app';
 import { prisma } from '@/lib/prisma';
+import { getSupabaseAccessToken } from '@/test/mockJwt';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
 describe('Get User Info (e2e)', async () => {
   const app = await createServer();
+  let userId: string;
+  let token: string;
 
   beforeAll(async () => {
     await app.ready();
+    ({ token, userId } = await getSupabaseAccessToken(app));
   });
 
   afterAll(async () => {
@@ -15,7 +19,6 @@ describe('Get User Info (e2e)', async () => {
   });
 
   test('should return user info', async () => {
-    // create a test user first
     const user = await prisma.user.create({
       data: {
         email: 'test@example.com',
@@ -25,7 +28,10 @@ describe('Get User Info (e2e)', async () => {
       },
     });
 
-    const response = await request(app.server).get(`/users/${user.id}`).send();
+    const response = await request(app.server)
+      .get(`/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send();
 
     expect(response.statusCode).toEqual(200);
     expect(response.body.user).toEqual(
@@ -38,7 +44,10 @@ describe('Get User Info (e2e)', async () => {
   });
 
   test('should return 404 when user does not exist', async () => {
-    const response = await request(app.server).get('/users/non-existent-id').send();
+    const response = await request(app.server)
+      .get('/users/non-existent-id')
+      .set('Authorization', `Bearer ${token}`)
+      .send();
 
     expect(response.statusCode).toBe(404);
     expect(response.body).toEqual({
