@@ -17,9 +17,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3333),
   HOST: z.string().default('0.0.0.0'),
   LOG_LEVEL: z.string().default('info'),
-  //SUPABASE_URL: z.string(),
-  //SUPABASE_ANON_KEY: z.string(),
-  //TEST_USER_PASSWORD: z.string(),
+  SUPABASE_URL: z.string(),
+  SUPABASE_ANON_KEY: z.string(),
+  TEST_USER_PASSWORD: z.string(),
+  TEST_USER_EMAIL: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);
