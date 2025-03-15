@@ -30,24 +30,20 @@ export class CreatePoolUseCase {
     maxParticipants,
     registrationDeadline,
   }: ICreatePoolRequest) {
-    // Verify if creator exists
     const creator = await this.usersRepository.findById(creatorId);
 
     if (!creator) {
       throw new ResourceNotFoundError('User not found');
     }
 
-    // Verify if tournament exists
     const tournament = await this.tournamentsRepository.findById(tournamentId);
 
     if (!tournament) {
       throw new ResourceNotFoundError('Tournament not found');
     }
 
-    // Generate invite code for private pools
     const inviteCode = isPrivate ? randomUUID() : null;
 
-    // Create the pool
     const pool = await this.poolsRepository.create({
       name,
       description,
@@ -63,7 +59,6 @@ export class CreatePoolUseCase {
       registrationDeadline,
     });
 
-    // Create default scoring rules
     await this.poolsRepository.createScoringRules({
       pool: { connect: { id: pool.id } },
       exactScorePoints: 3,
@@ -75,7 +70,6 @@ export class CreatePoolUseCase {
       finalMultiplier: 2.0,
     });
 
-    // Add creator as a participant
     await this.poolsRepository.addParticipant({
       poolId: pool.id,
       userId: creatorId,

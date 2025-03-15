@@ -26,18 +26,19 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     return pool;
   }
 
-  //NEXT: move scoring info to pools table
-
   async createScoringRules(data: Prisma.ScoringRuleCreateInput): Promise<ScoringRule> {
     const newId = this.scoringRules.length + 1;
 
     const scoringRule: ScoringRule = {
       id: newId,
-      exactScore: data.exactScore as number,
-      winner: data.winner as number,
-      goalDifference: data.goalDifference as number,
       poolId: data.pool.connect?.id as number,
-      createdAt: new Date(),
+      correctDrawPoints: data.correctDrawPoints as number,
+      correctWinnerGoalDiffPoints: data.correctWinnerGoalDiffPoints as number,
+      correctWinnerPoints: data.correctWinnerPoints as number,
+      exactScorePoints: data.exactScorePoints as number,
+      finalMultiplier: new Prisma.Decimal(data.finalMultiplier as number),
+      knockoutMultiplier: new Prisma.Decimal(data.knockoutMultiplier as number),
+      specialEventPoints: data.specialEventPoints as number,
     };
 
     this.scoringRules.push(scoringRule);
@@ -54,7 +55,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
   }
 
   async findByInviteCode(inviteCode: string): Promise<Pool | null> {
-    const pool = this.pools.find((pool) => pool.code === inviteCode);
+    const pool = this.pools.find((pool) => pool.inviteCode === inviteCode);
     return pool || null;
   }
 
