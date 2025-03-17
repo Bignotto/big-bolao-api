@@ -8,4 +8,8 @@ export interface IPoolsRepository {
   findByInviteCode(inviteCode: string): Promise<Pool | null>;
   findByCreatorId(creatorId: string): Promise<Pool[]>;
   findByParticipantId(userId: string): Promise<Pool[]>;
+  getScoringRules(poolId: number): Promise<ScoringRule[]>;
+  getPoolParticipants(poolId: number): Promise<{ userId: string }[]>;
+  getPool(id: number): Promise<Pool | null>;
+  update(id: number, data: Prisma.PoolUpdateInput): Promise<Pool>;
 }

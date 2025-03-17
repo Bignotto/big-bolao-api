@@ -3,6 +3,39 @@ import { prisma } from '../../lib/prisma';
 import { IPoolsRepository } from './IPoolsRepository';
 
 export class PrismaPoolsRepository implements IPoolsRepository {
+  async getScoringRules(poolId: number): Promise<ScoringRule[]> {
+    const scoringRules = await prisma.scoringRule.findMany({
+      where: { poolId },
+    });
+
+    return scoringRules;
+  }
+
+  async getPoolParticipants(poolId: number): Promise<{ userId: string }[]> {
+    const participants = await prisma.poolParticipant.findMany({
+      where: { poolId },
+      select: { userId: true },
+    });
+
+    return participants;
+  }
+
+  async getPool(id: number): Promise<Pool | null> {
+    const pool = await prisma.pool.findUnique({
+      where: { id },
+    });
+
+    return pool;
+  }
+
+  async update(id: number, data: Prisma.PoolUpdateInput): Promise<Pool> {
+    const pool = await prisma.pool.update({
+      where: { id },
+      data,
+    });
+
+    return pool;
+  }
   async create(data: Prisma.PoolCreateInput): Promise<Pool> {
     const pool = await prisma.pool.create({
       data,
