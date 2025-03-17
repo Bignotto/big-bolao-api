@@ -26,6 +26,51 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     return pool;
   }
 
+  async getScoringRules(poolId: number): Promise<ScoringRule[]> {
+    return this.scoringRules.filter((rule) => rule.poolId === poolId);
+  }
+
+  async getPoolParticipants(poolId: number): Promise<{ poolId: number; userId: string }[]> {
+    return this.participants.filter((participant) => participant.poolId === poolId);
+  }
+
+  async getPool(poolId: number): Promise<Pool | null> {
+    return this.findById(poolId);
+  }
+
+  async update(id: number, data: Prisma.PoolUpdateInput): Promise<Pool> {
+    const poolIndex = this.pools.findIndex((pool) => pool.id === id);
+    if (poolIndex === -1) {
+      throw new Error('Pool not found');
+    }
+
+    const updatedPool: Pool = {
+      ...this.pools[poolIndex],
+      name: typeof data.name === 'string' ? data.name : this.pools[poolIndex].name,
+      description:
+        typeof data.description === 'string' ? data.description : this.pools[poolIndex].description,
+      isPrivate:
+        typeof data.isPrivate === 'boolean' ? data.isPrivate : this.pools[poolIndex].isPrivate,
+      inviteCode:
+        typeof data.inviteCode === 'string' ? data.inviteCode : this.pools[poolIndex].inviteCode,
+      maxParticipants:
+        typeof data.maxParticipants === 'number'
+          ? data.maxParticipants
+          : this.pools[poolIndex].maxParticipants,
+      registrationDeadline:
+        data.registrationDeadline instanceof Date
+          ? data.registrationDeadline
+          : this.pools[poolIndex].registrationDeadline,
+      tournamentId: data.tournament?.connect?.id ?? this.pools[poolIndex].tournamentId,
+      creatorId: data.creator?.connect?.id ?? this.pools[poolIndex].creatorId,
+      createdAt: this.pools[poolIndex].createdAt,
+      id: this.pools[poolIndex].id,
+    };
+
+    this.pools[poolIndex] = updatedPool as Pool;
+    return updatedPool as Pool;
+  }
+
   async createScoringRules(data: Prisma.ScoringRuleCreateInput): Promise<ScoringRule> {
     const newId = this.scoringRules.length + 1;
 
