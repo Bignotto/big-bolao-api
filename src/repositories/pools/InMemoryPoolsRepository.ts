@@ -1,10 +1,11 @@
 import { Pool, Prisma, ScoringRule } from '@prisma/client';
-import { IPoolsRepository } from './IPoolsRepository';
+
+import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
 
 export class InMemoryPoolsRepository implements IPoolsRepository {
   private pools: Pool[] = [];
   private scoringRules: ScoringRule[] = [];
-  private participants: { poolId: number; userId: string }[] = [];
+  private participants: { poolId: number; userId: string; joinedAt: Date }[] = [];
 
   async create(data: Prisma.PoolCreateInput): Promise<Pool> {
     const newId = this.pools.length + 1;
@@ -34,8 +35,20 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     return this.participants.filter((participant) => participant.poolId === poolId);
   }
 
-  async getPool(poolId: number): Promise<Pool | null> {
-    return this.findById(poolId);
+  async getPool(poolId: number): Promise<PoolCompleteInfo | null> {
+    const participants = this.participants.filter((participant) => participant.poolId === poolId);
+    const pool = this.pools.find((pool) => pool.id === poolId);
+    const scoringRules = this.scoringRules.filter((rule) => rule.poolId === poolId);
+
+    if (!pool) {
+      return null;
+    }
+
+    return {
+      ...pool,
+      participants,
+      scoringRules: scoringRules[0],
+    };
   }
 
   async update(id: number, data: Prisma.PoolUpdateInput): Promise<Pool> {
@@ -91,7 +104,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
   }
 
   async addParticipant(data: { poolId: number; userId: string }): Promise<void> {
-    this.participants.push(data);
+    this.participants.push({ ...data, joinedAt: new Date() });
   }
 
   async findById(id: number): Promise<Pool | null> {

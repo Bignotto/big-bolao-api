@@ -1,5 +1,9 @@
 import { Pool, Prisma, ScoringRule } from '@prisma/client';
 
+export type PoolCompleteInfo = Prisma.PoolGetPayload<{
+  include: { participants: true; scoringRules: true };
+}>;
+
 export interface IPoolsRepository {
   create(data: Prisma.PoolCreateInput): Promise<Pool>;
   createScoringRules(data: Prisma.ScoringRuleCreateInput): Promise<ScoringRule>;
@@ -10,6 +14,6 @@ export interface IPoolsRepository {
   findByParticipantId(userId: string): Promise<Pool[]>;
   getScoringRules(poolId: number): Promise<ScoringRule[]>;
   getPoolParticipants(poolId: number): Promise<{ userId: string }[]>;
-  getPool(id: number): Promise<Pool | null>;
+  getPool(id: number): Promise<PoolCompleteInfo | null>;
   update(id: number, data: Prisma.PoolUpdateInput): Promise<Pool>;
 }
