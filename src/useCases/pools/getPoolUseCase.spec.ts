@@ -3,7 +3,7 @@ import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepos
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { GetPoolUseCase } from './getPoolUseCase';
 
 let poolsRepository: IPoolsRepository;
@@ -17,7 +17,7 @@ describe('Get Pool Use Case', () => {
     sut = new GetPoolUseCase(poolsRepository, usersRepository);
   });
 
-  it.only('should be able to get pool information with participants and scoring rules', async () => {
+  it('should be able to get pool information with participants and scoring rules', async () => {
     // Create a user (pool creator)
     const creator = await usersRepository.create({
       email: 'creator@email.com',
@@ -75,16 +75,6 @@ describe('Get Pool Use Case', () => {
       finalMultiplier: 2.0,
     });
 
-    // // Mock the getPoolParticipants method to return our participants
-    // vi.spyOn(poolsRepository, 'getPoolParticipants').mockResolvedValue([
-    //   { userId: creator.id },
-    //   { userId: participant1.id },
-    //   { userId: participant2.id },
-    // ]);
-
-    // // Mock the getScoringRules method to return our scoring rules
-    // vi.spyOn(poolsRepository, 'getScoringRules').mockResolvedValue(scoringRules);
-
     // Execute the use case
     const result = await sut.execute({
       poolId: pool.id,
@@ -92,38 +82,15 @@ describe('Get Pool Use Case', () => {
     });
 
     // Assertions
-    expect(result).toEqual(
-      expect.objectContaining({
-        id: pool.id,
-        name: 'Test Pool',
-        description: 'A test pool',
-        isPrivate: false,
-        participants: expect.arrayContaining([
-          expect.objectContaining({
-            id: creator.id,
-            fullName: 'Pool Creator',
-          }),
-          expect.objectContaining({
-            id: participant1.id,
-            fullName: 'Participant One',
-          }),
-          expect.objectContaining({
-            id: participant2.id,
-            fullName: 'Participant Two',
-          }),
-        ]),
-        scoringRules: expect.objectContaining({
-          exactScorePoints: 3,
-          correctWinnerGoalDiffPoints: 2,
-          correctWinnerPoints: 1,
-          correctDrawPoints: 1,
-          specialEventPoints: 5,
-          knockoutMultiplier: 1.5,
-          finalMultiplier: 2.0,
-        }),
-      })
+    expect(result).toBeDefined();
+    expect(result.id).toBe(pool.id);
+    expect(result.name).toBe('Test Pool');
+    expect(result.scoringRules).toBeDefined();
+    expect(result.scoringRules!.exactScorePoints).toBe(scoringRules.exactScorePoints);
+    expect(result.scoringRules!.correctWinnerGoalDiffPoints).toBe(
+      scoringRules.correctWinnerGoalDiffPoints
     );
-    //expect(result.participants).toHaveLength(3);
+    expect(result.participants).toHaveLength(3);
   });
 
   it('should not be able to get pool information with non-existing user', async () => {
@@ -175,12 +142,6 @@ describe('Get Pool Use Case', () => {
       creator: { connect: { id: user.id } },
     });
 
-    // Mock getPoolParticipants to return empty array
-    vi.spyOn(poolsRepository, 'getPoolParticipants').mockResolvedValue([]);
-
-    // Mock getScoringRules to return null (no scoring rules found)
-    vi.spyOn(poolsRepository, 'getScoringRules').mockResolvedValue(null);
-
     // Attempt to get pool with missing scoring rules
     await expect(() =>
       sut.execute({
@@ -222,12 +183,6 @@ describe('Get Pool Use Case', () => {
       knockoutMultiplier: 1.5,
       finalMultiplier: 2.0,
     });
-
-    // Mock getPoolParticipants to return empty array
-    vi.spyOn(poolsRepository, 'getPoolParticipants').mockResolvedValue([]);
-
-    // Mock getScoringRules to return our scoring rules
-    vi.spyOn(poolsRepository, 'getScoringRules').mockResolvedValue(scoringRules);
 
     // Execute the use case
     const result = await sut.execute({

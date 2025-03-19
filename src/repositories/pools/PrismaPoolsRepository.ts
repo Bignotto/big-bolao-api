@@ -1,6 +1,6 @@
 import { Pool, Prisma, ScoringRule } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
-import { IPoolsRepository } from './IPoolsRepository';
+import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
 
 export class PrismaPoolsRepository implements IPoolsRepository {
   async getScoringRules(poolId: number): Promise<ScoringRule[]> {
@@ -20,11 +20,14 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return participants;
   }
 
-  async getPool(id: number): Promise<Pool | null> {
+  async getPool(id: number): Promise<PoolCompleteInfo | null> {
+    console.log('Pool: repository', id);
     const pool = await prisma.pool.findUnique({
       where: { id },
+      include: { participants: true, scoringRules: true },
     });
 
+    console.log('Pool: repository', pool);
     return pool;
   }
 

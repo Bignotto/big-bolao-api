@@ -19,33 +19,23 @@ export class GetPoolUseCase {
       throw new ResourceNotFoundError('User not found');
     }
 
-    const pool = await this.poolsRepository.findById(poolId);
+    const pool = await this.poolsRepository.getPool(poolId);
     if (!pool) {
       throw new ResourceNotFoundError('Pool not found');
     }
 
-    console.log('Pool:', pool);
+    // Check if the user is a participant in the pool or the creator
+    const participants = await this.poolsRepository.getPoolParticipants(poolId);
+    const isParticipant = participants.some((participant) => participant.userId === user.id);
 
-    // const participants = await this.poolsRepository.getPoolParticipants(poolId);
+    if (!isParticipant && pool.creatorId !== user.id) {
+      throw new ResourceNotFoundError('User is not a participant or the creator of the pool');
+    }
 
-    // const scoringRules = await this.poolsRepository.getScoringRules(poolId);
-    // if (!scoringRules) {
-    //   throw new ResourceNotFoundError('Scoring rules not found for this pool');
-    // }
+    if (!pool.scoringRules) {
+      throw new ResourceNotFoundError('Scoring rules not found for this pool');
+    }
 
-    // const participantsDetails = await Promise.all(
-    //   participants.map(async (participant) => {
-    //     const userDetails = await this.usersRepository.findById(participant.userId);
-    //     return {
-    //       id: userDetails?.id,
-    //       fullName: userDetails?.fullName,
-    //       profileImageUrl: userDetails?.profileImageUrl,
-    //     };
-    //   })
-    // );
-
-    // Return combined pool information
-    //NEXT: Fix how get pool will return the pool information
     return pool;
   }
 }
