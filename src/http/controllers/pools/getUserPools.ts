@@ -1,5 +1,5 @@
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { makeGetUserPoolsUseCase } from '@/useCases/pools/factories/makeGetUserPoolsUseCase';
+import { makeGetUserPoolsUseCase } from '@/useCases/pools/factory/makeGetUserPoolsUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function getUserPools(request: FastifyRequest, reply: FastifyReply) {
