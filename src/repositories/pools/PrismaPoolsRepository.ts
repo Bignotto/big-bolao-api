@@ -96,4 +96,15 @@ export class PrismaPoolsRepository implements IPoolsRepository {
 
     return poolParticipants.map((participant) => participant.pool);
   }
+
+  async removeParticipant({ poolId, userId }: { poolId: number; userId: string }) {
+    await prisma.poolParticipant.delete({
+      where: {
+        poolId_userId: {
+          poolId,
+          userId,
+        },
+      },
+    });
+  }
 }
