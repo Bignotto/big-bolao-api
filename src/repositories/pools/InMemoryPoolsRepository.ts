@@ -130,4 +130,16 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
       (pool) => participantPoolIds.includes(pool.id) || pool.creatorId === userId
     );
   }
+
+  async removeParticipant({ poolId, userId }: { poolId: number; userId: string }) {
+    const participantIndex = this.participants.findIndex(
+      (participant) => participant.poolId === poolId && participant.userId === userId
+    );
+
+    if (participantIndex === -1) {
+      throw new Error('Participant not found');
+    }
+
+    this.participants.splice(participantIndex, 1);
+  }
 }
