@@ -1,0 +1,475 @@
+import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
+import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
+import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemoryPredictionsRepository';
+import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
+import { MatchStatus } from '@prisma/client';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { CreatePredictionUseCase } from './createPredictionUseCase';
+
+describe('Create Prediction Use Case', () => {
+  let predictionsRepository: InMemoryPredictionsRepository;
+  let poolsRepository: InMemoryPoolsRepository;
+  let usersRepository: InMemoryUsersRepository;
+  let matchesRepository: InMemoryMatchesRepository;
+  let sut: CreatePredictionUseCase;
+
+  beforeEach(() => {
+    predictionsRepository = new InMemoryPredictionsRepository();
+    poolsRepository = new InMemoryPoolsRepository();
+    usersRepository = new InMemoryUsersRepository();
+    matchesRepository = new InMemoryMatchesRepository();
+    sut = new CreatePredictionUseCase(
+      predictionsRepository,
+      poolsRepository,
+      usersRepository,
+      matchesRepository
+    );
+  });
+
+  it('should create a prediction successfully', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-06-15T15:00:00Z'),
+      stage: 'Group Stage',
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // Create prediction
+    const prediction = await sut.execute({
+      userId: user.id,
+      matchId: match.id,
+      poolId: pool.id,
+      predictedHomeScore: 2,
+      predictedAwayScore: 1,
+    });
+
+    expect(prediction).toBeTruthy();
+    expect(prediction.predictedHomeScore).toBe(2);
+    expect(prediction.predictedAwayScore).toBe(1);
+    expect(prediction.userId).toBe(user.id);
+    expect(prediction.matchId).toBe(match.id);
+    expect(prediction.poolId).toBe(pool.id);
+  });
+
+  it('should not allow prediction for a match that is not in SCHEDULED status', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a match that is already in progress
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-06-15T15:00:00Z'),
+      stage: 'Group Stage',
+      matchStatus: MatchStatus.IN_PROGRESS, // Match is already in progress
+    });
+
+    // Attempt to create prediction for a match in progress
+    await expect(
+      sut.execute({
+        userId: user.id,
+        matchId: match.id,
+        poolId: pool.id,
+        predictedHomeScore: 2,
+        predictedAwayScore: 1,
+      })
+    ).rejects.toThrow('Predictions can only be made for upcoming matches');
+  });
+
+  it('should not allow duplicate predictions for the same match, user and pool', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-06-15T15:00:00Z'),
+      stage: 'Group Stage',
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // Create first prediction
+    await sut.execute({
+      userId: user.id,
+      matchId: match.id,
+      poolId: pool.id,
+      predictedHomeScore: 2,
+      predictedAwayScore: 1,
+    });
+
+    // Attempt to create a second prediction for the same match, user and pool
+    await expect(
+      sut.execute({
+        userId: user.id,
+        matchId: match.id,
+        poolId: pool.id,
+        predictedHomeScore: 3,
+        predictedAwayScore: 0,
+      })
+    ).rejects.toThrow('Prediction already exists for this match in this pool');
+  });
+
+  it('should create a prediction with extra time and penalties', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a knockout stage match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-07-10T15:00:00Z'),
+      stage: 'Quarter-final',
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // Create prediction with extra time and penalties
+    const prediction = await sut.execute({
+      userId: user.id,
+      matchId: match.id,
+      poolId: pool.id,
+      predictedHomeScore: 1,
+      predictedAwayScore: 1,
+      predictedHasExtraTime: true,
+      predictedHasPenalties: true,
+      predictedPenaltyHomeScore: 5,
+      predictedPenaltyAwayScore: 4,
+    });
+
+    expect(prediction).toBeTruthy();
+    expect(prediction.predictedHomeScore).toBe(1);
+    expect(prediction.predictedAwayScore).toBe(1);
+    expect(prediction.predictedHasExtraTime).toBe(true);
+    expect(prediction.predictedHasPenalties).toBe(true);
+    expect(prediction.predictedPenaltyHomeScore).toBe(5);
+    expect(prediction.predictedPenaltyAwayScore).toBe(4);
+  });
+
+  it('should not allow a user to create a prediction if they are not a participant in the pool', async () => {
+    // Create two users
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    const anotherUser = await usersRepository.create({
+      fullName: 'Jane Smith',
+      email: 'jane@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: true,
+    });
+
+    // Add only the first user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-06-15T15:00:00Z'),
+      stage: 'Group Stage',
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // Attempt to create prediction with a user who is not a participant
+    await expect(
+      sut.execute({
+        userId: anotherUser.id,
+        matchId: match.id,
+        poolId: pool.id,
+        predictedHomeScore: 2,
+        predictedAwayScore: 1,
+      })
+    ).rejects.toThrow('User is not a participant in this pool');
+  });
+
+  it('should validate that penalty scores are provided when penalties are predicted', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a knockout stage match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-07-10T15:00:00Z'),
+      stage: 'Semi-final',
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // Attempt to create prediction with penalties but without penalty scores
+    await expect(
+      sut.execute({
+        userId: user.id,
+        matchId: match.id,
+        poolId: pool.id,
+        predictedHomeScore: 1,
+        predictedAwayScore: 1,
+        predictedHasExtraTime: true,
+        predictedHasPenalties: true,
+        // Missing penalty scores
+      })
+    ).rejects.toThrow('Penalty scores must be provided when penalties are predicted');
+  });
+});
