@@ -36,6 +36,11 @@ export class CreatePredictionUseCase {
     predictedPenaltyHomeScore,
     predictedPenaltyAwayScore,
   }: ICreatePredictionRequest) {
+    // Check predicted negative values
+    if (predictedHomeScore < 0 || predictedAwayScore < 0) {
+      throw new Error('Predicted scores cannot be negative');
+    }
+
     // Check if user exists
     const user = await this.usersRepository.findById(userId);
     if (!user) {
@@ -59,6 +64,11 @@ export class CreatePredictionUseCase {
     const match = await this.matchesRepository.findById(matchId);
     if (!match) {
       throw new ResourceNotFoundError('Match not found');
+    }
+
+    // Check if match tournament is associated with the pool
+    if (match.tournamentId !== pool.tournamentId) {
+      throw new Error('Match does not belong to the tournament associated with this pool');
     }
 
     if (match.matchStatus !== MatchStatus.SCHEDULED) {
