@@ -2,7 +2,7 @@ import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatche
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemoryPredictionsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
-import { MatchStatus } from '@prisma/client';
+import { MatchStage, MatchStatus } from '@prisma/client';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CreatePredictionUseCase } from './createPredictionUseCase';
 
@@ -79,7 +79,7 @@ describe('Create Prediction Use Case', () => {
       homeTeam: { connect: { id: homeTeam.id } },
       awayTeam: { connect: { id: awayTeam.id } },
       matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: 'Group Stage',
+      stage: MatchStage.GROUP,
       matchStatus: MatchStatus.SCHEDULED,
     });
 
@@ -153,7 +153,7 @@ describe('Create Prediction Use Case', () => {
       homeTeam: { connect: { id: homeTeam.id } },
       awayTeam: { connect: { id: awayTeam.id } },
       matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: 'Group Stage',
+      stage: MatchStage.GROUP,
       matchStatus: MatchStatus.IN_PROGRESS, // Match is already in progress
     });
 
@@ -222,7 +222,7 @@ describe('Create Prediction Use Case', () => {
       homeTeam: { connect: { id: homeTeam.id } },
       awayTeam: { connect: { id: awayTeam.id } },
       matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: 'Group Stage',
+      stage: MatchStage.GROUP,
       matchStatus: MatchStatus.SCHEDULED,
     });
 
@@ -300,7 +300,7 @@ describe('Create Prediction Use Case', () => {
       homeTeam: { connect: { id: homeTeam.id } },
       awayTeam: { connect: { id: awayTeam.id } },
       matchDatetime: new Date('2026-07-10T15:00:00Z'),
-      stage: 'Quarter-final',
+      stage: MatchStage.QUARTER_FINAL,
       matchStatus: MatchStatus.SCHEDULED,
     });
 
@@ -385,7 +385,7 @@ describe('Create Prediction Use Case', () => {
       homeTeam: { connect: { id: homeTeam.id } },
       awayTeam: { connect: { id: awayTeam.id } },
       matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: 'Group Stage',
+      stage: MatchStage.GROUP,
       matchStatus: MatchStatus.SCHEDULED,
     });
 
@@ -454,7 +454,7 @@ describe('Create Prediction Use Case', () => {
       homeTeam: { connect: { id: homeTeam.id } },
       awayTeam: { connect: { id: awayTeam.id } },
       matchDatetime: new Date('2026-07-10T15:00:00Z'),
-      stage: 'Semi-final',
+      stage: MatchStage.SEMI_FINAL,
       matchStatus: MatchStatus.SCHEDULED,
     });
 
@@ -471,5 +471,220 @@ describe('Create Prediction Use Case', () => {
         // Missing penalty scores
       })
     ).rejects.toThrow('Penalty scores must be provided when penalties are predicted');
+  });
+
+  it('should not allow predictions for matches that have already started', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a match that is scheduled but the match time is in the past
+    const pastDate = new Date();
+    pastDate.setHours(pastDate.getHours() - 1); // 1 hour ago
+
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: pastDate,
+      stage: MatchStage.GROUP,
+      matchStatus: MatchStatus.IN_PROGRESS,
+    });
+
+    // Attempt to create prediction for a match that has already started
+    await expect(
+      sut.execute({
+        userId: user.id,
+        matchId: match.id,
+        poolId: pool.id,
+        predictedHomeScore: 2,
+        predictedAwayScore: 1,
+      })
+    ).rejects.toThrow('Predictions can only be made for upcoming matches');
+  });
+
+  it('should validate that extra time can only be predicted for knockout stage matches', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a group stage match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-06-15T15:00:00Z'),
+      stage: MatchStage.GROUP,
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // Attempt to create prediction with extra time for a group stage match
+    await expect(
+      sut.execute({
+        userId: user.id,
+        matchId: match.id,
+        poolId: pool.id,
+        predictedHomeScore: 1,
+        predictedAwayScore: 1,
+        predictedHasExtraTime: true, // Extra time not allowed for group stage
+      })
+    ).rejects.toThrow('Non knockout matches cannot have extra time or penalties');
+  });
+
+  it('should validate that penalties can only be predicted when scores are tied after extra time', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a knockout stage match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-07-10T15:00:00Z'),
+      stage: MatchStage.SEMI_FINAL,
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // Attempt to create prediction with penalties but with different scores (not tied)
+    await expect(
+      sut.execute({
+        userId: user.id,
+        matchId: match.id,
+        poolId: pool.id,
+        predictedHomeScore: 2,
+        predictedAwayScore: 1, // Not a tie
+        predictedHasExtraTime: true,
+        predictedHasPenalties: true,
+        predictedPenaltyHomeScore: 5,
+        predictedPenaltyAwayScore: 4,
+      })
+    ).rejects.toThrow('Penalties can only be predicted when scores are tied after extra time');
   });
 });

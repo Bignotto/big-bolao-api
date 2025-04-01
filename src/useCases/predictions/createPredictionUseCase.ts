@@ -3,7 +3,7 @@ import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { MatchStatus } from '@prisma/client';
+import { MatchStage, MatchStatus } from '@prisma/client';
 
 interface ICreatePredictionRequest {
   userId: string;
@@ -74,6 +74,15 @@ export class CreatePredictionUseCase {
 
     if (existingPrediction) {
       throw new Error('Prediction already exists for this match in this pool');
+    }
+
+    if (predictedHasExtraTime && match.stage === MatchStage.GROUP) {
+      throw new Error('Non knockout matches cannot have extra time or penalties');
+    }
+
+    // Validate scores are tied if extra time is predicted
+    if (predictedHasPenalties && predictedHomeScore !== predictedAwayScore) {
+      throw new Error('Penalties can only be predicted when scores are tied after extra time');
     }
 
     // Validate penalty scores if penalties are predicted
