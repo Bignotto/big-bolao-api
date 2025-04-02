@@ -834,4 +834,177 @@ describe('Create Prediction Use Case', () => {
       })
     ).rejects.toThrow('Predicted scores cannot be negative');
   });
+
+  //TODO: implement this when tournaments repository gets implemented
+  // it('should not allow predictions for tournaments with COMPLETED status', async () => {
+  //   // Create a user
+  //   const user = await usersRepository.create({
+  //     fullName: 'John Doe',
+  //     email: 'john@example.com',
+  //     passwordHash: 'hashed-password',
+  //   });
+
+  //   // Create a tournament with COMPLETED status
+  //   const tournament = {
+  //     id: 1,
+  //     name: 'World Cup 2022',
+  //     startDate: new Date('2022-11-20'),
+  //     endDate: new Date('2022-12-18'),
+  //     status: 'COMPLETED', // Tournament is already completed
+  //     createdAt: new Date(),
+  //   };
+
+  //   // Create a pool
+  //   const pool = await poolsRepository.create({
+  //     name: 'Test Pool',
+  //     tournament: { connect: { id: tournament.id } },
+  //     creator: { connect: { id: user.id } },
+  //     isPrivate: false,
+  //   });
+
+  //   // Add user as participant
+  //   await poolsRepository.addParticipant({
+  //     poolId: pool.id,
+  //     userId: user.id,
+  //   });
+
+  //   // Create teams
+  //   const homeTeam = {
+  //     id: 1,
+  //     name: 'Brazil',
+  //     countryCode: 'BRA',
+  //     createdAt: new Date(),
+  //   };
+
+  //   const awayTeam = {
+  //     id: 2,
+  //     name: 'Argentina',
+  //     countryCode: 'ARG',
+  //     createdAt: new Date(),
+  //   };
+
+  //   // Create a match
+  //   const match = await matchesRepository.create({
+  //     tournament: { connect: { id: tournament.id } },
+  //     homeTeam: { connect: { id: homeTeam.id } },
+  //     awayTeam: { connect: { id: awayTeam.id } },
+  //     matchDatetime: new Date('2022-12-18T15:00:00Z'),
+  //     stage: MatchStage.FINAL,
+  //     matchStatus: MatchStatus.SCHEDULED, // Match status is still SCHEDULED
+  //   });
+
+  //   // Attempt to create prediction for a completed tournament
+  //   await expect(
+  //     sut.execute({
+  //       userId: user.id,
+  //       matchId: match.id,
+  //       poolId: pool.id,
+  //       predictedHomeScore: 2,
+  //       predictedAwayScore: 1,
+  //     })
+  //   ).rejects.toThrow('Cannot create predictions for completed tournaments');
+  // });
+
+  it('should throw an error when trying to create a prediction for a non-existent pool', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-06-15T15:00:00Z'),
+      stage: MatchStage.GROUP,
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // Attempt to create prediction with a non-existent pool ID
+    const nonExistentPoolId = 999; // This pool ID doesn't exist
+
+    await expect(
+      sut.execute({
+        userId: user.id,
+        matchId: match.id,
+        poolId: nonExistentPoolId,
+        predictedHomeScore: 2,
+        predictedAwayScore: 1,
+      })
+    ).rejects.toThrow('Pool not found');
+  });
+
+  it('should throw an error when trying to create a prediction for a non-existent match', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Attempt to create prediction with a non-existent match ID
+    const nonExistentMatchId = 999; // This match ID doesn't exist
+
+    await expect(
+      sut.execute({
+        userId: user.id,
+        matchId: nonExistentMatchId,
+        poolId: pool.id,
+        predictedHomeScore: 2,
+        predictedAwayScore: 1,
+      })
+    ).rejects.toThrow('Match not found');
+  });
 });
