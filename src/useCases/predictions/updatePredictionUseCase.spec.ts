@@ -260,7 +260,7 @@ describe('Update Prediction Use Case', () => {
       awayTeam: { connect: { id: awayTeam.id } },
       matchDatetime: pastDate,
       stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.SCHEDULED, // Still scheduled in system but time has passed
+      matchStatus: MatchStatus.IN_PROGRESS, // Still scheduled in system but time has passed
     });
 
     // Create initial prediction (this would normally be created before the match started)
@@ -280,7 +280,7 @@ describe('Update Prediction Use Case', () => {
         predictedHomeScore: 3,
         predictedAwayScore: 0,
       })
-    ).rejects.toThrow('Cannot update predictions for matches that have already started');
+    ).rejects.toThrow('Predictions can only be updated for upcoming matches');
   });
 
   it('should update a prediction with extra time and penalties for knockout stage matches', async () => {
@@ -454,7 +454,223 @@ describe('Update Prediction Use Case', () => {
         predictedPenaltyHomeScore: 5,
         predictedPenaltyAwayScore: 4,
       })
-    ).rejects.toThrow('Penalties can only be predicted when scores are tied after extra time');
+    ).rejects.toThrow('Extra time can only be predicted when scores are tied');
+  });
+
+  it('should validate that penalty scores must be provided when hasPenalties is true during update', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a knockout stage match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-07-10T15:00:00Z'),
+      stage: MatchStage.QUARTER_FINAL,
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // First create a valid prediction
+    const initialPrediction = await predictionsRepository.create({
+      pool: { connect: { id: pool.id } },
+      match: { connect: { id: match.id } },
+      user: { connect: { id: user.id } },
+      predictedHomeScore: 0,
+      predictedAwayScore: 0,
+      predictedHasExtraTime: false,
+      predictedHasPenalties: false,
+    });
+
+    // Attempt to update prediction with hasPenalties=true but without penalty scores
+    await expect(
+      sut.execute({
+        predictionId: initialPrediction.id,
+        userId: user.id,
+        predictedHomeScore: 1,
+        predictedAwayScore: 1,
+        predictedHasExtraTime: true,
+        predictedHasPenalties: true,
+        // Missing penalty scores
+      })
+    ).rejects.toThrow('Penalty scores must be provided when penalties are predicted');
+  });
+
+  it('should validate that extra time and penalties can only be true if scores are tied during update', async () => {
+    // Create a user
+    const user = await usersRepository.create({
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashed-password',
+    });
+
+    // Create a tournament
+    const tournament = {
+      id: 1,
+      name: 'World Cup 2026',
+      startDate: new Date('2026-06-01'),
+      endDate: new Date('2026-07-15'),
+      status: 'UPCOMING',
+      createdAt: new Date(),
+    };
+
+    // Create a pool
+    const pool = await poolsRepository.create({
+      name: 'Test Pool',
+      tournament: { connect: { id: tournament.id } },
+      creator: { connect: { id: user.id } },
+      isPrivate: false,
+    });
+
+    // Add user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: user.id,
+    });
+
+    // Create teams
+    const homeTeam = {
+      id: 1,
+      name: 'Brazil',
+      countryCode: 'BRA',
+      createdAt: new Date(),
+    };
+
+    const awayTeam = {
+      id: 2,
+      name: 'Argentina',
+      countryCode: 'ARG',
+      createdAt: new Date(),
+    };
+
+    // Create a knockout stage match
+    const match = await matchesRepository.create({
+      tournament: { connect: { id: tournament.id } },
+      homeTeam: { connect: { id: homeTeam.id } },
+      awayTeam: { connect: { id: awayTeam.id } },
+      matchDatetime: new Date('2026-07-10T15:00:00Z'),
+      stage: MatchStage.SEMI_FINAL,
+      matchStatus: MatchStatus.SCHEDULED,
+    });
+
+    // Create initial predictions for each test case
+    const prediction1 = await predictionsRepository.create({
+      pool: { connect: { id: pool.id } },
+      match: { connect: { id: match.id } },
+      user: { connect: { id: user.id } },
+      predictedHomeScore: 0,
+      predictedAwayScore: 0,
+      predictedHasExtraTime: false,
+      predictedHasPenalties: false,
+    });
+
+    const prediction2 = await predictionsRepository.create({
+      pool: { connect: { id: pool.id } },
+      match: { connect: { id: match.id } },
+      user: { connect: { id: user.id } },
+      predictedHomeScore: 0,
+      predictedAwayScore: 0,
+      predictedHasExtraTime: false,
+      predictedHasPenalties: false,
+    });
+
+    const prediction3 = await predictionsRepository.create({
+      pool: { connect: { id: pool.id } },
+      match: { connect: { id: match.id } },
+      user: { connect: { id: user.id } },
+      predictedHomeScore: 0,
+      predictedAwayScore: 0,
+      predictedHasExtraTime: false,
+      predictedHasPenalties: false,
+    });
+
+    // Test case 1: Attempt to update prediction with extraTime=true but scores are not tied
+    await expect(
+      sut.execute({
+        predictionId: prediction1.id,
+        userId: user.id,
+        predictedHomeScore: 2,
+        predictedAwayScore: 1, // Not tied
+        predictedHasExtraTime: true,
+      })
+    ).rejects.toThrow('Extra time can only be predicted when scores are tied');
+
+    // Test case 2: Attempt to update prediction with penalties=true but scores are not tied
+    await expect(
+      sut.execute({
+        predictionId: prediction2.id,
+        userId: user.id,
+        predictedHomeScore: 3,
+        predictedAwayScore: 2, // Not tied
+        predictedHasExtraTime: true,
+        predictedHasPenalties: true,
+        predictedPenaltyHomeScore: 5,
+        predictedPenaltyAwayScore: 4,
+      })
+    ).rejects.toThrow('Extra time can only be predicted when scores are tied');
+
+    // Test case 3: Successful prediction update with tied scores, extra time and penalties
+    const updatedPrediction = await sut.execute({
+      predictionId: prediction3.id,
+      userId: user.id,
+      predictedHomeScore: 1,
+      predictedAwayScore: 1, // Tied
+      predictedHasExtraTime: true,
+      predictedHasPenalties: true,
+      predictedPenaltyHomeScore: 5,
+      predictedPenaltyAwayScore: 4,
+    });
+
+    expect(updatedPrediction).toBeTruthy();
+    expect(updatedPrediction.predictedHomeScore).toBe(1);
+    expect(updatedPrediction.predictedAwayScore).toBe(1);
+    expect(updatedPrediction.predictedHasExtraTime).toBe(true);
+    expect(updatedPrediction.predictedHasPenalties).toBe(true);
+    expect(updatedPrediction.predictedPenaltyHomeScore).toBe(5);
+    expect(updatedPrediction.predictedPenaltyAwayScore).toBe(4);
   });
 
   // it('should not allow updating a prediction after the registration deadline', async () => {
