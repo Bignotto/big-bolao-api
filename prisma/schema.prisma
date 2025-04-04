@@ -85,7 +85,7 @@ model Match {
   awayTeamId       Int
   matchDatetime    DateTime
   stadium          String?
-  stage            String
+  stage            MatchStage   @default(GROUP)
   homeTeamScore    Int?
   awayTeamScore    Int?
   matchStatus      MatchStatus  @default(SCHEDULED)
@@ -258,4 +258,14 @@ enum MatchStatus {
   POSTPONED
 
   @@map("match_status")
+}
+
+enum MatchStage {
+  GROUP
+  ROUND_OF_16
+  QUARTER_FINAL
+  SEMI_FINAL
+  FINAL
+
+  @@map("match_stage")
 }
