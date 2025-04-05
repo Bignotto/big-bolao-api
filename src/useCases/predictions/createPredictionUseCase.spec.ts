@@ -1,8 +1,13 @@
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemoryPredictionsRepository';
+import { InMemoryTeamsRepository } from '@/repositories/teams/InMemoryTeamsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
-import { MatchStage, MatchStatus } from '@prisma/client';
+import { createMatch, createMatchWithTeams } from '@/test/mocks/match';
+import { createPool } from '@/test/mocks/pools';
+import { createTeam } from '@/test/mocks/teams';
+import { createUser } from '@/test/mocks/users';
+import { Match, MatchStage, MatchStatus, Pool, User } from '@prisma/client';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CreatePredictionUseCase } from './createPredictionUseCase';
 
@@ -10,13 +15,19 @@ describe('Create Prediction Use Case', () => {
   let predictionsRepository: InMemoryPredictionsRepository;
   let poolsRepository: InMemoryPoolsRepository;
   let usersRepository: InMemoryUsersRepository;
+  let teamsRepository: InMemoryTeamsRepository;
   let matchesRepository: InMemoryMatchesRepository;
   let sut: CreatePredictionUseCase;
 
-  beforeEach(() => {
+  let aUser: User;
+  let aPool: Pool;
+  let aMatch: Match;
+
+  beforeEach(async () => {
     predictionsRepository = new InMemoryPredictionsRepository();
     poolsRepository = new InMemoryPoolsRepository();
     usersRepository = new InMemoryUsersRepository();
+    teamsRepository = new InMemoryTeamsRepository();
     matchesRepository = new InMemoryMatchesRepository();
     sut = new CreatePredictionUseCase(
       predictionsRepository,
@@ -24,70 +35,23 @@ describe('Create Prediction Use Case', () => {
       usersRepository,
       matchesRepository
     );
+
+    aUser = await createUser(usersRepository, {});
+    aPool = await createPool(poolsRepository, { creatorId: aUser.id });
+    aMatch = await createMatch(
+      matchesRepository,
+      { tournamentId: aPool.tournamentId },
+      await createTeam(teamsRepository, { name: 'Brazil', countryCode: 'BRA' }),
+      await createTeam(teamsRepository, { name: 'Argentina', countryCode: 'ARG' })
+    );
   });
 
   it('should create a prediction successfully', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a match
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
-
     // Create prediction
     const prediction = await sut.execute({
-      userId: user.id,
-      matchId: match.id,
-      poolId: pool.id,
+      userId: aUser.id,
+      matchId: aMatch.id,
+      poolId: aPool.id,
       predictedHomeScore: 2,
       predictedAwayScore: 1,
     });
@@ -95,74 +59,26 @@ describe('Create Prediction Use Case', () => {
     expect(prediction).toBeTruthy();
     expect(prediction.predictedHomeScore).toBe(2);
     expect(prediction.predictedAwayScore).toBe(1);
-    expect(prediction.userId).toBe(user.id);
-    expect(prediction.matchId).toBe(match.id);
-    expect(prediction.poolId).toBe(pool.id);
+    expect(prediction.userId).toBe(aUser.id);
+    expect(prediction.matchId).toBe(aMatch.id);
+    expect(prediction.poolId).toBe(aPool.id);
   });
 
   it('should not allow prediction for a match that is not in SCHEDULED status', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a match that is already in progress
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.IN_PROGRESS, // Match is already in progress
-    });
+    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+      { matchesRepository, teamsRepository },
+      {
+        tournamentId: aPool.tournamentId,
+        matchStatus: MatchStatus.IN_PROGRESS,
+      }
+    );
 
     // Attempt to create prediction for a match in progress
     await expect(
       sut.execute({
-        userId: user.id,
+        userId: aUser.id,
         matchId: match.id,
-        poolId: pool.id,
+        poolId: aPool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
@@ -170,67 +86,17 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should not allow duplicate predictions for the same match, user and pool', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a match
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
-
+    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+      { matchesRepository, teamsRepository },
+      {
+        tournamentId: aPool.tournamentId,
+      }
+    );
     // Create first prediction
     await sut.execute({
-      userId: user.id,
+      userId: aUser.id,
       matchId: match.id,
-      poolId: pool.id,
+      poolId: aPool.id,
       predictedHomeScore: 2,
       predictedAwayScore: 1,
     });
@@ -238,9 +104,9 @@ describe('Create Prediction Use Case', () => {
     // Attempt to create a second prediction for the same match, user and pool
     await expect(
       sut.execute({
-        userId: user.id,
+        userId: aUser.id,
         matchId: match.id,
-        poolId: pool.id,
+        poolId: aPool.id,
         predictedHomeScore: 3,
         predictedAwayScore: 0,
       })
@@ -248,67 +114,20 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should create a prediction with extra time and penalties', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a knockout stage match
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-07-10T15:00:00Z'),
-      stage: MatchStage.QUARTER_FINAL,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
+    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+      { matchesRepository, teamsRepository },
+      {
+        tournamentId: aPool.tournamentId,
+        matchStage: MatchStage.FINAL,
+        matchStatus: MatchStatus.SCHEDULED,
+      }
+    );
 
     // Create prediction with extra time and penalties
     const prediction = await sut.execute({
-      userId: user.id,
+      userId: aUser.id,
       matchId: match.id,
-      poolId: pool.id,
+      poolId: aPool.id,
       predictedHomeScore: 1,
       predictedAwayScore: 1,
       predictedHasExtraTime: true,
@@ -327,74 +146,18 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should not allow a user to create a prediction if they are not a participant in the pool', async () => {
-    // Create two users
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
     const anotherUser = await usersRepository.create({
       fullName: 'Jane Smith',
       email: 'jane@example.com',
       passwordHash: 'hashed-password',
     });
 
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: true,
-    });
-
-    // Add only the first user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a match
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
-
     // Attempt to create prediction with a user who is not a participant
     await expect(
       sut.execute({
         userId: anotherUser.id,
-        matchId: match.id,
-        poolId: pool.id,
+        matchId: aMatch.id,
+        poolId: aPool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
@@ -402,68 +165,20 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should validate that penalty scores are provided when penalties are predicted', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a knockout stage match
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-07-10T15:00:00Z'),
-      stage: MatchStage.SEMI_FINAL,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
-
+    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+      { matchesRepository, teamsRepository },
+      {
+        tournamentId: aPool.tournamentId,
+        matchStage: MatchStage.FINAL,
+        matchStatus: MatchStatus.SCHEDULED,
+      }
+    );
     // Attempt to create prediction with penalties but without penalty scores
     await expect(
       sut.execute({
-        userId: user.id,
+        userId: aUser.id,
         matchId: match.id,
-        poolId: pool.id,
+        poolId: aPool.id,
         predictedHomeScore: 1,
         predictedAwayScore: 1,
         predictedHasExtraTime: true,
@@ -474,71 +189,20 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should not allow predictions for matches that have already started', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a match that is scheduled but the match time is in the past
-    const pastDate = new Date();
-    pastDate.setHours(pastDate.getHours() - 1); // 1 hour ago
-
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: pastDate,
-      stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.IN_PROGRESS,
-    });
+    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+      { matchesRepository, teamsRepository },
+      {
+        tournamentId: aPool.tournamentId,
+        matchStatus: MatchStatus.IN_PROGRESS,
+      }
+    );
 
     // Attempt to create prediction for a match that has already started
     await expect(
       sut.execute({
-        userId: user.id,
+        userId: aUser.id,
         matchId: match.id,
-        poolId: pool.id,
+        poolId: aPool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
@@ -546,68 +210,20 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should validate that extra time can only be predicted for knockout stage matches', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a group stage match
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
+    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+      { matchesRepository, teamsRepository },
+      {
+        tournamentId: aPool.tournamentId,
+        matchStatus: MatchStatus.SCHEDULED,
+      }
+    );
 
     // Attempt to create prediction with extra time for a group stage match
     await expect(
       sut.execute({
-        userId: user.id,
+        userId: aUser.id,
         matchId: match.id,
-        poolId: pool.id,
+        poolId: aPool.id,
         predictedHomeScore: 1,
         predictedAwayScore: 1,
         predictedHasExtraTime: true, // Extra time not allowed for group stage
@@ -616,68 +232,20 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should validate that penalties can only be predicted when scores are tied after extra time', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a knockout stage match
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-07-10T15:00:00Z'),
-      stage: MatchStage.SEMI_FINAL,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
-
+    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+      { matchesRepository, teamsRepository },
+      {
+        tournamentId: aPool.tournamentId,
+        matchStage: MatchStage.FINAL,
+        matchStatus: MatchStatus.SCHEDULED,
+      }
+    );
     // Attempt to create prediction with penalties but with different scores (not tied)
     await expect(
       sut.execute({
-        userId: user.id,
+        userId: aUser.id,
         matchId: match.id,
-        poolId: pool.id,
+        poolId: aPool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1, // Not a tie
         predictedHasExtraTime: true,
@@ -689,23 +257,6 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should not allow predictions for matches from tournaments not associated with the pool', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create two tournaments
-    const tournament1 = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
     const tournament2 = {
       id: 2,
       name: 'Euro 2024',
@@ -715,51 +266,19 @@ describe('Create Prediction Use Case', () => {
       createdAt: new Date(),
     };
 
-    // Create a pool for tournament 1
-    const pool = await poolsRepository.create({
-      name: 'World Cup Pool',
-      tournament: { connect: { id: tournament1.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Germany',
-      countryCode: 'GER',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'France',
-      countryCode: 'FRA',
-      createdAt: new Date(),
-    };
-
-    // Create a match for tournament 2
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament2.id } }, // Different tournament
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2024-06-15T15:00:00Z'),
-      stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
-
+    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+      { matchesRepository, teamsRepository },
+      {
+        tournamentId: tournament2.id,
+        matchStatus: MatchStatus.SCHEDULED,
+      }
+    );
     // Attempt to create prediction for a match from a different tournament
     await expect(
       sut.execute({
-        userId: user.id,
+        userId: aUser.id,
         matchId: match.id,
-        poolId: pool.id,
+        poolId: aPool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
@@ -767,68 +286,12 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should not allow negative scores in predictions', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a match
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
-
     // Attempt to create prediction with negative score
     await expect(
       sut.execute({
-        userId: user.id,
-        matchId: match.id,
-        poolId: pool.id,
+        userId: aUser.id,
+        matchId: aMatch.id,
+        poolId: aPool.id,
         predictedHomeScore: -1, // Negative score
         predictedAwayScore: 2,
       })
@@ -906,55 +369,13 @@ describe('Create Prediction Use Case', () => {
   // });
 
   it('should throw an error when trying to create a prediction for a non-existent pool', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create teams
-    const homeTeam = {
-      id: 1,
-      name: 'Brazil',
-      countryCode: 'BRA',
-      createdAt: new Date(),
-    };
-
-    const awayTeam = {
-      id: 2,
-      name: 'Argentina',
-      countryCode: 'ARG',
-      createdAt: new Date(),
-    };
-
-    // Create a match
-    const match = await matchesRepository.create({
-      tournament: { connect: { id: tournament.id } },
-      homeTeam: { connect: { id: homeTeam.id } },
-      awayTeam: { connect: { id: awayTeam.id } },
-      matchDatetime: new Date('2026-06-15T15:00:00Z'),
-      stage: MatchStage.GROUP,
-      matchStatus: MatchStatus.SCHEDULED,
-    });
-
     // Attempt to create prediction with a non-existent pool ID
     const nonExistentPoolId = 999; // This pool ID doesn't exist
 
     await expect(
       sut.execute({
-        userId: user.id,
-        matchId: match.id,
+        userId: aUser.id,
+        matchId: aMatch.id,
         poolId: nonExistentPoolId,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
@@ -963,45 +384,14 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should throw an error when trying to create a prediction for a non-existent match', async () => {
-    // Create a user
-    const user = await usersRepository.create({
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'hashed-password',
-    });
-
-    // Create a tournament
-    const tournament = {
-      id: 1,
-      name: 'World Cup 2026',
-      startDate: new Date('2026-06-01'),
-      endDate: new Date('2026-07-15'),
-      status: 'UPCOMING',
-      createdAt: new Date(),
-    };
-
-    // Create a pool
-    const pool = await poolsRepository.create({
-      name: 'Test Pool',
-      tournament: { connect: { id: tournament.id } },
-      creator: { connect: { id: user.id } },
-      isPrivate: false,
-    });
-
-    // Add user as participant
-    await poolsRepository.addParticipant({
-      poolId: pool.id,
-      userId: user.id,
-    });
-
     // Attempt to create prediction with a non-existent match ID
     const nonExistentMatchId = 999; // This match ID doesn't exist
 
     await expect(
       sut.execute({
-        userId: user.id,
+        userId: aUser.id,
         matchId: nonExistentMatchId,
-        poolId: pool.id,
+        poolId: aPool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
