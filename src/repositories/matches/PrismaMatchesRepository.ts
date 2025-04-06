@@ -51,4 +51,16 @@ export class PrismaMatchesRepository implements IMatchesRepository {
 
     return matches;
   }
+
+  async update(id: number, data: Prisma.MatchUpdateInput): Promise<Match> {
+    const match = await prisma.match.update({
+      where: { id },
+      data: {
+        ...data,
+        updatedAt: new Date(),
+      },
+    });
+
+    return match;
+  }
 }
