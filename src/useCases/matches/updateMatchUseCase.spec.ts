@@ -100,6 +100,7 @@ describe('Update Match Use Case', () => {
         matchId: match.id,
         homeScore: -1,
         awayScore: 2,
+        matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Home score cannot be negative');
 
@@ -109,6 +110,7 @@ describe('Update Match Use Case', () => {
         matchId: match.id,
         homeScore: 2,
         awayScore: -1,
+        matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Away score cannot be negative');
   });
@@ -118,11 +120,12 @@ describe('Update Match Use Case', () => {
       sut.execute({
         matchId: match.id,
         hasExtraTime: true,
+        matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Group stage matches cannot have extra time');
   });
 
-  it.only('should not allow penalties for group stage matches', async () => {
+  it('should not allow penalties if extra time is not set', async () => {
     await expect(
       sut.execute({
         matchId: match.id,
@@ -131,17 +134,20 @@ describe('Update Match Use Case', () => {
         awayScore: 1,
         penaltyAwayScore: 3,
         penaltyHomeScore: 2,
+        matchStatus: MatchStatus.COMPLETED,
       })
-    ).rejects.toThrow('Group stage matches cannot have penalties');
+    ).rejects.toThrow('Penalties can only be set when extra time is set');
   });
 
   it('should validate that penalties can only be set when scores are tied', async () => {
     await expect(
       sut.execute({
-        matchId: match.id,
+        matchId: knockoutMatch.id,
+        hasExtraTime: true,
         homeScore: 2,
         awayScore: 1,
         hasPenalties: true,
+        matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Penalties can only occur when scores are tied after regular/extra time');
   });
@@ -152,8 +158,10 @@ describe('Update Match Use Case', () => {
         matchId: knockoutMatch.id,
         homeScore: 1,
         awayScore: 1,
+        hasExtraTime: true,
         hasPenalties: true,
         // Missing penalty scores
+        matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Penalty scores must be provided when penalties are set');
   });
@@ -164,9 +172,11 @@ describe('Update Match Use Case', () => {
         matchId: knockoutMatch.id,
         homeScore: 1,
         awayScore: 1,
+        hasExtraTime: true,
         hasPenalties: true,
         penaltyHomeScore: -1,
         penaltyAwayScore: 5,
+        matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Penalty scores cannot be negative');
 
@@ -175,9 +185,11 @@ describe('Update Match Use Case', () => {
         matchId: knockoutMatch.id,
         homeScore: 1,
         awayScore: 1,
+        hasExtraTime: true,
         hasPenalties: true,
         penaltyHomeScore: 5,
         penaltyAwayScore: -1,
+        matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Penalty scores cannot be negative');
   });
@@ -188,9 +200,11 @@ describe('Update Match Use Case', () => {
         matchId: knockoutMatch.id,
         homeScore: 1,
         awayScore: 1,
+        hasExtraTime: true,
         hasPenalties: true,
         penaltyHomeScore: 5,
         penaltyAwayScore: 5,
+        matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Penalty scores cannot be tied');
   });
@@ -208,7 +222,7 @@ describe('Update Match Use Case', () => {
       matchStatus: MatchStatus.COMPLETED,
     });
 
-    expect(updatedMatch.id).toEqual(match.id);
+    expect(updatedMatch.id).toEqual(knockoutMatch.id);
     expect(updatedMatch.homeTeamScore).toEqual(1);
     expect(updatedMatch.awayTeamScore).toEqual(1);
     expect(updatedMatch.hasExtraTime).toEqual(true);
@@ -217,7 +231,47 @@ describe('Update Match Use Case', () => {
     expect(updatedMatch.penaltyAwayScore).toEqual(4);
     expect(updatedMatch.matchStatus).toEqual(MatchStatus.COMPLETED);
   });
-});
 
-//should be able to update a group match to a knokout match
-//should be able to update a knockout match to a group match
+  //should be able to update a group match to a knokout match
+  it('should be able to update a group match to a knockout match', async () => {
+    // Update the match to a knockout match
+    const updatedMatch = await sut.execute({
+      matchId: match.id,
+      matchStatus: MatchStatus.SCHEDULED,
+      matchStage: MatchStage.ROUND_OF_16,
+    });
+
+    expect(updatedMatch.id).toEqual(match.id);
+    expect(updatedMatch.stage).toEqual(MatchStage.ROUND_OF_16);
+    expect(updatedMatch.matchStatus).toEqual(MatchStatus.SCHEDULED);
+  });
+
+  //should be able to update a knockout match to a group match
+  it('should be able to update a knockout match to a group match', async () => {
+    // Update the match to a knockout match
+    const updatedMatch = await sut.execute({
+      matchId: knockoutMatch.id,
+      matchStatus: MatchStatus.SCHEDULED,
+      matchStage: MatchStage.GROUP,
+    });
+
+    expect(updatedMatch.id).toEqual(knockoutMatch.id);
+    expect(updatedMatch.stage).toEqual(MatchStage.GROUP);
+    expect(updatedMatch.matchStatus).toEqual(MatchStatus.SCHEDULED);
+  });
+
+  //should not be able to set score, extra time or penalties for a scheduled match
+  it('should not be able to set score, extra time or penalties for a scheduled match', async () => {
+    await expect(
+      sut.execute({
+        matchId: knockoutMatch.id,
+        homeScore: 2,
+        awayScore: 2,
+        hasExtraTime: true,
+        hasPenalties: true,
+        penaltyHomeScore: 5,
+        penaltyAwayScore: 4,
+      })
+    ).rejects.toThrow('Cannot set score, extra time, or penalties for a scheduled match');
+  });
+});

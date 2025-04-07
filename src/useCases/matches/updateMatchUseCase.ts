@@ -50,6 +50,19 @@ export class UpdateMatchUseCase {
       throw new ResourceNotFoundError('Tournament not found');
     }
 
+    // validate that scheduled matches cannot be updated with score, extra time, or penalties
+    if (matchStatus === MatchStatus.SCHEDULED) {
+      if (homeScore !== undefined || awayScore !== undefined || hasExtraTime || hasPenalties) {
+        throw new Error('Cannot set score, extra time, or penalties for a scheduled match');
+      }
+    }
+
+    if (!matchStatus && match.matchStatus === MatchStatus.SCHEDULED) {
+      if (homeScore !== undefined || awayScore !== undefined || hasExtraTime || hasPenalties) {
+        throw new Error('Cannot set score, extra time, or penalties for a scheduled match');
+      }
+    }
+
     // Validate scores
     if (homeScore !== undefined && homeScore < 0) {
       throw new Error('Home score cannot be negative');
@@ -59,24 +72,30 @@ export class UpdateMatchUseCase {
       throw new Error('Away score cannot be negative');
     }
 
-    console.log({ matchStage, hasExtraTime, hasPenalties });
-
     // Validate extra time and penalties
     if (hasExtraTime) {
       if (matchStage && matchStage === MatchStage.GROUP) {
         throw new Error('Group stage matches cannot have extra time');
       }
-      if (match.stage && match.stage === MatchStage.GROUP) {
+      if (!matchStage && match.stage && match.stage === MatchStage.GROUP) {
         throw new Error('Group stage matches cannot have extra time');
       }
     }
 
-    if (matchStage && matchStage === MatchStage.GROUP && hasPenalties) {
-      throw new Error('Group stage matches cannot have penalties');
-    }
-
     // Validate penalties
     if (hasPenalties) {
+      if (!hasExtraTime) {
+        throw new Error('Penalties can only be set when extra time is set');
+      }
+
+      if (matchStage && matchStage === MatchStage.GROUP) {
+        throw new Error('Group stage matches cannot have penalties');
+      }
+
+      if (!matchStage && match.stage && match.stage === MatchStage.GROUP) {
+        throw new Error('Group stage matches cannot have penalties');
+      }
+
       if (homeScore === undefined || awayScore === undefined) {
         throw new Error('Match scores must be provided when penalties are set');
       }
