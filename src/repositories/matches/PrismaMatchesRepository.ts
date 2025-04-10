@@ -63,4 +63,17 @@ export class PrismaMatchesRepository implements IMatchesRepository {
 
     return match;
   }
+
+  async getMatchWithTeams(id: number): Promise<Match | null> {
+    const match = await prisma.match.findUnique({
+      where: { id },
+      include: {
+        homeTeam: true,
+        awayTeam: true,
+        tournament: true,
+      },
+    });
+
+    return match;
+  }
 }

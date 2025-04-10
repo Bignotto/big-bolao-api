@@ -1,5 +1,4 @@
 import { Match, Prisma } from '@prisma/client';
-
 export interface IMatchesRepository {
   create(data: Prisma.MatchCreateInput): Promise<Match>;
   findById(id: number): Promise<Match | null>;
@@ -7,4 +6,5 @@ export interface IMatchesRepository {
   findUpcomingMatches(tournamentId: number): Promise<Match[]>;
   findCompletedMatches(tournamentId: number): Promise<Match[]>;
   update(id: number, data: Prisma.MatchUpdateInput): Promise<Match>;
+  getMatchWithTeams(id: number): Promise<Match | null>;
 }
