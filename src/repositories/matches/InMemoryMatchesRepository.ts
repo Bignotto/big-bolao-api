@@ -1,8 +1,10 @@
-import { Match, MatchStage, MatchStatus, Prisma } from '@prisma/client';
+import { Match, MatchStage, MatchStatus, Prisma, Team, Tournament } from '@prisma/client';
 import { IMatchesRepository } from './IMatchesRepository';
 
 export class InMemoryMatchesRepository implements IMatchesRepository {
   public matches: Match[] = [];
+  public teams: Team[] = [];
+  public tournaments: Tournament[] = [];
 
   async create(data: Prisma.MatchCreateInput): Promise<Match> {
     const newId = this.matches.length + 1;
@@ -105,5 +107,28 @@ export class InMemoryMatchesRepository implements IMatchesRepository {
 
     this.matches[matchIndex] = updatedMatch;
     return updatedMatch;
+  }
+
+  async getMatchWithTeams(id: number): Promise<Match | null> {
+    const match = this.matches.find((match) => match.id === id);
+
+    if (!match) {
+      return null;
+    }
+
+    // In a real implementation, we would need to join with teams
+    // Since this is an in-memory implementation, we'll simulate this by
+    // finding the teams from a teams array that would be part of this repository
+    const homeTeam = this.teams.find((team) => team.id === match.homeTeamId);
+    const awayTeam = this.teams.find((team) => team.id === match.awayTeamId);
+    const tournament = this.tournaments.find((tournament) => tournament.id === match.tournamentId);
+
+    // Create a new object that includes the match and its related entities
+    return {
+      ...match,
+      homeTeam,
+      awayTeam,
+      tournament,
+    } as unknown as Match;
   }
 }
