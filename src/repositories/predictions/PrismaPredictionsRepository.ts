@@ -54,4 +54,30 @@ export class PrismaPredictionsRepository implements IPredictionsRepository {
       where: { id },
     });
   }
+
+  async findByMatchId(matchId: number): Promise<Prediction[]> {
+    const predictions = await prisma.prediction.findMany({
+      where: {
+        matchId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            profileImageUrl: true,
+          },
+        },
+        pool: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return predictions;
+  }
 }
