@@ -10,4 +10,5 @@ export interface IPredictionsRepository {
   ): Promise<Prediction | null>;
   update(id: number, data: Prisma.PredictionUpdateInput): Promise<Prediction>;
   delete(id: number): Promise<void>;
+  findByMatchId(matchId: number): Promise<Prediction[]>;
 }
