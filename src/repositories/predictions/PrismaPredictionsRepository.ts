@@ -80,4 +80,23 @@ export class PrismaPredictionsRepository implements IPredictionsRepository {
 
     return predictions;
   }
+
+  async findByUserId(userId: string, poolId?: number): Promise<Prediction[]> {
+    const whereClause: Prisma.PredictionWhereInput = {
+      userId,
+    };
+
+    if (poolId) {
+      whereClause.poolId = poolId;
+    }
+
+    const predictions = await prisma.prediction.findMany({
+      where: whereClause,
+      orderBy: {
+        submittedAt: 'desc',
+      },
+    });
+
+    return predictions;
+  }
 }
