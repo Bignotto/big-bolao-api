@@ -11,4 +11,5 @@ export interface IPredictionsRepository {
   update(id: number, data: Prisma.PredictionUpdateInput): Promise<Prediction>;
   delete(id: number): Promise<void>;
   findByMatchId(matchId: number): Promise<Prediction[]>;
+  findByUserId(userId: string, poolId?: number): Promise<Prediction[]>;
 }

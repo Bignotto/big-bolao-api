@@ -105,4 +105,14 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
     const predictions = this.predictions.filter((item) => item.matchId === matchId);
     return predictions;
   }
+
+  async findByUserId(userId: string, poolId?: number): Promise<Prediction[]> {
+    let predictions = this.predictions.filter((prediction) => prediction.userId === userId);
+
+    if (poolId) {
+      predictions = predictions.filter((prediction) => prediction.poolId === poolId);
+    }
+
+    return predictions;
+  }
 }
