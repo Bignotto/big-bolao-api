@@ -39,8 +39,8 @@ export async function createPrediction(
     predictedAwayScore: data.predictedAwayScore ?? randomPredictionNumber,
     predictedHasExtraTime: data.hasExtraTime ?? false,
     predictedHasPenalties: data.hasPenalties ?? false,
-    predictedPenaltyHomeScore: data.penaltyHomeScore ?? homeRandomNumber,
-    predictedPenaltyAwayScore: data.penaltyAwayScore ?? awayRandomNumber,
+    predictedPenaltyHomeScore: data.penaltyHomeScore ?? 0,
+    predictedPenaltyAwayScore: data.penaltyAwayScore ?? 0,
   });
 
   return prediction;

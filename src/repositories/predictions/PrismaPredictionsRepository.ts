@@ -99,4 +99,35 @@ export class PrismaPredictionsRepository implements IPredictionsRepository {
 
     return predictions;
   }
+
+  async findByPoolId(poolId: number): Promise<Prediction[]> {
+    const predictions = await prisma.prediction.findMany({
+      where: {
+        poolId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            profileImageUrl: true,
+          },
+        },
+        match: {
+          include: {
+            homeTeam: true,
+            awayTeam: true,
+          },
+        },
+      },
+      orderBy: {
+        match: {
+          matchDatetime: 'asc',
+        },
+      },
+    });
+
+    return predictions;
+  }
 }

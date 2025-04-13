@@ -115,4 +115,8 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
 
     return predictions;
   }
+
+  async findByPoolId(poolId: number): Promise<Prediction[]> {
+    return this.predictions.filter((prediction) => prediction.poolId === poolId);
+  }
 }

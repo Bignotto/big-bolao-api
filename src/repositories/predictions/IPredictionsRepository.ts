@@ -12,4 +12,5 @@ export interface IPredictionsRepository {
   delete(id: number): Promise<void>;
   findByMatchId(matchId: number): Promise<Prediction[]>;
   findByUserId(userId: string, poolId?: number): Promise<Prediction[]>;
+  findByPoolId(poolId: number): Promise<Prediction[]>; // New method
 }
