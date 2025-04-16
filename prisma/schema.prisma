@@ -92,6 +92,7 @@ model Match {
   matchDatetime    DateTime
   stadium          String?
   stage            MatchStage   @default(GROUP)
+  group            String?
   homeTeamScore    Int?
   awayTeamScore    Int?
   matchStatus      MatchStatus  @default(SCHEDULED)
@@ -272,6 +273,9 @@ enum MatchStage {
   QUARTER_FINAL
   SEMI_FINAL
   FINAL
+
+  THIRD_PLACE
+  LOSERS_MATCH
 
   @@map("match_stage")
 }
