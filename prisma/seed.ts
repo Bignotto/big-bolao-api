@@ -1,4 +1,5 @@
 import { MatchStage, MatchStatus, PrismaClient, TournamentStatus } from '@prisma/client';
+import { seedPredictions } from './predictions.seed';
 import { seedUsers } from './users.seed';
 
 const prisma = new PrismaClient();
@@ -38,6 +39,9 @@ async function main() {
 
   // Create knockout stage matches
   await createKnockoutMatches(worldCup.id, teamMap);
+
+  // Create sample predictions
+  await seedPredictions();
 
   console.log('Seed completed successfully!');
 }

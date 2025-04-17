@@ -140,29 +140,29 @@ export async function seedUsers() {
         console.log(`Added ${participants.length} participants to pool ${pool.name}`);
 
         // Create leaderboard entries
-        const leaderboardPromises = rows.map((row) => {
-          return prisma.leaderboard.upsert({
-            where: {
-              poolId_userId: {
-                poolId: pool.id,
-                userId: row.user_id,
-              },
-            },
-            update: {},
-            create: {
-              poolId: pool.id,
-              userId: row.user_id,
-              totalPoints: parseInt(row.total_points, 10) || 0,
-              exactScoresCount: parseInt(row.exact_matches, 10) || 0,
-              correctWinnersCount: 0, // We don't have this data
-              rank: parseInt(row.ranking, 10) || 0,
-              lastUpdated: new Date(),
-            },
-          });
-        });
+        // const leaderboardPromises = rows.map((row) => {
+        //   return prisma.leaderboard.upsert({
+        //     where: {
+        //       poolId_userId: {
+        //         poolId: pool.id,
+        //         userId: row.user_id,
+        //       },
+        //     },
+        //     update: {},
+        //     create: {
+        //       poolId: pool.id,
+        //       userId: row.user_id,
+        //       totalPoints: parseInt(row.total_points, 10) || 0,
+        //       exactScoresCount: parseInt(row.exact_matches, 10) || 0,
+        //       correctWinnersCount: 0, // We don't have this data
+        //       rank: parseInt(row.ranking, 10) || 0,
+        //       lastUpdated: new Date(),
+        //     },
+        //   });
+        // });
 
-        const leaderboardEntries = await Promise.all(leaderboardPromises);
-        console.log(`Created ${leaderboardEntries.length} leaderboard entries`);
+        // const leaderboardEntries = await Promise.all(leaderboardPromises);
+        // console.log(`Created ${leaderboardEntries.length} leaderboard entries`);
       }
     }
   } catch (error) {

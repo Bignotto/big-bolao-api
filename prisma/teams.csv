@@ -1,0 +1,33 @@
+team_code,name,country_code,country_iso,flag,champion,continent,federation,group,fifa_ranking,fifa_points
+A1,Qatar,qat,634,https://countryflagsapi.com/png/qat,0,Asia,CAF,A,51,1441
+A2,Ecuador,ecu,218,https://countryflagsapi.com/png/ecu,0,South America,CONMEBOL,A,46,1452
+A3,Senegal,sen,686,https://countryflagsapi.com/png/sen,0,Africa,CAF,A,20,1584
+A4,Netherlands,nld,528,https://countryflagsapi.com/png/nld,0,Europe,UEFA,A,10,1658
+B1,England,gb-eng,826,https://countryflagsapi.com/png/gb-eng,1,Europe,UEFA,B,5,1761
+B2,Iran,irn,364,https://countryflagsapi.com/png/irn,0,Asia,AFC,B,21,1564
+B3,USA,usa,840,https://countryflagsapi.com/png/usa,0,North America,CONCACAF,B,15,1633
+C1,Argentina,arg,32,https://countryflagsapi.com/png/arg,2,South America,CONMEBOL,C,4,1765
+C2,Saudi Arabia,sau,682,https://countryflagsapi.com/png/sau,0,Asia,AFC,C,49,1444
+C3,Mexico,mex,484,https://countryflagsapi.com/png/mex,0,North America,CONCACAF,C,9,1658
+C4,Poland,pol,616,https://countryflagsapi.com/png/pol,0,Europe,UEFA,C,26,1544
+D1,France,fra,250,https://countryflagsapi.com/png/fra,2,Europe,UEFA,D,3,1789
+D3,Denmark,dnk,208,https://countryflagsapi.com/png/dnk,0,Europe,UEFA,D,11,1653
+D4,Tunisia,tun,788,https://countryflagsapi.com/png/tun,0,Africa,CAF,D,35,1499
+E1,Spain,esp,724,https://countryflagsapi.com/png/esp,1,Europe,UEFA,E,7,1709
+E3,Germany,deu,276,https://countryflagsapi.com/png/deu,4,Europe,UEFA,E,12,1650
+E4,Japan,jpn,392,https://countryflagsapi.com/png/jpn,0,Asia,AFC,E,23,1553
+F1,Belgium,bel,56,https://countryflagsapi.com/png/bel,0,Europe,UEFA,F,2,1827
+F2,Canada,can,124,https://countryflagsapi.com/png/can,0,North America,CONCACAF,F,38,1479
+F3,Morocco,mar,504,https://countryflagsapi.com/png/mar,0,Africa,CAF,F,24,1551
+F4,Croatia,hrv,191,https://countryflagsapi.com/png/hrv,0,Europe,UEFA,F,16,1621
+G1,Brazil,bra,76,https://countryflagsapi.com/png/bra,5,South America,CONMEBOL,G,1,1832
+G2,Serbia,srb,688,https://countryflagsapi.com/png/srb,0,Europe,UEFA,G,25,1547
+G3,Switzerland,che,756,https://countryflagsapi.com/png/che,0,Europe,UEFA,G,14,1635
+G4,Cameroon,cmr,120,https://countryflagsapi.com/png/cmr,0,Africa,CAF,G,37,1480
+H1,Portugal,prt,620,https://countryflagsapi.com/png/prt,0,Europe,UEFA,H,8,1674
+H2,Ghana,gha,288,https://countryflagsapi.com/png/gha,0,Africa,CAF,H,60,1387
+H4,South Korea,kor,410,https://countryflagsapi.com/png/kor,0,Asia,AFC,H,29,1519
+H3,Uruguay,ury,858,https://countryflagsapi.com/png/ury,2,South America,CONMEBOL,H,13,1635
+D2,Australia,aus,36,https://countryflagsapi.com/png/aus,0,TBD,TBD,D,0,0
+E2,Costa Rica,cri,188,https://countryflagsapi.com/png/cri,0,TBD,TBD,E,0,0
+B4,Wales,wls,826,https://countryflagsapi.com/png/GB-WLS,0,TBD,TBD,B,0,0
