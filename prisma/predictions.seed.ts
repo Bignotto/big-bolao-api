@@ -3,7 +3,6 @@ import { parse } from 'csv-parse/sync';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Initialize Prisma Client
 const prisma = new PrismaClient();
 
 interface TeamRow {
@@ -121,7 +120,7 @@ export async function seedPredictions() {
     let failCount = 0;
 
     // We'll process in batches to avoid overloading the database
-    const batchSize = 50;
+    const batchSize = 15;
     const totalRows = guessesRows.length;
 
     for (let i = 0; i < totalRows; i += batchSize) {
@@ -168,6 +167,9 @@ export async function seedPredictions() {
               }
 
               // Create the prediction with alternate match ID
+              console.log(
+                `Creating prediction with alternate match ID ${alternateMatchId} for ${guess.home_team} vs ${guess.away_team}`
+              );
               await createPrediction(poolId, alternateMatchId, guess);
               successCount++;
               return;
@@ -179,11 +181,14 @@ export async function seedPredictions() {
           }
 
           // Create the prediction
+          console.log(
+            `Creating prediction for match ${matchId} with home team ${guess.home_team} and away team ${guess.away_team}`
+          );
           await createPrediction(poolId, matchId, guess);
           successCount++;
         } catch (error) {
           console.error(
-            `Error processing guess ${guess.guess_id} - ${guess.home_team} vs ${guess.away_team}:`,
+            `Error processing guess ${guess.guess_id} - ${guess.home_team} vs ${guess.away_team}: --- `,
             error
           );
           failCount++;
@@ -219,6 +224,9 @@ async function createPrediction(poolId: number, matchId: number, guess: GuessRow
 
     if (existingPrediction) {
       // Update existing prediction
+      console.log(
+        `EXISTING PREDICTION FOUND Updating prediction for match ${matchId} with home team ${guess.home_team} and away team ${guess.away_team} for user ${guess.user_id}`
+      );
       await prisma.prediction.update({
         where: {
           id: existingPrediction.id,
@@ -231,6 +239,9 @@ async function createPrediction(poolId: number, matchId: number, guess: GuessRow
       });
     } else {
       // Create new prediction
+      console.log(
+        `Creating prediction for match ${matchId} with home team ${guess.home_team} and away team ${guess.away_team}`
+      );
       await prisma.prediction.create({
         data: {
           poolId: poolId,
@@ -246,6 +257,9 @@ async function createPrediction(poolId: number, matchId: number, guess: GuessRow
     }
   } catch (error) {
     console.error('Error creating/updating prediction:', error);
+    console.log(
+      `Error creating/updating prediction for match ${matchId} for user ${guess.user_id} with home team ${guess.home_team} and away team ${guess.away_team}`
+    );
     throw error;
   }
 }
