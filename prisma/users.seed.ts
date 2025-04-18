@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { parse } from 'csv-parse/sync';
 import * as fs from 'fs';
 import * as path from 'path';
+import { seedScoringRules } from './scoringRules.seed';
 
 interface StandingsRow {
   total_points: string;
@@ -104,6 +105,9 @@ export async function seedUsers() {
         });
 
         console.log(`Created pool: ${pool.name} with ID: ${pool.id}`);
+
+        await seedScoringRules(pool.id);
+        console.log('Scoring rules seeded successfully.');
 
         const participantPromises = Array.from(uniqueUsers.keys()).map((userId) => {
           return prisma.poolParticipant.upsert({
