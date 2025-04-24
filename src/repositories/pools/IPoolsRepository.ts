@@ -1,3 +1,4 @@
+import { PoolStandings } from '@/global/types/poolStandings';
 import { Pool, Prisma, ScoringRule } from '@prisma/client';
 
 export type PoolCompleteInfo = Prisma.PoolGetPayload<{
@@ -17,4 +18,5 @@ export interface IPoolsRepository {
   getPoolParticipants(poolId: number): Promise<{ userId: string }[]>;
   getPool(id: number): Promise<PoolCompleteInfo | null>;
   update(id: number, data: Prisma.PoolUpdateInput): Promise<Pool>;
+  getPoolStandings(poolId: number): Promise<PoolStandings[]>;
 }
