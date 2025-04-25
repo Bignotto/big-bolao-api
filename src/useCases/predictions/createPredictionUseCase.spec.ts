@@ -19,9 +19,9 @@ describe('Create Prediction Use Case', () => {
   let matchesRepository: InMemoryMatchesRepository;
   let sut: CreatePredictionUseCase;
 
-  let aUser: User;
-  let aPool: Pool;
-  let aMatch: Match;
+  let user: User;
+  let pool: Pool;
+  let match: Match;
 
   beforeEach(async () => {
     predictionsRepository = new InMemoryPredictionsRepository();
@@ -36,11 +36,11 @@ describe('Create Prediction Use Case', () => {
       matchesRepository
     );
 
-    aUser = await createUser(usersRepository, {});
-    aPool = await createPool(poolsRepository, { creatorId: aUser.id });
-    aMatch = await createMatch(
+    user = await createUser(usersRepository, {});
+    pool = await createPool(poolsRepository, { creatorId: user.id });
+    match = await createMatch(
       matchesRepository,
-      { tournamentId: aPool.tournamentId },
+      { tournamentId: pool.tournamentId },
       await createTeam(teamsRepository, { name: 'Brazil', countryCode: 'BRA' }),
       await createTeam(teamsRepository, { name: 'Argentina', countryCode: 'ARG' })
     );
@@ -49,9 +49,9 @@ describe('Create Prediction Use Case', () => {
   it('should create a prediction successfully', async () => {
     // Create prediction
     const prediction = await sut.execute({
-      userId: aUser.id,
-      matchId: aMatch.id,
-      poolId: aPool.id,
+      userId: user.id,
+      matchId: match.id,
+      poolId: pool.id,
       predictedHomeScore: 2,
       predictedAwayScore: 1,
     });
@@ -59,16 +59,16 @@ describe('Create Prediction Use Case', () => {
     expect(prediction).toBeTruthy();
     expect(prediction.predictedHomeScore).toBe(2);
     expect(prediction.predictedAwayScore).toBe(1);
-    expect(prediction.userId).toBe(aUser.id);
-    expect(prediction.matchId).toBe(aMatch.id);
-    expect(prediction.poolId).toBe(aPool.id);
+    expect(prediction.userId).toBe(user.id);
+    expect(prediction.matchId).toBe(match.id);
+    expect(prediction.poolId).toBe(pool.id);
   });
 
   it('should not allow prediction for a match that is not in SCHEDULED status', async () => {
     const { match, homeTeam, awayTeam } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
-        tournamentId: aPool.tournamentId,
+        tournamentId: pool.tournamentId,
         matchStatus: MatchStatus.IN_PROGRESS,
       }
     );
@@ -76,9 +76,9 @@ describe('Create Prediction Use Case', () => {
     // Attempt to create prediction for a match in progress
     await expect(
       sut.execute({
-        userId: aUser.id,
+        userId: user.id,
         matchId: match.id,
-        poolId: aPool.id,
+        poolId: pool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
@@ -89,14 +89,14 @@ describe('Create Prediction Use Case', () => {
     const { match, homeTeam, awayTeam } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
-        tournamentId: aPool.tournamentId,
+        tournamentId: pool.tournamentId,
       }
     );
     // Create first prediction
     await sut.execute({
-      userId: aUser.id,
+      userId: user.id,
       matchId: match.id,
-      poolId: aPool.id,
+      poolId: pool.id,
       predictedHomeScore: 2,
       predictedAwayScore: 1,
     });
@@ -104,9 +104,9 @@ describe('Create Prediction Use Case', () => {
     // Attempt to create a second prediction for the same match, user and pool
     await expect(
       sut.execute({
-        userId: aUser.id,
+        userId: user.id,
         matchId: match.id,
-        poolId: aPool.id,
+        poolId: pool.id,
         predictedHomeScore: 3,
         predictedAwayScore: 0,
       })
@@ -117,7 +117,7 @@ describe('Create Prediction Use Case', () => {
     const { match, homeTeam, awayTeam } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
-        tournamentId: aPool.tournamentId,
+        tournamentId: pool.tournamentId,
         matchStage: MatchStage.FINAL,
         matchStatus: MatchStatus.SCHEDULED,
       }
@@ -125,9 +125,9 @@ describe('Create Prediction Use Case', () => {
 
     // Create prediction with extra time and penalties
     const prediction = await sut.execute({
-      userId: aUser.id,
+      userId: user.id,
       matchId: match.id,
-      poolId: aPool.id,
+      poolId: pool.id,
       predictedHomeScore: 1,
       predictedAwayScore: 1,
       predictedHasExtraTime: true,
@@ -156,8 +156,8 @@ describe('Create Prediction Use Case', () => {
     await expect(
       sut.execute({
         userId: anotherUser.id,
-        matchId: aMatch.id,
-        poolId: aPool.id,
+        matchId: match.id,
+        poolId: pool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
@@ -168,7 +168,7 @@ describe('Create Prediction Use Case', () => {
     const { match, homeTeam, awayTeam } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
-        tournamentId: aPool.tournamentId,
+        tournamentId: pool.tournamentId,
         matchStage: MatchStage.FINAL,
         matchStatus: MatchStatus.SCHEDULED,
       }
@@ -176,9 +176,9 @@ describe('Create Prediction Use Case', () => {
     // Attempt to create prediction with penalties but without penalty scores
     await expect(
       sut.execute({
-        userId: aUser.id,
+        userId: user.id,
         matchId: match.id,
-        poolId: aPool.id,
+        poolId: pool.id,
         predictedHomeScore: 1,
         predictedAwayScore: 1,
         predictedHasExtraTime: true,
@@ -192,7 +192,7 @@ describe('Create Prediction Use Case', () => {
     const { match, homeTeam, awayTeam } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
-        tournamentId: aPool.tournamentId,
+        tournamentId: pool.tournamentId,
         matchStatus: MatchStatus.IN_PROGRESS,
       }
     );
@@ -200,9 +200,9 @@ describe('Create Prediction Use Case', () => {
     // Attempt to create prediction for a match that has already started
     await expect(
       sut.execute({
-        userId: aUser.id,
+        userId: user.id,
         matchId: match.id,
-        poolId: aPool.id,
+        poolId: pool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
@@ -213,7 +213,7 @@ describe('Create Prediction Use Case', () => {
     const { match, homeTeam, awayTeam } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
-        tournamentId: aPool.tournamentId,
+        tournamentId: pool.tournamentId,
         matchStatus: MatchStatus.SCHEDULED,
       }
     );
@@ -221,9 +221,9 @@ describe('Create Prediction Use Case', () => {
     // Attempt to create prediction with extra time for a group stage match
     await expect(
       sut.execute({
-        userId: aUser.id,
+        userId: user.id,
         matchId: match.id,
-        poolId: aPool.id,
+        poolId: pool.id,
         predictedHomeScore: 1,
         predictedAwayScore: 1,
         predictedHasExtraTime: true, // Extra time not allowed for group stage
@@ -235,7 +235,7 @@ describe('Create Prediction Use Case', () => {
     const { match, homeTeam, awayTeam } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
-        tournamentId: aPool.tournamentId,
+        tournamentId: pool.tournamentId,
         matchStage: MatchStage.FINAL,
         matchStatus: MatchStatus.SCHEDULED,
       }
@@ -243,9 +243,9 @@ describe('Create Prediction Use Case', () => {
     // Attempt to create prediction with penalties but with different scores (not tied)
     await expect(
       sut.execute({
-        userId: aUser.id,
+        userId: user.id,
         matchId: match.id,
-        poolId: aPool.id,
+        poolId: pool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1, // Not a tie
         predictedHasExtraTime: true,
@@ -276,9 +276,9 @@ describe('Create Prediction Use Case', () => {
     // Attempt to create prediction for a match from a different tournament
     await expect(
       sut.execute({
-        userId: aUser.id,
+        userId: user.id,
         matchId: match.id,
-        poolId: aPool.id,
+        poolId: pool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
@@ -289,9 +289,9 @@ describe('Create Prediction Use Case', () => {
     // Attempt to create prediction with negative score
     await expect(
       sut.execute({
-        userId: aUser.id,
-        matchId: aMatch.id,
-        poolId: aPool.id,
+        userId: user.id,
+        matchId: match.id,
+        poolId: pool.id,
         predictedHomeScore: -1, // Negative score
         predictedAwayScore: 2,
       })
@@ -374,8 +374,8 @@ describe('Create Prediction Use Case', () => {
 
     await expect(
       sut.execute({
-        userId: aUser.id,
-        matchId: aMatch.id,
+        userId: user.id,
+        matchId: match.id,
         poolId: nonExistentPoolId,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
@@ -389,9 +389,9 @@ describe('Create Prediction Use Case', () => {
 
     await expect(
       sut.execute({
-        userId: aUser.id,
+        userId: user.id,
         matchId: nonExistentMatchId,
-        poolId: aPool.id,
+        poolId: pool.id,
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })

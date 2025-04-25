@@ -1,53 +1,54 @@
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
+import { InMemoryTeamsRepository } from '@/repositories/teams/InMemoryTeamsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
-import { MatchStage, MatchStatus } from '@prisma/client';
+import { createPool } from '@/test/mocks/pools';
+import { createTeam } from '@/test/mocks/teams';
+import { createUser } from '@/test/mocks/users';
+import { Match, MatchStage, MatchStatus, Pool, Team, User } from '@prisma/client';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { GetPoolStandingsUseCase } from './getPoolStandingsUseCase';
 
 describe('GetPoolStandingsUseCase', () => {
   let poolsRepository: InMemoryPoolsRepository;
   let usersRepository: InMemoryUsersRepository;
+  let matchesRepository: InMemoryMatchesRepository;
+  let teamsRepository: InMemoryTeamsRepository;
   let sut: GetPoolStandingsUseCase;
 
-  beforeEach(() => {
+  let creator: User;
+  let regularUser: User;
+  let pool: Pool;
+  let teams: Team[] = [];
+  let matches: Match[] = [];
+
+  beforeEach(async () => {
     poolsRepository = new InMemoryPoolsRepository();
     usersRepository = new InMemoryUsersRepository();
+    teamsRepository = new InMemoryTeamsRepository();
+    matchesRepository = new InMemoryMatchesRepository();
     sut = new GetPoolStandingsUseCase(poolsRepository);
 
-    // Create test pool
-    const pool = {
-      id: 1,
-      name: 'Test Pool',
-      tournamentId: 1,
-      inviteCode: 'TEST123',
-      createdAt: new Date(),
-      creatorId: 'user-1',
-      description: 'Test pool for unit tests',
-      isPrivate: false,
-      maxParticipants: 10,
-      registrationDeadline: new Date('2023-12-31'),
-    };
+    creator = await createUser(usersRepository, {
+      fullName: 'Creator User',
+    });
 
-    // Create scoring rules
-    const scoringRule = {
-      id: 1,
-      poolId: 1,
-      exactScorePoints: 3,
-      correctWinnerGoalDiffPoints: 2,
-      correctWinnerPoints: 1,
-      correctDrawPoints: 1,
-      specialEventPoints: 5,
-      knockoutMultiplier: 1.5,
-      finalMultiplier: 2.0,
-    };
+    regularUser = await createUser(usersRepository, {
+      fullName: 'Regular User',
+    });
 
-    // Create participants
-    const participants = [
-      { poolId: 1, userId: 'user-1', joinedAt: new Date() },
-      { poolId: 1, userId: 'user-2', joinedAt: new Date() },
-    ];
+    pool = await createPool(poolsRepository, { creatorId: creator.id });
+    await poolsRepository.addParticipant({ poolId: pool.id, userId: regularUser.id });
 
-    // Create matches
+    for (let i = 0; i < 5; i++) {
+      const team = await createTeam(teamsRepository, {
+        name: `Team ${i}`,
+        countryCode: `TEAM-${i}`,
+      });
+      teams.push(team);
+    }
+    //NEXT: Create matches
     const matches = [
       {
         id: 1,
