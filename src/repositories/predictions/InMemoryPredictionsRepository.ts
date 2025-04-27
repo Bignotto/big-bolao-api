@@ -2,7 +2,7 @@ import { Prediction, Prisma } from '@prisma/client';
 import { IPredictionsRepository } from './IPredictionsRepository';
 
 export class InMemoryPredictionsRepository implements IPredictionsRepository {
-  private predictions: Prediction[] = [];
+  public predictions: Prediction[] = [];
 
   async create(data: Prisma.PredictionCreateInput): Promise<Prediction> {
     const newId = this.predictions.length + 1;

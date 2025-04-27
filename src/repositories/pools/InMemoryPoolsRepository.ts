@@ -12,6 +12,9 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
   public matches: Match[] = [];
   public poolStandings: PoolStandings[] = [];
 
+  /*
+  This method could have only produced a mock-up for pool standings, but... 
+  */
   async getPoolStandings(poolId: number): Promise<PoolStandings[]> {
     if (this.predictions.length === 0) {
       throw new Error('No predictions found');
@@ -19,7 +22,6 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     if (this.scoringRules.length === 0) {
       throw new Error('No scoring rules found');
     }
-
     if (this.matches.length === 0) {
       throw new Error('No matches found');
     }
@@ -30,6 +32,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     }
 
     const predictionsPoints: PredictionPoints[] = [];
+    let summary: { [id: string]: PoolStandings } = {};
 
     for (const prediction of poolPredictions) {
       const match = this.matches.find((match) => match.id === prediction.matchId);
@@ -44,6 +47,11 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
           basepoints = this.scoringRules[0].exactScorePoints; // Exact score
           break;
 
+        case prediction.predictedHomeScore === prediction.predictedAwayScore &&
+          (match?.homeTeamScore ?? 0) === (match?.awayTeamScore ?? 0):
+          basepoints = this.scoringRules[0].correctDrawPoints; // Correct draw
+          break;
+
         case Math.sign(prediction.predictedHomeScore - prediction.predictedAwayScore) ===
           Math.sign((match?.homeTeamScore ?? 0) - (match?.awayTeamScore ?? 0)) &&
           prediction.predictedHomeScore - prediction.predictedAwayScore ===
@@ -51,9 +59,8 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
           basepoints = this.scoringRules[0].correctWinnerGoalDiffPoints; // Correct winner and goal diff
           break;
 
-        case (prediction.predictedHomeScore > prediction.predictedAwayScore &&
-          match?.homeTeamScore) ??
-          0 > (match?.awayTeamScore ?? 0):
+        case prediction.predictedHomeScore > prediction.predictedAwayScore &&
+          (match?.homeTeamScore ?? 0) > (match?.awayTeamScore ?? 0):
           basepoints = this.scoringRules[0].correctWinnerPoints; // Correct winner
           break;
 
@@ -61,11 +68,6 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
           match?.awayTeamScore) ??
           0 > (match?.homeTeamScore ?? 0):
           basepoints = this.scoringRules[0].correctWinnerPoints; // Correct winner
-          break;
-
-        case prediction.predictedHomeScore === prediction.predictedAwayScore &&
-          (match?.homeTeamScore ?? 0) === (match?.awayTeamScore ?? 0):
-          basepoints = this.scoringRules[0].correctDrawPoints; // Correct draw
           break;
 
         default:
@@ -109,8 +111,25 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
         stagemultiplier,
         TotalPoints: basepoints * stagemultiplier,
       });
+      if (summary[prediction.userId]) {
+        summary[prediction.userId].totalPoints += basepoints * stagemultiplier;
+      } else {
+        summary[prediction.userId] = {
+          userId: prediction.userId,
+          poolId,
+          totalPoints: basepoints * stagemultiplier,
+          exactScoreCount: 0,
+          fullName: '',
+          guessRatio: 0,
+          pointsRatio: 0,
+          predictionsRatio: 0,
+          profileImageUrl: '',
+          ranking: '0',
+          totalPredictions: 0,
+        };
+      }
     }
-    throw new Error('Method not implemented.');
+    return Object.values(summary);
   }
   async create(data: Prisma.PoolCreateInput): Promise<Pool> {
     const newId = this.pools.length + 1;

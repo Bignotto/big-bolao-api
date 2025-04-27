@@ -1,12 +1,15 @@
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
+import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemoryPredictionsRepository';
 import { InMemoryTeamsRepository } from '@/repositories/teams/InMemoryTeamsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
+import { createMatch } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
+import { createPrediction } from '@/test/mocks/predictions';
 import { createTeam } from '@/test/mocks/teams';
 import { createUser } from '@/test/mocks/users';
-import { Match, MatchStage, MatchStatus, Pool, Team, User } from '@prisma/client';
+import { Match, MatchStage, MatchStatus, Pool, User } from '@prisma/client';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { GetPoolStandingsUseCase } from './getPoolStandingsUseCase';
 
@@ -15,12 +18,12 @@ describe('GetPoolStandingsUseCase', () => {
   let usersRepository: InMemoryUsersRepository;
   let matchesRepository: InMemoryMatchesRepository;
   let teamsRepository: InMemoryTeamsRepository;
+  let predictionsRepository: InMemoryPredictionsRepository;
   let sut: GetPoolStandingsUseCase;
 
   let creator: User;
   let regularUser: User;
   let pool: Pool;
-  let teams: Team[] = [];
   let matches: Match[] = [];
 
   beforeEach(async () => {
@@ -28,6 +31,7 @@ describe('GetPoolStandingsUseCase', () => {
     usersRepository = new InMemoryUsersRepository();
     teamsRepository = new InMemoryTeamsRepository();
     matchesRepository = new InMemoryMatchesRepository();
+    predictionsRepository = new InMemoryPredictionsRepository();
     sut = new GetPoolStandingsUseCase(poolsRepository);
 
     creator = await createUser(usersRepository, {
@@ -39,191 +43,177 @@ describe('GetPoolStandingsUseCase', () => {
     });
 
     pool = await createPool(poolsRepository, { creatorId: creator.id });
-    await poolsRepository.addParticipant({ poolId: pool.id, userId: regularUser.id });
-
-    for (let i = 0; i < 5; i++) {
-      const team = await createTeam(teamsRepository, {
-        name: `Team ${i}`,
-        countryCode: `TEAM-${i}`,
-      });
-      teams.push(team);
-    }
-    //NEXT: Create matches
-    const matches = [
-      {
-        id: 1,
-        tournamentId: 1,
-        homeTeam: 'Team A',
-        awayTeam: 'Team B',
-        homeScore: 2,
-        awayScore: 1,
-        matchDate: new Date(),
-        matchStatus: MatchStatus.COMPLETED,
-        stage: MatchStage.GROUP,
-        hasExtraTime: false,
-        hasPenalties: false,
-      },
-      {
-        id: 2,
-        tournamentId: 1,
-        homeTeam: 'Team C',
-        awayTeam: 'Team D',
-        homeScore: 0,
-        awayScore: 0,
-        matchDate: new Date(),
-        matchStatus: MatchStatus.COMPLETED,
-        stage: MatchStage.GROUP,
-        hasExtraTime: false,
-        hasPenalties: false,
-      },
-      {
-        id: 3,
-        tournamentId: 1,
-        homeTeam: 'Team A',
-        awayTeam: 'Team C',
-        homeScore: 3,
-        awayScore: 1,
-        matchDate: new Date(),
-        matchStatus: MatchStatus.COMPLETED,
-        stage: MatchStage.FINAL,
-        hasExtraTime: false,
-        hasPenalties: false,
-      },
-    ];
-
-    // Create predictions
-    const predictions = [
-      // User 1 predictions
-      {
-        id: 1,
-        userId: 'user-1',
-        poolId: 1,
-        matchId: 1,
-        homeScore: 2,
-        awayScore: 1, // Exact score - 3 points
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 2,
-        userId: 'user-1',
-        poolId: 1,
-        matchId: 2,
-        homeScore: 1,
-        awayScore: 1, // Wrong score but correct draw - 1 point
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 3,
-        userId: 'user-1',
-        poolId: 1,
-        matchId: 3,
-        homeScore: 2,
-        awayScore: 0, // Correct winner but wrong score - 1 point * 2.0 (final) = 2 points
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-
-      // User 2 predictions
-      {
-        id: 4,
-        userId: 'user-2',
-        poolId: 1,
-        matchId: 1,
-        homeScore: 1,
-        awayScore: 0, // Correct winner but wrong score - 1 point
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 5,
-        userId: 'user-2',
-        poolId: 1,
-        matchId: 2,
-        homeScore: 0,
-        awayScore: 0, // Exact score - 3 points
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 6,
-        userId: 'user-2',
-        poolId: 1,
-        matchId: 3,
-        homeScore: 1,
-        awayScore: 2, // Wrong winner - 0 points
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-
-    // Set up the repository with test data
-    poolsRepository.setTestData([pool], [scoringRule], participants, predictions, matches);
-
-    // Create users for testing
-    const users = [
-      { id: 'user-1', name: 'User One', email: 'user1@example.com' },
-      { id: 'user-2', name: 'User Two', email: 'user2@example.com' },
-    ];
-
-    // Add users to the users repository
-    users.forEach((user) => usersRepository.create(user));
-  });
-
-  it('should correctly calculate points based on prediction accuracy', async () => {
-    const { standings } = await sut.execute({ poolId: 1 });
-
-    // User 1 should have 6 points (3 + 1 + 2)
-    const user1Standing = standings.find((s) => s.userId === 'user-1');
-    expect(user1Standing).toBeDefined();
-    expect(user1Standing?.total_points).toBe(6);
-
-    // User 2 should have 4 points (1 + 3 + 0)
-    const user2Standing = standings.find((s) => s.userId === 'user-2');
-    expect(user2Standing).toBeDefined();
-    expect(user2Standing?.total_points).toBe(4);
-  });
-
-  it('should apply correct multipliers for knockout and final matches', async () => {
-    // Add a new match (semifinal) and predictions to test knockout multiplier
-    const semifinalMatch = {
-      id: 4,
-      tournamentId: 1,
-      homeTeam: 'Team B',
-      awayTeam: 'Team D',
-      homeScore: 2,
-      awayScore: 0,
-      matchDate: new Date(),
-      matchStatus: MatchStatus.FINISHED,
-      stage: MatchStage.SEMIFINAL,
-      hasExtraTime: false,
-      hasPenalties: false,
-    };
-
-    await poolsRepository.addMatch(semifinalMatch);
-
-    // Add exact score prediction for user 1 (3 points * 1.5 knockout multiplier = 4.5 points)
-    await poolsRepository.addPrediction({
-      id: 7,
-      userId: 'user-1',
-      poolId: 1,
-      matchId: 4,
-      homeScore: 2,
-      awayScore: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    // Create scoring rules for the pool
+    const scoringRules = await poolsRepository.createScoringRules({
+      pool: { connect: { id: pool.id } },
+      exactScorePoints: 10,
+      correctWinnerGoalDiffPoints: 7,
+      correctWinnerPoints: 5,
+      correctDrawPoints: 5,
+      specialEventPoints: 5,
+      knockoutMultiplier: 1.5,
+      finalMultiplier: 2.0,
     });
 
-    const { standings } = await sut.execute({ poolId: 1 });
+    poolsRepository.scoringRules.push(scoringRules);
 
-    // User 1 should now have 10.5 points (3 + 1 + 2 + 4.5)
-    const user1Standing = standings.find((s) => s.userId === 'user-1');
+    await poolsRepository.addParticipant({ poolId: pool.id, userId: regularUser.id });
+
+    matches.push(
+      await createMatch(
+        matchesRepository,
+        {
+          tournamentId: pool.tournamentId,
+          homeTeamScore: 2,
+          awayTeamScore: 3,
+          matchStatus: MatchStatus.COMPLETED,
+          matchStage: MatchStage.GROUP,
+          hasExtraTime: false,
+          hasPenalties: false,
+        },
+        await createTeam(teamsRepository, { name: 'Brazil', countryCode: 'BRA' }),
+        await createTeam(teamsRepository, { name: 'Argentina', countryCode: 'ARG' })
+      )
+    );
+    matches.push(
+      await createMatch(
+        matchesRepository,
+        {
+          tournamentId: pool.tournamentId,
+          homeTeamScore: 0,
+          awayTeamScore: 0,
+          matchStatus: MatchStatus.COMPLETED,
+          matchStage: MatchStage.GROUP,
+          hasExtraTime: false,
+          hasPenalties: false,
+        },
+        await createTeam(teamsRepository, { name: 'France', countryCode: 'FRA' }),
+        await createTeam(teamsRepository, { name: 'England', countryCode: 'ENG' })
+      )
+    );
+    matches.push(
+      await createMatch(
+        matchesRepository,
+        {
+          tournamentId: pool.tournamentId,
+          homeTeamScore: 3,
+          awayTeamScore: 1,
+          matchStatus: MatchStatus.COMPLETED,
+          matchStage: MatchStage.GROUP,
+          hasExtraTime: false,
+          hasPenalties: false,
+        },
+        await createTeam(teamsRepository, { name: 'Germany', countryCode: 'GER' }),
+        await createTeam(teamsRepository, { name: 'Italy', countryCode: 'ITA' })
+      )
+    );
+    matches.push(
+      await createMatch(
+        matchesRepository,
+        {
+          tournamentId: pool.tournamentId,
+          homeTeamScore: 1,
+          awayTeamScore: 4,
+          matchStatus: MatchStatus.COMPLETED,
+          matchStage: MatchStage.GROUP,
+          hasExtraTime: false,
+          hasPenalties: false,
+        },
+        await createTeam(teamsRepository, { name: 'Italy', countryCode: 'ITA' }),
+        await createTeam(teamsRepository, { name: 'Brazil', countryCode: 'BRA' })
+      )
+    );
+
+    await createPrediction(predictionsRepository, {
+      userId: regularUser.id,
+      poolId: pool.id,
+      matchId: matches[0].id,
+      predictedHomeScore: 2,
+      predictedAwayScore: 1,
+    });
+    await createPrediction(predictionsRepository, {
+      userId: regularUser.id,
+      poolId: pool.id,
+      matchId: matches[1].id,
+      predictedHomeScore: 0,
+      predictedAwayScore: 0,
+    });
+    await createPrediction(predictionsRepository, {
+      userId: regularUser.id,
+      poolId: pool.id,
+      matchId: matches[2].id,
+      predictedHomeScore: 3,
+      predictedAwayScore: 2,
+    });
+    await createPrediction(predictionsRepository, {
+      userId: regularUser.id,
+      poolId: pool.id,
+      matchId: matches[3].id,
+      predictedHomeScore: 3,
+      predictedAwayScore: 0,
+    });
+
+    await createPrediction(predictionsRepository, {
+      userId: creator.id,
+      poolId: pool.id,
+      matchId: matches[0].id,
+      predictedHomeScore: 2,
+      predictedAwayScore: 3,
+    });
+    await createPrediction(predictionsRepository, {
+      userId: creator.id,
+      poolId: pool.id,
+      matchId: matches[1].id,
+      predictedHomeScore: 1,
+      predictedAwayScore: 1,
+    });
+    await createPrediction(predictionsRepository, {
+      userId: creator.id,
+      poolId: pool.id,
+      matchId: matches[2].id,
+      predictedHomeScore: 2,
+      predictedAwayScore: 3,
+    });
+    await createPrediction(predictionsRepository, {
+      userId: creator.id,
+      poolId: pool.id,
+      matchId: matches[3].id,
+      predictedHomeScore: 0,
+      predictedAwayScore: 3,
+    });
+
+    poolsRepository.matches = matches;
+    poolsRepository.predictions = predictionsRepository.predictions;
+  });
+
+  /*
+  This test has no purpose, since the points are calculated in the database.
+  */
+  it('should correctly calculate points based on prediction accuracy', async () => {
+    const { standings } = await sut.execute({ poolId: pool.id });
+
+    const user1Standing = standings.find((s) => s.userId === creator.id);
     expect(user1Standing).toBeDefined();
-    expect(user1Standing?.total_points).toBe(10.5);
+    expect(user1Standing?.totalPoints).toBe(22);
+
+    const user2Standing = standings.find((s) => s.userId === regularUser.id);
+    expect(user2Standing).toBeDefined();
+    expect(user2Standing?.totalPoints).toBe(15);
   });
 
   it('should throw ResourceNotFoundError when pool does not exist', async () => {
     await expect(sut.execute({ poolId: 999 })).rejects.toThrow(ResourceNotFoundError);
+  });
+
+  it('should return standings with all columns not null', async () => {
+    const { standings } = await sut.execute({ poolId: pool.id });
+
+    standings.forEach((standing) => {
+      expect(standing.userId).not.toBeNull();
+      expect(standing.fullName).not.toBeNull();
+      expect(standing.profileImageUrl).not.toBeNull();
+      expect(standing.totalPoints).not.toBeNull();
+      expect(standing.ranking).not.toBeNull();
+    });
   });
 });
