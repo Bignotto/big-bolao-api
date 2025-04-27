@@ -1,3 +1,4 @@
+import { PoolStandings } from '@/global/types/poolStandings';
 import { Pool, Prisma, ScoringRule } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
@@ -106,5 +107,14 @@ export class PrismaPoolsRepository implements IPoolsRepository {
         },
       },
     });
+  }
+
+  async getPoolStandings(poolId: number) {
+    const poolStandings = await prisma.$queryRaw<PoolStandings[]>`
+    SELECT * FROM pool_standings
+    WHERE "poolId" = ${poolId}
+    ORDER BY "ranking"
+    `;
+    return poolStandings;
   }
 }

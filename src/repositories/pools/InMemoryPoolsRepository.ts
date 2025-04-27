@@ -1,12 +1,136 @@
-import { Pool, Prisma, ScoringRule } from '@prisma/client';
+import { Match, Pool, Prediction, Prisma, ScoringRule } from '@prisma/client';
 
+import { PoolStandings } from '@/global/types/poolStandings';
+import { PredictionPoints } from '@/global/types/predictionPoints';
 import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
 
 export class InMemoryPoolsRepository implements IPoolsRepository {
-  private pools: Pool[] = [];
-  private scoringRules: ScoringRule[] = [];
-  private participants: { poolId: number; userId: string; joinedAt: Date }[] = [];
+  public pools: Pool[] = [];
+  public scoringRules: ScoringRule[] = [];
+  public participants: { poolId: number; userId: string; joinedAt: Date }[] = [];
+  public predictions: Prediction[] = [];
+  public matches: Match[] = [];
+  public poolStandings: PoolStandings[] = [];
 
+  /*
+  This method could have only produced a mock-up for pool standings, but... 
+  */
+  async getPoolStandings(poolId: number): Promise<PoolStandings[]> {
+    if (this.predictions.length === 0) {
+      throw new Error('No predictions found');
+    }
+    if (this.scoringRules.length === 0) {
+      throw new Error('No scoring rules found');
+    }
+    if (this.matches.length === 0) {
+      throw new Error('No matches found');
+    }
+
+    const poolPredictions = this.predictions.filter((prediction) => prediction.poolId === poolId);
+    if (poolPredictions.length === 0) {
+      throw new Error('No predictions found for this pool');
+    }
+
+    const predictionsPoints: PredictionPoints[] = [];
+    let summary: { [id: string]: PoolStandings } = {};
+
+    for (const prediction of poolPredictions) {
+      const match = this.matches.find((match) => match.id === prediction.matchId);
+      if (!match) {
+        throw new Error('Match not found for prediction');
+      }
+
+      let basepoints = 0;
+      switch (true) {
+        case prediction.predictedHomeScore === match?.homeTeamScore &&
+          prediction.predictedAwayScore === match?.awayTeamScore:
+          basepoints = this.scoringRules[0].exactScorePoints; // Exact score
+          break;
+
+        case prediction.predictedHomeScore === prediction.predictedAwayScore &&
+          (match?.homeTeamScore ?? 0) === (match?.awayTeamScore ?? 0):
+          basepoints = this.scoringRules[0].correctDrawPoints; // Correct draw
+          break;
+
+        case Math.sign(prediction.predictedHomeScore - prediction.predictedAwayScore) ===
+          Math.sign((match?.homeTeamScore ?? 0) - (match?.awayTeamScore ?? 0)) &&
+          prediction.predictedHomeScore - prediction.predictedAwayScore ===
+            (match?.homeTeamScore ?? 0) - (match?.awayTeamScore ?? 0):
+          basepoints = this.scoringRules[0].correctWinnerGoalDiffPoints; // Correct winner and goal diff
+          break;
+
+        case prediction.predictedHomeScore > prediction.predictedAwayScore &&
+          (match?.homeTeamScore ?? 0) > (match?.awayTeamScore ?? 0):
+          basepoints = this.scoringRules[0].correctWinnerPoints; // Correct winner
+          break;
+
+        case (prediction.predictedAwayScore > prediction.predictedHomeScore &&
+          match?.awayTeamScore) ??
+          0 > (match?.homeTeamScore ?? 0):
+          basepoints = this.scoringRules[0].correctWinnerPoints; // Correct winner
+          break;
+
+        default:
+          basepoints = 0; // Wrong prediction
+      }
+
+      let stagemultiplier = 1;
+      switch (true) {
+        case match.stage === 'FINAL':
+          stagemultiplier = this.scoringRules[0].finalMultiplier.toNumber();
+          break;
+        case match.stage !== 'GROUP':
+          stagemultiplier = this.scoringRules[0].knockoutMultiplier.toNumber();
+          break;
+        default:
+          stagemultiplier = 1;
+          break;
+      }
+
+      predictionsPoints.push({
+        Prediction: 0,
+        poolId,
+        matchId: match ? match.id : 0,
+        userId: prediction.userId,
+        homeTeamScore: match?.homeTeamScore ?? 0,
+        awayTeamScore: match?.awayTeamScore ?? 0,
+        stage: match?.stage ?? '',
+        matchStatus: match?.matchStatus ?? '',
+        predictedHome: prediction.predictedPenaltyHomeScore ?? 0,
+        predictedAway: prediction.predictedPenaltyAwayScore ?? 0,
+        predictedHasExtraTime: prediction.predictedHasExtraTime,
+        predictedHasPenalties: prediction.predictedHasPenalties,
+        predictedHomePenalty: prediction.predictedPenaltyHomeScore,
+        predictedAwayPenalty: prediction.predictedPenaltyAwayScore,
+        exactScore:
+          prediction.predictedHomeScore === match?.homeTeamScore &&
+          prediction.predictedAwayScore === match?.awayTeamScore
+            ? 1
+            : 0,
+        basepoints,
+        stagemultiplier,
+        TotalPoints: basepoints * stagemultiplier,
+      });
+      if (summary[prediction.userId]) {
+        summary[prediction.userId].totalPoints += basepoints * stagemultiplier;
+      } else {
+        summary[prediction.userId] = {
+          userId: prediction.userId,
+          poolId,
+          totalPoints: basepoints * stagemultiplier,
+          exactScoreCount: 0,
+          fullName: '',
+          guessRatio: 0,
+          pointsRatio: 0,
+          predictionsRatio: 0,
+          profileImageUrl: '',
+          ranking: '0',
+          totalPredictions: 0,
+        };
+      }
+    }
+    return Object.values(summary);
+  }
   async create(data: Prisma.PoolCreateInput): Promise<Pool> {
     const newId = this.pools.length + 1;
 
