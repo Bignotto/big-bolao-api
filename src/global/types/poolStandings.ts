@@ -1,5 +1,5 @@
 export interface PoolStandings {
-  ranking: string;
+  ranking: number;
   fullName: string;
   profileImageUrl: string | null;
   userId: string;

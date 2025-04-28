@@ -19,4 +19,5 @@ export interface IPoolsRepository {
   getPool(id: number): Promise<PoolCompleteInfo | null>;
   update(id: number, data: Prisma.PoolUpdateInput): Promise<Pool>;
   getPoolStandings(poolId: number): Promise<PoolStandings[]>;
+  getUserPoolsStandings(userId: string): Promise<PoolStandings[]>;
 }

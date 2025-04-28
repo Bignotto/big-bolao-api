@@ -117,4 +117,13 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     `;
     return poolStandings;
   }
+
+  async getUserPoolsStandings(userId: string) {
+    const userStandings = await prisma.$queryRaw<PoolStandings[]>`
+    SELECT * FROM pool_standings
+    WHERE "userId" = ${userId}
+    ORDER BY "ranking"
+    `;
+    return userStandings;
+  }
 }
