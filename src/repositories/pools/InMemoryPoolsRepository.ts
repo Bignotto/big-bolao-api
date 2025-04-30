@@ -124,13 +124,49 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
           pointsRatio: 0,
           predictionsRatio: 0,
           profileImageUrl: '',
-          ranking: '0',
+          ranking: 0,
           totalPredictions: 0,
         };
       }
     }
     return Object.values(summary);
   }
+
+  /*
+  This method is only a mock-up for a pool standings view from database. It desen't
+  reflect actual standings from database. This should be tested eslewhere.
+  */
+  async getUserPoolsStandings(userId: string): Promise<PoolStandings[]> {
+    const userStandings: PoolStandings[] = [];
+    userStandings.push({
+      userId: userId,
+      poolId: 0,
+      totalPoints: 34,
+      exactScoreCount: 3,
+      fullName: 'Test User',
+      guessRatio: 12,
+      pointsRatio: 34.7,
+      predictionsRatio: 65.8,
+      profileImageUrl: '',
+      ranking: 1,
+      totalPredictions: 4,
+    });
+    userStandings.push({
+      userId: userId,
+      poolId: 2,
+      totalPoints: 28,
+      exactScoreCount: 3,
+      fullName: 'Test User',
+      guessRatio: 12,
+      pointsRatio: 34.7,
+      predictionsRatio: 65.8,
+      profileImageUrl: '',
+      ranking: 3,
+      totalPredictions: 4,
+    });
+    return userStandings;
+  }
+
   async create(data: Prisma.PoolCreateInput): Promise<Pool> {
     const newId = this.pools.length + 1;
 
