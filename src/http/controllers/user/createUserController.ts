@@ -1,7 +1,7 @@
+import { EmailInUseError } from '@/global/errors/EmailInUseError';
+import { makeCreateUserUseCase } from '@/useCases/users/factory/makeCreateUserUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
-import { EmailInUseError } from '../../../global/errors/EmailInUseError';
-import { makeCreateUserUseCase } from '../../../useCases/users/factory/makeCreateUserUseCase';
 
 interface CreateUserControllerRequest {
   email: string;
@@ -30,11 +30,11 @@ export async function CreateUserController(
     profileImageUrl: z.string(),
   });
 
-  const { email, passwordHash, fullName, profileImageUrl } = createUserBodySchema.parse(
-    request.body
-  );
-
   try {
+    const { email, passwordHash, fullName, profileImageUrl } = createUserBodySchema.parse(
+      request.body
+    );
+
     const createUserUseCase = makeCreateUserUseCase();
 
     const user = await createUserUseCase.execute({
@@ -51,6 +51,12 @@ export async function CreateUserController(
     if (error instanceof EmailInUseError) {
       return reply.status(409).send({ message: error.message });
     }
+
+    if (error instanceof z.ZodError) {
+      return reply.status(422).send({ message: 'Validation error' });
+    }
+
+    //TODO: should return better info about what data are missing or invalid
 
     throw error;
   }
