@@ -63,7 +63,7 @@ export const createServer = async (): Promise<FastifyInstance> => {
 
 // Graceful shutdown handler
 export const closeGracefully = async (signal: string) => {
-  console.log(`Received signal to terminate: ${signal}`);
+  if (env.NODE_ENV !== 'test') console.log(`Received signal to terminate: ${signal}`);
 
   await prisma.$disconnect();
   process.exit(0);

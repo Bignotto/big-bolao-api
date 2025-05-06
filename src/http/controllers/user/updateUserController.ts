@@ -27,10 +27,10 @@ export async function UpdateUserController(
     profileImageUrl: z.string().optional(),
   });
 
-  const { userId } = updateUserParamsSchema.parse(request.params);
-  const { email, fullName, profileImageUrl } = updateUserBodySchema.parse(request.body);
-
   try {
+    const { userId } = updateUserParamsSchema.parse(request.params);
+    const { email, fullName, profileImageUrl } = updateUserBodySchema.parse(request.body);
+
     const updateUserUseCase = makeUpdateUserUseCase();
 
     const user = await updateUserUseCase.execute({
@@ -47,6 +47,11 @@ export async function UpdateUserController(
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message });
     }
+    if (error instanceof z.ZodError) {
+      return reply.status(422).send({ message: 'Validation error.', issues: error.format() });
+    }
+
+    console.log('CONTROLLER', JSON.stringify(error, null, 2));
 
     throw error;
   }
