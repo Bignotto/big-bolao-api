@@ -56,9 +56,15 @@ export async function createPoolWithParticipants(
   });
 
   const pool = await createPool(repositories.poolsRepository, {
-    creatorId: useraA.id,
+    creatorId: data.creatorId ?? useraA.id,
     ...data,
   });
+
+  if (data.creatorId)
+    await repositories.poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: useraA.id,
+    });
 
   await repositories.poolsRepository.addParticipant({
     poolId: pool.id,
