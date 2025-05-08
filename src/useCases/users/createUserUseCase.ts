@@ -4,6 +4,7 @@ import { EmailInUseError } from '../../global/errors/EmailInUseError';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
 
 interface ICreateUserRequest {
+  id?: string;
   fullName: string;
   email: string;
   passwordHash?: string;
@@ -15,6 +16,7 @@ export class CreateUserUseCase {
   constructor(private usersRepository: IUsersRepository) {}
 
   async execute({
+    id,
     email,
     passwordHash = '',
     fullName,
@@ -30,6 +32,7 @@ export class CreateUserUseCase {
     const hashedPassword = await hash(passwordHash, 8);
 
     const user = await this.usersRepository.create({
+      id,
       email,
       passwordHash: hashedPassword,
       fullName,

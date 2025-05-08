@@ -19,7 +19,7 @@ export async function getSupabaseAccessToken(app: FastifyInstance) {
     throw new Error('No session found');
   }
 
-  await request(app.server)
+  const response = await request(app.server)
     .post('/users')
     .set('Authorization', `Bearer ${session.access_token}`)
     .send({
@@ -28,12 +28,15 @@ export async function getSupabaseAccessToken(app: FastifyInstance) {
       fullName: 'John Tester',
       email: env.TEST_USER_EMAIL,
       accountProvider: 'EMAIL',
+      profileImageUrl: 'https://example.com/profile.jpg',
     });
+
+  console.log(JSON.stringify(response.body, null, 2));
 
   const returnData: {
     token: string;
     userId: string;
-  } = { token: session.access_token, userId: session.user.id };
+  } = { token: session.access_token, userId: response.body.user.id };
 
   return returnData;
 }

@@ -4,6 +4,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 interface CreateUserControllerRequest {
+  id: string;
   email: string;
   passwordHash: string;
   fullName: string;
@@ -24,6 +25,7 @@ export async function CreateUserController(
   reply: FastifyReply
 ) {
   const createUserBodySchema = z.object({
+    id: z.string(),
     email: z.string().email(),
     passwordHash: z.string(),
     fullName: z.string(),
@@ -31,13 +33,14 @@ export async function CreateUserController(
   });
 
   try {
-    const { email, passwordHash, fullName, profileImageUrl } = createUserBodySchema.parse(
+    const { id, email, passwordHash, fullName, profileImageUrl } = createUserBodySchema.parse(
       request.body
     );
 
     const createUserUseCase = makeCreateUserUseCase();
 
     const user = await createUserUseCase.execute({
+      id,
       email,
       passwordHash,
       fullName,
@@ -53,7 +56,7 @@ export async function CreateUserController(
     }
 
     if (error instanceof z.ZodError) {
-      return reply.status(422).send({ message: 'Validation error' });
+      return reply.status(422).send({ message: 'Validation error', issues: error.format() });
     }
 
     //TODO: should return better info about what data are missing or invalid

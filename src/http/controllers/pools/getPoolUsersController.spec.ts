@@ -34,19 +34,17 @@ describe('Get Pool Users Controller (e2e)', async () => {
   });
 
   it.only('should be able to get users from a pool', async () => {
-    // Create a pool
-    const owner = await createUser(usersRepository, {});
-
     const tournament = await createTournament(tournamentsRepository, {});
 
-    // Create some users and add them to the pool
+    console.log(userId);
+
     const { pool, participants } = await createPoolWithParticipants(
       {
         poolsRepository,
         usersRepository,
       },
       {
-        creatorId: owner.id,
+        creatorId: userId,
         tournamentId: tournament.id,
       }
     );

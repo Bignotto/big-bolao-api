@@ -17,7 +17,7 @@ export class GetPoolUsersUseCase {
     // Verify if the user exists
     const user = await this.usersRepository.findById(userId);
     if (!user) {
-      throw new ResourceNotFoundError('User not found');
+      throw new ResourceNotFoundError(`User with ID ${userId} not found`);
     }
 
     // Verify if the pool exists
