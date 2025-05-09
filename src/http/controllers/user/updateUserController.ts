@@ -51,8 +51,6 @@ export async function UpdateUserController(
       return reply.status(422).send({ message: 'Validation error.', issues: error.format() });
     }
 
-    console.log('CONTROLLER', JSON.stringify(error, null, 2));
-
     throw error;
   }
 }

@@ -22,13 +22,11 @@ export class PrismaPoolsRepository implements IPoolsRepository {
   }
 
   async getPool(id: number): Promise<PoolCompleteInfo | null> {
-    console.log('Pool: repository', id);
     const pool = await prisma.pool.findUnique({
       where: { id },
       include: { participants: true, scoringRules: true },
     });
 
-    console.log('Pool: repository', pool);
     return pool;
   }
 

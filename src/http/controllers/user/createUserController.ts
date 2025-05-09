@@ -25,7 +25,7 @@ export async function CreateUserController(
   reply: FastifyReply
 ) {
   const createUserBodySchema = z.object({
-    id: z.string(),
+    id: z.string().optional(),
     email: z.string().email(),
     passwordHash: z.string(),
     fullName: z.string(),

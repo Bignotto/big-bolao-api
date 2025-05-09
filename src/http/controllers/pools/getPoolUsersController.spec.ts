@@ -33,10 +33,8 @@ describe('Get Pool Users Controller (e2e)', async () => {
     await app.close();
   });
 
-  it.only('should be able to get users from a pool', async () => {
+  it('should be able to get users from a pool', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
-
-    console.log(userId);
 
     const { pool, participants } = await createPoolWithParticipants(
       {
@@ -53,8 +51,6 @@ describe('Get Pool Users Controller (e2e)', async () => {
       .get(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
-
-    console.log(JSON.stringify(response, null, 2));
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('users');
@@ -88,22 +84,29 @@ describe('Get Pool Users Controller (e2e)', async () => {
 
   it('should require authentication', async () => {
     const owner = await createUser(usersRepository, {});
-    const pool = await createPool(poolsRepository, { creatorId: owner.id });
+    const tournament = await createTournament(tournamentsRepository, {});
+
+    const pool = await createPool(poolsRepository, {
+      creatorId: owner.id,
+      tournamentId: tournament.id,
+    });
 
     const response = await request(app.server).get(`/pools/${pool.id}/users`).send();
 
     expect(response.statusCode).toEqual(401);
   });
 
-  it('should handle server errors gracefully', async () => {
-    // This test is a bit tricky as we need to force a server error
-    // One approach could be to mock the use case to throw an unexpected error
-    // For now, we'll skip the implementation details of this test
-    // const response = await request(app.server)
-    //   .get(`/pools/999999999999999999999/users`) // Very large number to potentially cause an error
-    //   .set('Authorization', `Bearer ${token}`)
-    //   .send();
-    // expect(response.statusCode).toEqual(500);
-    // expect(response.body).toHaveProperty('message', 'Internal server error.');
-  });
+  //NEXT: should not be able to get users from a pool if you are not a participant
+
+  // it('should handle server errors gracefully', async () => {
+  //   // This test is a bit tricky as we need to force a server error
+  //   // One approach could be to mock the use case to throw an unexpected error
+  //   // For now, we'll skip the implementation details of this test
+  //   // const response = await request(app.server)
+  //   //   .get(`/pools/999999999999999999999/users`) // Very large number to potentially cause an error
+  //   //   .set('Authorization', `Bearer ${token}`)
+  //   //   .send();
+  //   // expect(response.statusCode).toEqual(500);
+  //   // expect(response.body).toHaveProperty('message', 'Internal server error.');
+  // });
 });

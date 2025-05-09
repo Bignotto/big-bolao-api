@@ -43,6 +43,8 @@ export const createServer = async (): Promise<FastifyInstance> => {
   });
 
   server.setErrorHandler((error, _, reply) => {
+    console.log(JSON.stringify(error, null, 2));
+
     if (error instanceof ZodError) {
       if (env.NODE_ENV !== 'test') console.log(JSON.stringify(error, null, 2));
 
@@ -54,7 +56,7 @@ export const createServer = async (): Promise<FastifyInstance> => {
     } else {
       // TODO: log unknown error
     }
-    console.log(JSON.stringify(error, null, 2));
+
     return reply.status(500).send({ message: 'Unknown error...' });
   });
 

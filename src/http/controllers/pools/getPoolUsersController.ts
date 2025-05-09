@@ -11,7 +11,6 @@ export async function getPoolUsersController(request: FastifyRequest, reply: Fas
 
     const { poolId } = getPoolUsersParamsSchema.parse(request.params);
 
-    // Get the authenticated user ID from the request
     const userId = request.user.sub;
 
     const getPoolUsersUseCase = makeGetPoolUsersUseCase();
@@ -30,7 +29,7 @@ export async function getPoolUsersController(request: FastifyRequest, reply: Fas
     }
 
     if (error instanceof z.ZodError) {
-      return reply.status(400).send({ message: 'Validation error.', issues: error.format() });
+      return reply.status(422).send({ message: 'Validation error.', issues: error.format() });
     }
 
     console.error(error);

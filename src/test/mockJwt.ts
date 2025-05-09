@@ -31,8 +31,6 @@ export async function getSupabaseAccessToken(app: FastifyInstance) {
       profileImageUrl: 'https://example.com/profile.jpg',
     });
 
-  console.log(JSON.stringify(response.body, null, 2));
-
   const returnData: {
     token: string;
     userId: string;
