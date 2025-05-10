@@ -83,7 +83,9 @@ describe('Get Pool Users Controller (e2e)', async () => {
   });
 
   it('should require authentication', async () => {
-    const owner = await createUser(usersRepository, {});
+    const owner = await createUser(usersRepository, {
+      email: 'owner@example.com',
+    });
     const tournament = await createTournament(tournamentsRepository, {});
 
     const pool = await createPool(poolsRepository, {
@@ -96,7 +98,32 @@ describe('Get Pool Users Controller (e2e)', async () => {
     expect(response.statusCode).toEqual(401);
   });
 
-  //NEXT: should not be able to get users from a pool if you are not a participant
+  it('should not be able to get users from a pool if you are not a participant', async () => {
+    const tournament = await createTournament(tournamentsRepository, {});
+    const otherUser = await createUser(usersRepository, {
+      email: 'other@example.com',
+    });
+
+    const { pool, participants } = await createPoolWithParticipants(
+      {
+        poolsRepository,
+        usersRepository,
+      },
+      {
+        creatorId: otherUser.id,
+        tournamentId: tournament.id,
+      }
+    );
+
+    // pool should not have logged user as participant
+    // so logged user should not be able to get users from this pool
+    const response = await request(app.server)
+      .get(`/pools/${pool.id}/users`)
+      .set('Authorization', `Bearer ${token}`)
+      .send();
+
+    expect(response.statusCode).toEqual(403);
+  });
 
   // it('should handle server errors gracefully', async () => {
   //   // This test is a bit tricky as we need to force a server error

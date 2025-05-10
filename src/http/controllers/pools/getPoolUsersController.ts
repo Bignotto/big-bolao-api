@@ -1,4 +1,5 @@
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { NotParticipantError } from '@/useCases/pools/errors/NotParticipantError';
 import { makeGetPoolUsersUseCase } from '@/useCases/pools/factory/makeGetPoolUsersUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
@@ -26,6 +27,9 @@ export async function getPoolUsersController(request: FastifyRequest, reply: Fas
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message });
+    }
+    if (error instanceof NotParticipantError) {
+      return reply.status(403).send({ message: error.message });
     }
 
     if (error instanceof z.ZodError) {
