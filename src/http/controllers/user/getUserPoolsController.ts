@@ -2,7 +2,7 @@ import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { makeGetUserPoolsUseCase } from '@/useCases/pools/factory/makeGetUserPoolsUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function getUserPools(request: FastifyRequest, reply: FastifyReply) {
+export async function getUserPoolsContoller(request: FastifyRequest, reply: FastifyReply) {
   try {
     const userId = request.user.sub;
 
