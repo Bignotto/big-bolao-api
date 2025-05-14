@@ -1,5 +1,6 @@
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
+import { faker } from '@faker-js/faker';
 import { Pool, User } from '@prisma/client';
 import { createUser } from './users';
 
@@ -45,20 +46,26 @@ export async function createPoolWithParticipants(
 }> {
   const useraA = await createUser(repositories.usersRepository, {
     fullName: 'John Doe',
-    email: 'john@example.com',
+    email: faker.internet.email(),
     passwordHash: 'hashed-password',
   });
 
   const userB = await createUser(repositories.usersRepository, {
     fullName: 'Jane Smith',
-    email: 'jane@example.com',
+    email: faker.internet.email(),
     passwordHash: 'hashed-password',
   });
 
   const pool = await createPool(repositories.poolsRepository, {
-    creatorId: useraA.id,
+    creatorId: data.creatorId ?? useraA.id,
     ...data,
   });
+
+  if (data.creatorId)
+    await repositories.poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: useraA.id,
+    });
 
   await repositories.poolsRepository.addParticipant({
     poolId: pool.id,

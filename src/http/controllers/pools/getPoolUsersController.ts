@@ -1,4 +1,5 @@
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { NotParticipantError } from '@/useCases/pools/errors/NotParticipantError';
 import { makeGetPoolUsersUseCase } from '@/useCases/pools/factory/makeGetPoolUsersUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
@@ -11,7 +12,6 @@ export async function getPoolUsersController(request: FastifyRequest, reply: Fas
 
     const { poolId } = getPoolUsersParamsSchema.parse(request.params);
 
-    // Get the authenticated user ID from the request
     const userId = request.user.sub;
 
     const getPoolUsersUseCase = makeGetPoolUsersUseCase();
@@ -28,9 +28,12 @@ export async function getPoolUsersController(request: FastifyRequest, reply: Fas
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message });
     }
+    if (error instanceof NotParticipantError) {
+      return reply.status(403).send({ message: error.message });
+    }
 
     if (error instanceof z.ZodError) {
-      return reply.status(400).send({ message: 'Validation error.', issues: error.format() });
+      return reply.status(422).send({ message: 'Validation error.', issues: error.format() });
     }
 
     console.error(error);

@@ -1,6 +1,7 @@
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
+import { NotParticipantError } from './errors/NotParticipantError';
 
 interface IGetPoolUsersRequest {
   poolId: number;
@@ -17,7 +18,7 @@ export class GetPoolUsersUseCase {
     // Verify if the user exists
     const user = await this.usersRepository.findById(userId);
     if (!user) {
-      throw new ResourceNotFoundError('User not found');
+      throw new ResourceNotFoundError(`User with ID ${userId} not found`);
     }
 
     // Verify if the pool exists
@@ -31,7 +32,7 @@ export class GetPoolUsersUseCase {
     const isParticipant = participants.some((participant) => participant.userId === user.id);
 
     if (!isParticipant && pool.creatorId !== user.id) {
-      throw new ResourceNotFoundError('User is not a participant or the creator of the pool');
+      throw new NotParticipantError('User is not a participant or the creator of the pool');
     }
 
     // Get all participant IDs

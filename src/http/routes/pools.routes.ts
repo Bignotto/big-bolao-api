@@ -5,7 +5,7 @@ import { leavePoolController } from '../controllers/pools/leavePoolController';
 import { removeUserFromPoolController } from '../controllers/pools/removeUserFromPoolController';
 import { verifyJwt } from '../middlewares/verifyJWT';
 
-export async function UserRoutes(app: FastifyInstance) {
+export async function PoolRoutes(app: FastifyInstance) {
   app.addHook('onRequest', verifyJwt);
 
   app.post('/pools/join', JoinPoolController);
