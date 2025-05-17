@@ -1,3 +1,5 @@
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { UnauthorizedError } from '@/useCases/pools/errors/UnauthorizedError';
 import { makeJoinPoolUseCase } from '@/useCases/pools/factory/makeJoinPoolUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
@@ -32,8 +34,14 @@ export async function JoinPoolController(request: FastifyRequest, reply: Fastify
       },
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return reply.status(400).send({ message: error.message });
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send({ message: error.message });
+    }
+    if (error instanceof UnauthorizedError) {
+      return reply.status(401).send({ message: error.message });
+    }
+    if (error instanceof z.ZodError) {
+      return reply.status(422).send({ message: error.message });
     }
 
     throw error;
