@@ -1,6 +1,7 @@
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
+import { UnauthorizedError } from './errors/UnauthorizedError';
 
 interface IJoinPoolRequest {
   poolId?: number;
@@ -29,7 +30,7 @@ export class JoinPoolUseCase {
     } else if (inviteCode) {
       pool = await this.poolsRepository.findByInviteCode(inviteCode);
     } else {
-      throw new Error('Either poolId or inviteCode must be provided');
+      throw new ResourceNotFoundError('Either poolId or inviteCode must be provided');
     }
 
     if (!pool) {
@@ -38,11 +39,11 @@ export class JoinPoolUseCase {
 
     // Check if pool is private and user has the correct invite code
     if (pool.isPrivate && !inviteCode) {
-      throw new Error('This pool is private and requires an invite code');
+      throw new UnauthorizedError('This pool is private and requires an invite code');
     }
 
     if (pool.isPrivate && inviteCode !== pool.inviteCode) {
-      throw new Error('Invalid invite code');
+      throw new UnauthorizedError('Invalid invite code');
     }
 
     // Check if pool has a maximum number of participants
@@ -63,7 +64,7 @@ export class JoinPoolUseCase {
     const isAlreadyParticipant = participants.some((participant) => participant.userId === userId);
 
     if (isAlreadyParticipant) {
-      throw new Error('User is already a participant in this pool');
+      throw new UnauthorizedError('User is already a participant in this pool');
     }
 
     // Add user as participant

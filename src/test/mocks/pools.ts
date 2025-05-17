@@ -11,6 +11,7 @@ export async function createPool(
     tournamentId?: number;
     creatorId?: string;
     isPrivate?: boolean;
+    inviteCode?: string;
   }
 ): Promise<Pool> {
   const randomPoolNumber = Math.floor(Math.random() * 100);
@@ -19,6 +20,7 @@ export async function createPool(
     name: data.name ?? `Pool ${randomPoolNumber}`,
     tournament: { connect: { id: data.tournamentId ?? randomPoolNumber } },
     creator: { connect: { id: data.creatorId ?? `faker-${randomPoolNumber}` } },
+    inviteCode: data.inviteCode ?? `invite-${randomPoolNumber}`,
   });
 
   await repository.addParticipant({
