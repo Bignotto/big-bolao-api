@@ -1,6 +1,8 @@
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
+import { NotParticipantError } from './errors/NotParticipantError';
+import { UnauthorizedError } from './errors/UnauthorizedError';
 
 interface ILeavePoolRequest {
   poolId: number;
@@ -31,12 +33,12 @@ export class LeavePoolUseCase {
     const isParticipant = participants.some((participant) => participant.userId === userId);
 
     if (!isParticipant) {
-      throw new Error('User is not a participant in this pool');
+      throw new NotParticipantError('User is not a participant in this pool');
     }
 
     // Check if user is the creator (creators cannot leave their own pools)
     if (pool.creatorId === userId) {
-      throw new Error('Pool creator cannot leave their own pool');
+      throw new UnauthorizedError('Pool creator cannot leave their own pool');
     }
 
     // Remove user from pool participants
