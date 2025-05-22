@@ -1,6 +1,8 @@
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
+import { NotParticipantError } from './errors/NotParticipantError';
+import { UnauthorizedError } from './errors/UnauthorizedError';
 
 interface IRemoveUserFromPoolRequest {
   poolId: number;
@@ -23,7 +25,7 @@ export class RemoveUserFromPoolUseCase {
 
     // Verify the requester is the pool creator
     if (pool.creatorId !== creatorId) {
-      throw new Error('Only the pool creator can remove users');
+      throw new UnauthorizedError('Only the pool creator can remove users');
     }
 
     // Verify user to remove exists
@@ -37,7 +39,7 @@ export class RemoveUserFromPoolUseCase {
     const isParticipant = participants.some((participant) => participant.userId === userIdToRemove);
 
     if (!isParticipant) {
-      throw new Error('User is not a participant in this pool');
+      throw new NotParticipantError('User is not a participant in this pool');
     }
 
     // Remove user from pool participants
