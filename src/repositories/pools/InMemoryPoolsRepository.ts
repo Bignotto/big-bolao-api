@@ -302,4 +302,9 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
 
     this.participants.splice(participantIndex, 1);
   }
+
+  async findByName(name: string): Promise<Pool | null> {
+    const pool = this.pools.find((pool) => pool.name === name);
+    return pool || null;
+  }
 }

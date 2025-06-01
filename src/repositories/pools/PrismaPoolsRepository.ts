@@ -124,4 +124,17 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     `;
     return userStandings;
   }
+
+  async findByName(name: string): Promise<Pool | null> {
+    const pool = await prisma.pool.findFirst({
+      where: {
+        name: {
+          equals: name,
+          mode: 'insensitive', // optional: makes it case-insensitive
+        },
+      },
+    });
+
+    return pool;
+  }
 }
