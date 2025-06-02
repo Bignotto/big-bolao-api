@@ -1,8 +1,8 @@
-import { randomUUID } from 'node:crypto';
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { ITournamentsRepository } from '../../repositories/tournaments/ITournamentsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
+import { PoolNameInUseError } from './errors/PoolNameInUseError';
 
 interface ICreatePoolRequest {
   name: string;
@@ -12,6 +12,7 @@ interface ICreatePoolRequest {
   isPrivate?: boolean;
   maxParticipants?: number;
   registrationDeadline?: Date;
+  inviteCode?: string;
 }
 
 export class CreatePoolUseCase {
@@ -29,6 +30,7 @@ export class CreatePoolUseCase {
     isPrivate = false,
     maxParticipants,
     registrationDeadline,
+    inviteCode,
   }: ICreatePoolRequest) {
     const creator = await this.usersRepository.findById(creatorId);
 
@@ -42,7 +44,11 @@ export class CreatePoolUseCase {
       throw new ResourceNotFoundError('Tournament not found');
     }
 
-    const inviteCode = isPrivate ? randomUUID() : null;
+    //const inviteCode = isPrivate ? randomUUID() : null;
+    const nameFound = await this.poolsRepository.findByName(name);
+    if (nameFound) {
+      throw new PoolNameInUseError(name);
+    }
 
     const pool = await this.poolsRepository.create({
       name,
