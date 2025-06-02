@@ -10,7 +10,6 @@ export async function createPoolController(request: FastifyRequest, reply: Fasti
       name: z.string().min(3),
       description: z.string().optional(),
       tournamentId: z.number(),
-      creatorId: z.string(),
       isPrivate: z.boolean().default(false),
       maxParticipants: z.number().optional(),
       inviteCode: z.string().optional(),

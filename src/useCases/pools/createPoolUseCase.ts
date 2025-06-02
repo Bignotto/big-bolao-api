@@ -47,7 +47,7 @@ export class CreatePoolUseCase {
     //const inviteCode = isPrivate ? randomUUID() : null;
     const nameFound = await this.poolsRepository.findByName(name);
     if (nameFound) {
-      throw new PoolNameInUseError(`Pool name "${name}" is already in use.`);
+      throw new PoolNameInUseError(name);
     }
 
     const pool = await this.poolsRepository.create({
