@@ -1,6 +1,7 @@
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
+import { NotPoolCreatorError } from './errors/NotPoolCreatorError';
 
 interface IUpdatePoolRequest {
   poolId: number;
@@ -38,9 +39,8 @@ export class UpdatePoolUseCase {
     }
 
     if (pool.creatorId !== userId) {
-      throw new Error('Only the pool creator can update the pool');
+      throw new NotPoolCreatorError(`User ${userId} is not the creator of pool ${poolId}`);
     }
-
     const updatedPool = await this.poolsRepository.update(poolId, {
       name,
       description,

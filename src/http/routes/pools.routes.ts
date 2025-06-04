@@ -4,6 +4,7 @@ import { getPoolUsersController } from '../controllers/pools/getPoolUsersControl
 import { JoinPoolController } from '../controllers/pools/joinPoolController';
 import { leavePoolController } from '../controllers/pools/leavePoolController';
 import { removeUserFromPoolController } from '../controllers/pools/removeUserFromPoolController';
+import { updatePoolController } from '../controllers/pools/updatePoolController';
 import { verifyJwt } from '../middlewares/verifyJWT';
 
 export async function PoolRoutes(app: FastifyInstance) {
@@ -14,4 +15,5 @@ export async function PoolRoutes(app: FastifyInstance) {
   app.post('/pools/:poolId/leave', leavePoolController);
   app.delete('/pools/:poolId/users/:userId', removeUserFromPoolController);
   app.get('/pools/:poolId/users', getPoolUsersController);
+  app.put('/pools/:poolId', updatePoolController);
 }
