@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { createPoolController } from '../controllers/pools/createPoolController';
+import { getPoolPredictionsController } from '../controllers/pools/getPoolPredictionsController';
 import { getPoolUsersController } from '../controllers/pools/getPoolUsersController';
 import { JoinPoolController } from '../controllers/pools/joinPoolController';
 import { leavePoolController } from '../controllers/pools/leavePoolController';
@@ -16,4 +17,5 @@ export async function PoolRoutes(app: FastifyInstance) {
   app.delete('/pools/:poolId/users/:userId', removeUserFromPoolController);
   app.get('/pools/:poolId/users', getPoolUsersController);
   app.put('/pools/:poolId', updatePoolController);
+  app.get('/pools/:poolId/predictions', getPoolPredictionsController);
 }

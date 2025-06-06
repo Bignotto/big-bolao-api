@@ -2,6 +2,7 @@ import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
 import { Prediction } from '@prisma/client';
+import { NotParticipantError } from './errors/NotParticipantError';
 
 interface GetPoolPredictionsUseCaseRequest {
   poolId: number;
@@ -35,9 +36,8 @@ export class GetPoolPredictionsUseCase {
     const isCreator = pool.creatorId === userId;
 
     if (!isParticipant && !isCreator) {
-      throw new Error('You must be a participant in this pool to view predictions');
+      throw new NotParticipantError('You must be a participant in this pool to view predictions');
     }
-
     // Get all predictions for the pool
     const predictions = await this.predictionsRepository.findByPoolId(poolId);
 
