@@ -18,7 +18,7 @@ import { createPrediction } from '@/test/mocks/predictions';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import { Pool, Prediction } from '@prisma/client';
+import { Match, Pool, Prediction } from '@prisma/client';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -38,6 +38,8 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
   let matchesRepository: IMatchesRepository;
   let predictionsRepository: IPredictionsRepository;
 
+  let match: Match;
+
   beforeAll(async () => {
     await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
@@ -49,23 +51,19 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
     matchesRepository = new PrismaMatchesRepository();
     predictionsRepository = new PrismaPredictionsRepository();
 
-    // Create a tournament for testing
     const tournament = await createTournament(tournamentsRepository, {});
     tournamentId = tournament.id;
 
-    // Create a pool for testing
     pool = await createPool(poolsRepository, {
       creatorId: userId,
       tournamentId,
       isPrivate: false,
     });
 
-    // Create teams for matches
     const homeTeam = await createTeam(teamsRepository, { name: 'Home Team' });
     const awayTeam = await createTeam(teamsRepository, { name: 'Away Team' });
 
-    // Create a match for testing
-    const match = await createMatch(
+    match = await createMatch(
       matchesRepository,
       {
         tournamentId,
@@ -78,7 +76,6 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
       awayTeam
     );
 
-    // Create predictions for testing
     const prediction = await createPrediction(predictionsRepository, {
       userId,
       poolId: pool.id,
@@ -88,14 +85,6 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
     });
 
     predictions = [prediction];
-
-    // Add user as participant to the pool
-    await poolsRepository.addParticipant({ poolId: pool.id, userId });
-
-    // Create another user for testing access control
-    const otherUser = await createUser(usersRepository, {
-      email: 'other-user@example.com',
-    });
   });
 
   afterAll(async () => {
@@ -118,12 +107,7 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
   });
 
   it('should get pool predictions for pool participant', async () => {
-    //TODO: as we cant get other user to login:
-    // [] Create other user and other pool, this new user should be the new pool creator
-    // [] Add the original user as a participant to this new pool
-    // [] Add predictions for both users to this pool
-    // [] Original user should be able to get his predictions for this pool
-
+    //Create other user to be the pool creater and the original user a participant
     const otherUser = await createUser(usersRepository, {});
 
     const otherPool = await createPool(poolsRepository, {
@@ -133,6 +117,14 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
     });
 
     await poolsRepository.addParticipant({ poolId: otherPool.id, userId: userId });
+
+    await createPrediction(predictionsRepository, {
+      userId: otherUser.id,
+      poolId: otherPool.id,
+      matchId: match.id,
+      predictedHomeScore: 2,
+      predictedAwayScore: 1,
+    });
 
     const response = await request(app.server)
       .get(`/pools/${pool.id}/predictions`)
@@ -145,16 +137,18 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
   });
 
   it('should return 403 when user is not a participant or creator', async () => {
+    const otherUser = await createUser(usersRepository, {});
+
     // Create a new pool where the other user is not a participant
     const newPool = await createPool(poolsRepository, {
-      creatorId: userId,
+      creatorId: otherUser.id,
       tournamentId,
       isPrivate: true,
     });
 
     const response = await request(app.server)
       .get(`/pools/${newPool.id}/predictions`)
-      .set('Authorization', `Bearer ${otherUserToken}`)
+      .set('Authorization', `Bearer ${token}`)
       .send();
 
     expect(response.statusCode).toEqual(403);
