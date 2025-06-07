@@ -1,10 +1,18 @@
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { makeGetUserPoolsUseCase } from '@/useCases/pools/factory/makeGetUserPoolsUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { z } from 'zod';
 
-export async function getUserPoolsContoller(request: FastifyRequest, reply: FastifyReply) {
+export async function getUserPoolsController(
+  request: FastifyRequest<{ Params: { userId: string } }>,
+  reply: FastifyReply
+) {
   try {
-    const userId = request.user.sub;
+    const paramsSchema = z.object({
+      userId: z.string(),
+    });
+
+    const { userId } = paramsSchema.parse(request.params);
 
     const getUserPoolsUseCase = makeGetUserPoolsUseCase();
     const { pools } = await getUserPoolsUseCase.execute({
