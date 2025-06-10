@@ -4,6 +4,7 @@ import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { NotParticipantError } from './errors/NotParticipantError';
 import { GetPoolUsersUseCase } from './getPoolUsersUseCase';
 
 let poolsRepository: IPoolsRepository;
@@ -138,19 +139,12 @@ describe('Get Pool Users Use Case', () => {
       userId: creator.id,
     });
 
-    // Attempt to get pool users as non-participant
     await expect(() =>
       sut.execute({
         poolId: pool.id,
         userId: nonParticipant.id,
       })
-    ).rejects.toBeInstanceOf(ResourceNotFoundError);
-    await expect(() =>
-      sut.execute({
-        poolId: pool.id,
-        userId: nonParticipant.id,
-      })
-    ).rejects.toThrow('User is not a participant or the creator of the pool');
+    ).rejects.toBeInstanceOf(NotParticipantError);
   });
 
   it('should return empty array when pool has no participants', async () => {

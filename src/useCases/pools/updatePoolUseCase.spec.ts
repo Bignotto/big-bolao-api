@@ -4,6 +4,7 @@ import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { NotPoolCreatorError } from './errors/NotPoolCreatorError';
 import { UpdatePoolUseCase } from './updatePoolUseCase';
 
 let poolsRepository: IPoolsRepository;
@@ -104,7 +105,7 @@ describe('Update Pool Use Case', () => {
         userId: otherUser.id,
         name: 'Updated Pool Name',
       })
-    ).rejects.toThrow('Only the pool creator can update the pool');
+    ).rejects.toBeInstanceOf(NotPoolCreatorError);
   });
 
   it('should only update the fields that are provided', async () => {
