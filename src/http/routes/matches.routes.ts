@@ -1,7 +1,7 @@
 import { verifyJwt } from '@/http/middlewares/verifyJWT';
 import { FastifyInstance } from 'fastify';
 import { getMatchController } from '../controllers/matches/getMatchController';
-import { getMatchPredictions } from '../controllers/matches/getMatchPredictions';
+import { getMatchPredictions } from '../controllers/matches/getMatchPredictionsController';
 import { updateMatchController } from '../controllers/matches/updateMatchController';
 
 export async function matchesRoutes(app: FastifyInstance) {
