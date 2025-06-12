@@ -8,6 +8,7 @@ export async function createPool(
   repository: IPoolsRepository,
   data: {
     name?: string;
+    description?: string;
     tournamentId?: number;
     creatorId?: string;
     isPrivate?: boolean;
@@ -18,6 +19,7 @@ export async function createPool(
 
   const pool = await repository.create({
     name: data.name ?? `Pool ${randomPoolNumber}`,
+    description: data.description ?? `Test pool description ${randomPoolNumber}`,
     tournament: { connect: { id: data.tournamentId ?? randomPoolNumber } },
     creator: { connect: { id: data.creatorId ?? `faker-${randomPoolNumber}` } },
     inviteCode: data.inviteCode ?? `invite-${randomPoolNumber}`,
@@ -38,6 +40,7 @@ export async function createPoolWithParticipants(
   },
   data: {
     name?: string;
+    description?: string;
     tournamentId?: number;
     creatorId?: string;
     isPrivate?: boolean;
