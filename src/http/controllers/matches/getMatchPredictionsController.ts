@@ -18,7 +18,6 @@ export async function getMatchPredictions(request: FastifyRequest, reply: Fastif
 
     return reply.status(200).send({ predictions });
   } catch (error) {
-    console.log(JSON.stringify(error, null, 2));
     if (error instanceof z.ZodError) {
       return reply.status(422).send({ message: 'Validation error', issues: error.format() });
     }
