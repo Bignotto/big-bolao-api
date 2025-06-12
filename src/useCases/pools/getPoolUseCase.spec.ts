@@ -1,6 +1,8 @@
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
+import { InMemoryTournamentsRepository } from '@/repositories/tournaments/InMemoryTournamentsRepository';
+import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -8,13 +10,15 @@ import { GetPoolUseCase } from './getPoolUseCase';
 
 let poolsRepository: IPoolsRepository;
 let usersRepository: IUsersRepository;
+let tournamentRepository: ITournamentsRepository;
 let sut: GetPoolUseCase;
 
 describe('Get Pool Use Case', () => {
   beforeEach(() => {
     poolsRepository = new InMemoryPoolsRepository();
     usersRepository = new InMemoryUsersRepository();
-    sut = new GetPoolUseCase(poolsRepository, usersRepository);
+    tournamentRepository = new InMemoryTournamentsRepository();
+    sut = new GetPoolUseCase(poolsRepository, usersRepository, tournamentRepository);
   });
 
   it('should be able to get pool information with participants and scoring rules', async () => {
@@ -38,11 +42,16 @@ describe('Get Pool Use Case', () => {
       accountProvider: 'EMAIL',
     });
 
+    const tournament = await tournamentRepository.create({
+      name: 'Test Tournament',
+      startDate: new Date('2023-01-01'),
+      endDate: new Date('2023-12-31'),
+    });
     // Create a pool
     const pool = await poolsRepository.create({
       name: 'Test Pool',
       description: 'A test pool',
-      tournament: { connect: { id: 1 } },
+      tournament: { connect: { id: tournament.id } },
       creator: { connect: { id: creator.id } },
       isPrivate: false,
     });
@@ -165,11 +174,18 @@ describe('Get Pool Use Case', () => {
       accountProvider: 'EMAIL',
     });
 
+    const tournament = await tournamentRepository.create({
+      name: 'Test Tournament',
+      startDate: new Date('2023-01-01'),
+      endDate: new Date('2023-12-31'),
+    });
     // Create a pool
     const pool = await poolsRepository.create({
-      name: 'Empty Pool',
-      tournament: { connect: { id: 1 } },
+      name: 'Test Pool',
+      description: 'A test pool',
+      tournament: { connect: { id: tournament.id } },
       creator: { connect: { id: user.id } },
+      isPrivate: false,
     });
 
     // Create scoring rules
