@@ -28,12 +28,13 @@ export async function createPool(
 
   await repository.createScoringRules({
     pool: { connect: { id: pool.id } },
-    correctDrawPoints: 3,
-    correctWinnerPoints: 5,
-    correctWinnerGoalDiffPoints: 2,
     exactScorePoints: 10,
-    finalMultiplier: 1.5,
-    knockoutMultiplier: 2,
+    correctWinnerGoalDiffPoints: 7,
+    correctWinnerPoints: 5,
+    correctDrawPoints: 5,
+    specialEventPoints: 5,
+    knockoutMultiplier: 1.5,
+    finalMultiplier: 2.0,
   });
 
   await repository.addParticipant({
