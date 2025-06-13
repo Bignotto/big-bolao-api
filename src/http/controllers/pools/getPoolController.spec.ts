@@ -33,7 +33,7 @@ describe('Get Pool Controller (e2e)', async () => {
     await app.close();
   });
 
-  it.only('should be able to get pool details as creator', async () => {
+  it('should be able to get pool details as creator', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
 
     const pool = await createPool(poolsRepository, {
@@ -49,9 +49,6 @@ describe('Get Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    //NEXT: pool is missing scoring rules
-    //TODO: add scoring rules to pool in createPool mock
-    console.log(JSON.stringify(response, null, 2));
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('pool');
     expect(response.body.pool).toEqual(

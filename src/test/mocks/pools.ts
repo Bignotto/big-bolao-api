@@ -23,6 +23,17 @@ export async function createPool(
     tournament: { connect: { id: data.tournamentId ?? randomPoolNumber } },
     creator: { connect: { id: data.creatorId ?? `faker-${randomPoolNumber}` } },
     inviteCode: data.inviteCode ?? `invite-${randomPoolNumber}`,
+    isPrivate: data.isPrivate ?? false,
+  });
+
+  await repository.createScoringRules({
+    pool: { connect: { id: pool.id } },
+    correctDrawPoints: 3,
+    correctWinnerPoints: 5,
+    correctWinnerGoalDiffPoints: 2,
+    exactScorePoints: 10,
+    finalMultiplier: 1.5,
+    knockoutMultiplier: 2,
   });
 
   await repository.addParticipant({
