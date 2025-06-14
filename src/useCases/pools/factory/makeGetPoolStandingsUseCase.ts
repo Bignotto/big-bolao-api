@@ -3,7 +3,7 @@ import { GetPoolStandingsUseCase } from '../getPoolStandingsUseCase';
 
 export function makeGetPoolStandingsUseCase() {
   const poolsRepository = new PrismaPoolsRepository();
-  const useCase = new GetPoolStandingsUseCase(poolsRepository);
+  const getPoolStandingsUseCase = new GetPoolStandingsUseCase(poolsRepository);
 
-  return useCase;
+  return getPoolStandingsUseCase;
 }
