@@ -43,19 +43,6 @@ describe('GetPoolStandingsUseCase', () => {
     });
 
     pool = await createPool(poolsRepository, { creatorId: creator.id });
-    // Create scoring rules for the pool
-    const scoringRules = await poolsRepository.createScoringRules({
-      pool: { connect: { id: pool.id } },
-      exactScorePoints: 10,
-      correctWinnerGoalDiffPoints: 7,
-      correctWinnerPoints: 5,
-      correctDrawPoints: 5,
-      specialEventPoints: 5,
-      knockoutMultiplier: 1.5,
-      finalMultiplier: 2.0,
-    });
-
-    poolsRepository.scoringRules.push(scoringRules);
 
     await poolsRepository.addParticipant({ poolId: pool.id, userId: regularUser.id });
 
@@ -190,7 +177,7 @@ describe('GetPoolStandingsUseCase', () => {
   This test has no purpose, since the points are calculated in the database.
   */
   it('should correctly calculate points based on prediction accuracy', async () => {
-    const { standings } = await sut.execute({ poolId: pool.id });
+    const { standings } = await sut.execute({ poolId: pool.id, userId: creator.id });
 
     const user1Standing = standings.find((s) => s.userId === creator.id);
     expect(user1Standing).toBeDefined();
@@ -202,11 +189,13 @@ describe('GetPoolStandingsUseCase', () => {
   });
 
   it('should throw ResourceNotFoundError when pool does not exist', async () => {
-    await expect(sut.execute({ poolId: 999 })).rejects.toThrow(ResourceNotFoundError);
+    await expect(sut.execute({ poolId: 999, userId: regularUser.id })).rejects.toThrow(
+      ResourceNotFoundError
+    );
   });
 
   it('should return standings with all columns not null', async () => {
-    const { standings } = await sut.execute({ poolId: pool.id });
+    const { standings } = await sut.execute({ poolId: pool.id, userId: creator.id });
 
     standings.forEach((standing) => {
       expect(standing.userId).not.toBeNull();
