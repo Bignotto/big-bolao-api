@@ -1,3 +1,4 @@
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemoryPredictionsRepository';
@@ -10,6 +11,10 @@ import { createUser } from '@/test/mocks/users';
 import { Match, MatchStage, MatchStatus, Pool, User } from '@prisma/client';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CreatePredictionUseCase } from './createPredictionUseCase';
+import { InvalidScoreError } from './error/InvalidScoreError';
+import { MatchStatusError } from './error/MatchStatusError';
+import { NotParticipantError } from './error/NotParticipantError';
+import { PredictionError } from './error/PredictionError';
 
 describe('Create Prediction Use Case', () => {
   let predictionsRepository: InMemoryPredictionsRepository;
@@ -82,7 +87,7 @@ describe('Create Prediction Use Case', () => {
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
-    ).rejects.toThrow('Predictions can only be made for upcoming matches');
+    ).rejects.toBeInstanceOf(MatchStatusError);
   });
 
   it('should not allow duplicate predictions for the same match, user and pool', async () => {
@@ -110,7 +115,7 @@ describe('Create Prediction Use Case', () => {
         predictedHomeScore: 3,
         predictedAwayScore: 0,
       })
-    ).rejects.toThrow('Prediction already exists for this match in this pool');
+    ).rejects.toBeInstanceOf(PredictionError);
   });
 
   it('should create a prediction with extra time and penalties', async () => {
@@ -161,7 +166,7 @@ describe('Create Prediction Use Case', () => {
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
-    ).rejects.toThrow('User is not a participant in this pool');
+    ).rejects.toBeInstanceOf(NotParticipantError);
   });
 
   it('should validate that penalty scores are provided when penalties are predicted', async () => {
@@ -185,7 +190,7 @@ describe('Create Prediction Use Case', () => {
         predictedHasPenalties: true,
         // Missing penalty scores
       })
-    ).rejects.toThrow('Penalty scores must be provided when penalties are predicted');
+    ).rejects.toBeInstanceOf(PredictionError);
   });
 
   it('should not allow predictions for matches that have already started', async () => {
@@ -206,7 +211,7 @@ describe('Create Prediction Use Case', () => {
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
-    ).rejects.toThrow('Predictions can only be made for upcoming matches');
+    ).rejects.toBeInstanceOf(MatchStatusError);
   });
 
   it('should validate that extra time can only be predicted for knockout stage matches', async () => {
@@ -228,7 +233,7 @@ describe('Create Prediction Use Case', () => {
         predictedAwayScore: 1,
         predictedHasExtraTime: true, // Extra time not allowed for group stage
       })
-    ).rejects.toThrow('Non knockout matches cannot have extra time or penalties');
+    ).rejects.toBeInstanceOf(PredictionError);
   });
 
   it('should validate that penalties can only be predicted when scores are tied after extra time', async () => {
@@ -253,7 +258,7 @@ describe('Create Prediction Use Case', () => {
         predictedPenaltyHomeScore: 5,
         predictedPenaltyAwayScore: 4,
       })
-    ).rejects.toThrow('Penalties can only be predicted when scores are tied after extra time');
+    ).rejects.toBeInstanceOf(PredictionError);
   });
 
   it('should not allow predictions for matches from tournaments not associated with the pool', async () => {
@@ -282,7 +287,7 @@ describe('Create Prediction Use Case', () => {
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
-    ).rejects.toThrow('Match does not belong to the tournament associated with this pool');
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
   it('should not allow negative scores in predictions', async () => {
@@ -295,7 +300,7 @@ describe('Create Prediction Use Case', () => {
         predictedHomeScore: -1, // Negative score
         predictedAwayScore: 2,
       })
-    ).rejects.toThrow('Predicted scores cannot be negative');
+    ).rejects.toBeInstanceOf(InvalidScoreError);
   });
 
   //TODO: implement this when tournaments repository gets implemented
@@ -380,7 +385,7 @@ describe('Create Prediction Use Case', () => {
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
-    ).rejects.toThrow('Pool not found');
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
   it('should throw an error when trying to create a prediction for a non-existent match', async () => {
@@ -395,6 +400,6 @@ describe('Create Prediction Use Case', () => {
         predictedHomeScore: 2,
         predictedAwayScore: 1,
       })
-    ).rejects.toThrow('Match not found');
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 });

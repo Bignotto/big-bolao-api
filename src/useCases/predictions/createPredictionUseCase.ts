@@ -4,6 +4,10 @@ import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { MatchStage, MatchStatus } from '@prisma/client';
+import { InvalidScoreError } from './error/InvalidScoreError';
+import { MatchStatusError } from './error/MatchStatusError';
+import { NotParticipantError } from './error/NotParticipantError';
+import { PredictionError } from './error/PredictionError';
 
 interface ICreatePredictionRequest {
   userId: string;
@@ -38,7 +42,7 @@ export class CreatePredictionUseCase {
   }: ICreatePredictionRequest) {
     // Check predicted negative values
     if (predictedHomeScore < 0 || predictedAwayScore < 0) {
-      throw new Error('Predicted scores cannot be negative');
+      throw new InvalidScoreError('Predicted scores cannot be negative');
     }
 
     // Check if user exists
@@ -57,7 +61,7 @@ export class CreatePredictionUseCase {
     const participants = await this.poolsRepository.getPoolParticipants(poolId);
     const isParticipant = participants.some((participant) => participant.userId === userId);
     if (!isParticipant) {
-      throw new Error('User is not a participant in this pool');
+      throw new NotParticipantError(userId);
     }
 
     // Check if match exists and is upcoming
@@ -68,11 +72,11 @@ export class CreatePredictionUseCase {
 
     // Check if match tournament is associated with the pool
     if (match.tournamentId !== pool.tournamentId) {
-      throw new Error('Match does not belong to the tournament associated with this pool');
+      throw new ResourceNotFoundError('Match not found in the pool');
     }
 
     if (match.matchStatus !== MatchStatus.SCHEDULED) {
-      throw new Error('Predictions can only be made for upcoming matches');
+      throw new MatchStatusError(match.matchStatus);
     }
 
     // Check if prediction already exists
@@ -83,16 +87,18 @@ export class CreatePredictionUseCase {
     );
 
     if (existingPrediction) {
-      throw new Error('Prediction already exists for this match in this pool');
+      throw new PredictionError('Prediction already exists for this match in this pool');
     }
 
     if (predictedHasExtraTime && match.stage === MatchStage.GROUP) {
-      throw new Error('Non knockout matches cannot have extra time or penalties');
+      throw new PredictionError('Non knockout matches cannot have extra time or penalties');
     }
 
     // Validate scores are tied if extra time is predicted
     if (predictedHasPenalties && predictedHomeScore !== predictedAwayScore) {
-      throw new Error('Penalties can only be predicted when scores are tied after extra time');
+      throw new PredictionError(
+        'Penalties can only be predicted when scores are tied after extra time'
+      );
     }
 
     // Validate penalty scores if penalties are predicted
@@ -100,7 +106,7 @@ export class CreatePredictionUseCase {
       predictedHasPenalties &&
       (predictedPenaltyHomeScore === undefined || predictedPenaltyAwayScore === undefined)
     ) {
-      throw new Error('Penalty scores must be provided when penalties are predicted');
+      throw new PredictionError('Penalty scores must be provided when penalties are predicted');
     }
 
     // Create prediction
