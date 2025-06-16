@@ -3,6 +3,7 @@ import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemo
 import { createPrediction } from '@/test/mocks/predictions';
 import { Prediction } from '@prisma/client';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { NotParticipantError } from './error/NotParticipantError';
 import { GetPredictionUseCase } from './getPredictionUseCase';
 
 describe('Get Prediction Use Case', () => {
@@ -48,6 +49,6 @@ describe('Get Prediction Use Case', () => {
         predictionId: 1,
         userId: 'user-02',
       })
-    ).rejects.toThrowError('You can only access your own predictions');
+    ).rejects.toBeInstanceOf(NotParticipantError);
   });
 });
