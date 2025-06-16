@@ -1,3 +1,4 @@
+import { NotParticipantError } from '@/global/errors/NotParticipantError';
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
@@ -23,6 +24,7 @@ describe('Get User Predictions Use Case', () => {
 
   let user1: User;
   let user2: User;
+  let user3: User;
   let pool1: Pool;
   let pool2: Pool;
   let match1: Match;
@@ -38,15 +40,19 @@ describe('Get User Predictions Use Case', () => {
     teamsRepository = new InMemoryTeamsRepository();
     matchesRepository = new InMemoryMatchesRepository();
 
-    sut = new GetUserPredictionsUseCase(predictionsRepository, usersRepository);
+    sut = new GetUserPredictionsUseCase(predictionsRepository, usersRepository, poolsRepository);
 
     // Create test users
     user1 = await createUser(usersRepository, { fullName: 'User One' });
     user2 = await createUser(usersRepository, { fullName: 'User Two' });
+    user3 = await createUser(usersRepository, { fullName: 'User Three' });
 
     // Create test pools
     pool1 = await createPool(poolsRepository, { creatorId: user1.id, name: 'Pool One' });
     pool2 = await createPool(poolsRepository, { creatorId: user1.id, name: 'Pool Two' });
+
+    // Add user2 as participant to pool1
+    await poolsRepository.addParticipant({ poolId: pool1.id, userId: user2.id });
 
     // Create test matches
     match1 = await createMatch(
@@ -119,6 +125,17 @@ describe('Get User Predictions Use Case', () => {
     expect(result.predictions).toEqual(expect.arrayContaining([prediction1, prediction2]));
   });
 
+  it('should be able to get predictions for a participant user filtered by pool', async () => {
+    const result = await sut.execute({
+      userId: user2.id,
+      poolId: pool1.id,
+    });
+
+    expect(result.predictions).toHaveLength(1);
+    expect(result.predictions[0].userId).toBe(user2.id);
+    expect(result.predictions[0].poolId).toBe(pool1.id);
+  });
+
   it('should return empty array when user has no predictions', async () => {
     const newUser = await createUser(usersRepository, { fullName: 'New User' });
 
@@ -149,5 +166,33 @@ describe('Get User Predictions Use Case', () => {
         userId: 'non-existent-user',
       })
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
+  });
+
+  it('should throw an error if pool does not exist when poolId is provided', async () => {
+    await expect(() =>
+      sut.execute({
+        userId: user1.id,
+        poolId: 999,
+      })
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
+  });
+
+  it('should throw an error if user is not a participant or creator of the pool', async () => {
+    await expect(() =>
+      sut.execute({
+        userId: user3.id,
+        poolId: pool1.id,
+      })
+    ).rejects.toBeInstanceOf(NotParticipantError);
+  });
+
+  it('should allow pool creator to get predictions even if not explicitly a participant', async () => {
+    const result = await sut.execute({
+      userId: user1.id,
+      poolId: pool1.id,
+    });
+
+    expect(result.predictions).toHaveLength(2);
+    expect(result.predictions).toEqual(expect.arrayContaining([prediction1, prediction2]));
   });
 });
