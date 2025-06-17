@@ -10,12 +10,12 @@ export function makeUpdatePredictionUseCase() {
   const usersRepository = new PrismaUsersRepository();
   const matchesRepository = new PrismaMatchesRepository();
 
-  const useCase = new UpdatePredictionUseCase(
+  const updatePredictionUseCase = new UpdatePredictionUseCase(
     predictionsRepository,
     poolsRepository,
     usersRepository,
     matchesRepository
   );
 
-  return useCase;
+  return updatePredictionUseCase;
 }
