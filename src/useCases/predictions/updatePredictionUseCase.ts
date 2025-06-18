@@ -1,3 +1,4 @@
+import { AuthorizationError } from '@/global/errors/AuthorizationError';
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -50,7 +51,7 @@ export class UpdatePredictionUseCase {
 
     // Verify that the prediction belongs to the user
     if (existingPrediction.userId !== userId) {
-      throw new PredictionError('You can only update your own predictions');
+      throw new AuthorizationError('You can only update your own predictions');
     }
 
     // Get the match to check its status
@@ -93,6 +94,14 @@ export class UpdatePredictionUseCase {
       (predictedPenaltyHomeScore === undefined || predictedPenaltyAwayScore === undefined)
     ) {
       throw new PredictionError('Penalty scores must be provided when penalties are predicted');
+    }
+
+    // Validate penalty scores if penalties are predicted
+    if (
+      predictedHasPenalties &&
+      (predictedPenaltyHomeScore! < 0 || predictedPenaltyAwayScore! < 0)
+    ) {
+      throw new PredictionError('Penalty scores must be positive numbers');
     }
 
     // Update the prediction
