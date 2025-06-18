@@ -1,3 +1,4 @@
+import { AuthorizationError } from '@/global/errors/AuthorizationError';
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InvalidScoreError } from '@/useCases/predictions/error/InvalidScoreError';
 import { MatchStatusError } from '@/useCases/predictions/error/MatchStatusError';
@@ -70,6 +71,10 @@ export async function updatePredictionController(
       return reply.status(404).send({ message: error.message });
     }
 
+    if (error instanceof AuthorizationError) {
+      return reply.status(403).send({ message: error.message });
+    }
+
     if (error instanceof InvalidScoreError) {
       return reply.status(400).send({ message: error.message });
     }
@@ -79,7 +84,7 @@ export async function updatePredictionController(
     }
 
     if (error instanceof PredictionError) {
-      return reply.status(409).send({ message: error.message });
+      return reply.status(400).send({ message: error.message });
     }
 
     if (error instanceof z.ZodError) {
