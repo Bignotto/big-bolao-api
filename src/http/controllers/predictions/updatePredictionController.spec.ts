@@ -377,4 +377,138 @@ describe('Update Prediction Controller (e2e)', async () => {
     expect(response.body).toHaveProperty('message', 'Validation error.');
     expect(response.body).toHaveProperty('issues');
   });
+
+  it('should return 422 when required fields are missing', async () => {
+    const response = await request(app.server)
+      .put(`/predictions/${prediction.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        // Missing predictedHomeScore and predictedAwayScore
+      });
+
+    expect(response.statusCode).toEqual(422);
+    expect(response.body).toHaveProperty('message', 'Validation error.');
+    expect(response.body).toHaveProperty('issues');
+  });
+
+  it('should handle zero prediction ID gracefully', async () => {
+    const response = await request(app.server)
+      .put('/predictions/0')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        predictedHomeScore: 2,
+        predictedAwayScore: 1,
+      });
+
+    expect(response.statusCode).toEqual(404);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toContain('not found');
+  });
+
+  it('should handle negative prediction ID gracefully', async () => {
+    const response = await request(app.server)
+      .put('/predictions/-1')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        predictedHomeScore: 2,
+        predictedAwayScore: 1,
+      });
+
+    expect(response.statusCode).toEqual(404);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toContain('not found');
+  });
+
+  it('should return consistent response structure', async () => {
+    const response = await request(app.server)
+      .put(`/predictions/${prediction.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        predictedHomeScore: 1,
+        predictedAwayScore: 0,
+      });
+
+    expect(response.statusCode).toEqual(200);
+    expect(response.body).toEqual({
+      prediction: expect.any(Object),
+    });
+    expect(Object.keys(response.body)).toEqual(['prediction']);
+  });
+
+  it('should return updated prediction with all expected properties', async () => {
+    const response = await request(app.server)
+      .put(`/predictions/${prediction.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        predictedHomeScore: 4,
+        predictedAwayScore: 2,
+      });
+
+    expect(response.statusCode).toEqual(200);
+    expect(response.body.prediction).toHaveProperty('id');
+    expect(response.body.prediction).toHaveProperty('userId');
+    expect(response.body.prediction).toHaveProperty('poolId');
+    expect(response.body.prediction).toHaveProperty('matchId');
+    expect(response.body.prediction).toHaveProperty('predictedHomeScore');
+    expect(response.body.prediction).toHaveProperty('predictedAwayScore');
+    expect(response.body.prediction).toHaveProperty('predictedHasExtraTime');
+    expect(response.body.prediction).toHaveProperty('predictedHasPenalties');
+    expect(response.body.prediction).toHaveProperty('updatedAt');
+    expect(response.body.prediction.updatedAt).not.toBeNull();
+  });
+
+  it('should return 422 when validation fails for non-numeric scores', async () => {
+    const response = await request(app.server)
+      .put(`/predictions/${prediction.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        predictedHomeScore: 'invalid',
+        predictedAwayScore: 2,
+      });
+
+    expect(response.statusCode).toEqual(422);
+    expect(response.body).toHaveProperty('message', 'Validation error.');
+    expect(response.body).toHaveProperty('issues');
+  });
+
+  it('should return 422 when validation fails for negative penalty scores', async () => {
+    const homeTeam = await createTeam(teamsRepository, { name: 'Negative Penalty Home' });
+    const awayTeam = await createTeam(teamsRepository, { name: 'Negative Penalty Away' });
+
+    const knockoutMatch = await createMatch(
+      matchesRepository,
+      {
+        tournamentId,
+        matchDatetime: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        stadium: 'Negative Penalty Stadium',
+        matchStatus: MatchStatus.SCHEDULED,
+        matchStage: MatchStage.FINAL,
+      },
+      homeTeam,
+      awayTeam
+    );
+
+    const negativePenaltyPrediction = await createPrediction(predictionsRepository, {
+      userId,
+      poolId: pool.id,
+      matchId: knockoutMatch.id,
+      predictedHomeScore: 1,
+      predictedAwayScore: 1,
+    });
+
+    const response = await request(app.server)
+      .put(`/predictions/${negativePenaltyPrediction.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        predictedHomeScore: 1,
+        predictedAwayScore: 1,
+        predictedHasPenalties: true,
+        predictedPenaltyHomeScore: -1,
+        predictedPenaltyAwayScore: 3,
+      });
+
+    expect(response.statusCode).toEqual(422);
+    expect(response.body).toHaveProperty('message', 'Validation error.');
+    expect(response.body).toHaveProperty('issues');
+  });
 });

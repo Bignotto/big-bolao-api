@@ -32,8 +32,8 @@ export async function updatePredictionController(
     predictedAwayScore: z.number().min(0),
     predictedHasExtraTime: z.boolean().default(false),
     predictedHasPenalties: z.boolean().default(false),
-    predictedPenaltyHomeScore: z.number().optional(),
-    predictedPenaltyAwayScore: z.number().optional(),
+    predictedPenaltyHomeScore: z.number().positive().optional(),
+    predictedPenaltyAwayScore: z.number().positive().optional(),
   });
 
   try {

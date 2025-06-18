@@ -96,6 +96,14 @@ export class UpdatePredictionUseCase {
       throw new PredictionError('Penalty scores must be provided when penalties are predicted');
     }
 
+    // Validate penalty scores if penalties are predicted
+    if (
+      predictedHasPenalties &&
+      (predictedPenaltyHomeScore! < 0 || predictedPenaltyAwayScore! < 0)
+    ) {
+      throw new PredictionError('Penalty scores must be positive numbers');
+    }
+
     // Update the prediction
     return this.predictionsRepository.update(predictionId, {
       predictedHomeScore,
