@@ -113,7 +113,16 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     WHERE "poolId" = ${poolId}
     ORDER BY "ranking"
     `;
-    return poolStandings;
+    return poolStandings.map((standing) => ({
+      ...standing,
+      ranking: Number(standing.ranking),
+      totalPoints: Number(standing.totalPoints),
+      totalPredictions: Number(standing.totalPredictions),
+      exactScoreCount: Number(standing.exactScoreCount),
+      pointsRatio: Number(standing.pointsRatio),
+      guessRatio: Number(standing.guessRatio),
+      predictionsRatio: Number(standing.predictionsRatio),
+    }));
   }
 
   async getUserPoolsStandings(userId: string) {
@@ -122,7 +131,16 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     WHERE "userId" = ${userId}
     ORDER BY "ranking"
     `;
-    return userStandings;
+    return userStandings.map((standing) => ({
+      ...standing,
+      ranking: Number(standing.ranking),
+      totalPoints: Number(standing.totalPoints),
+      totalPredictions: Number(standing.totalPredictions),
+      exactScoreCount: Number(standing.exactScoreCount),
+      pointsRatio: Number(standing.pointsRatio),
+      guessRatio: Number(standing.guessRatio),
+      predictionsRatio: Number(standing.predictionsRatio),
+    }));
   }
 
   async findByName(name: string): Promise<Pool | null> {
