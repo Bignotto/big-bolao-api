@@ -153,7 +153,9 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(403);
     expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('You must be a participant');
+    expect(response.body.message).toContain(
+      'Not participant: User is not a participant or the creator of the pool'
+    );
   });
 
   it('should return 404 when pool does not exist', async () => {
