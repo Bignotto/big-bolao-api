@@ -5,6 +5,7 @@ import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemo
 import { InMemoryTeamsRepository } from '@/repositories/teams/InMemoryTeamsRepository';
 import { InMemoryTournamentsRepository } from '@/repositories/tournaments/InMemoryTournamentsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { createMatchWithTeams } from '@/test/mocks/match';
 import { createPool, createPoolWithParticipants } from '@/test/mocks/pools';
 import { createPrediction } from '@/test/mocks/predictions';
@@ -12,6 +13,7 @@ import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
 import { Pool, Prediction, Tournament, User } from '@prisma/client';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { NotParticipantError } from './errors/NotParticipantError';
 import { GetPoolPredictionsUseCase } from './getPoolsPredictionsUseCase';
 
 describe('Get Pool Predictions Use Case', () => {
@@ -21,6 +23,7 @@ describe('Get Pool Predictions Use Case', () => {
   let tournamentsRepository: InMemoryTournamentsRepository;
   let teamsRepository: InMemoryTeamsRepository;
   let matchesRepository: InMemoryMatchesRepository;
+  let poolAuthorizationService: PoolAuthorizationService;
   let sut: GetPoolPredictionsUseCase;
 
   let tournament: Tournament;
@@ -37,7 +40,12 @@ describe('Get Pool Predictions Use Case', () => {
     teamsRepository = new InMemoryTeamsRepository();
     matchesRepository = new InMemoryMatchesRepository();
 
-    sut = new GetPoolPredictionsUseCase(predictionsRepository, poolsRepository);
+    poolAuthorizationService = new PoolAuthorizationService(poolsRepository);
+    sut = new GetPoolPredictionsUseCase(
+      predictionsRepository,
+      poolsRepository,
+      poolAuthorizationService
+    );
 
     // Create tournament
     tournament = await createTournament(tournamentsRepository, {
@@ -174,7 +182,7 @@ describe('Get Pool Predictions Use Case', () => {
         poolId: poolWithParticipants.pool.id,
         userId: nonParticipantUser.id,
       })
-    ).rejects.toThrow('You must be a participant in this pool to view predictions');
+    ).rejects.toThrow(NotParticipantError);
   });
 
   it('should throw an error if pool does not exist', async () => {

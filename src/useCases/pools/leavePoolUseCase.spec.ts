@@ -1,3 +1,4 @@
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '../../repositories/pools/InMemoryPoolsRepository';
@@ -8,6 +9,7 @@ import { LeavePoolUseCase } from './leavePoolUseCase';
 let poolsRepository: InMemoryPoolsRepository;
 let usersRepository: InMemoryUsersRepository;
 let tournamentsRepository: InMemoryTournamentsRepository;
+let poolAuthorizationService: PoolAuthorizationService;
 let sut: LeavePoolUseCase;
 
 describe('Leave Pool Use Case', () => {
@@ -15,7 +17,8 @@ describe('Leave Pool Use Case', () => {
     poolsRepository = new InMemoryPoolsRepository();
     usersRepository = new InMemoryUsersRepository();
     tournamentsRepository = new InMemoryTournamentsRepository();
-    sut = new LeavePoolUseCase(poolsRepository, usersRepository);
+    poolAuthorizationService = new PoolAuthorizationService(poolsRepository);
+    sut = new LeavePoolUseCase(poolsRepository, usersRepository, poolAuthorizationService);
   });
 
   it('should be able to leave a pool', async () => {

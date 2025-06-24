@@ -1,7 +1,7 @@
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
-import { NotParticipantError } from './errors/NotParticipantError';
 
 interface IGetPoolUsersRequest {
   poolId: number;
@@ -11,7 +11,8 @@ interface IGetPoolUsersRequest {
 export class GetPoolUsersUseCase {
   constructor(
     private poolsRepository: IPoolsRepository,
-    private usersRepository: IUsersRepository
+    private usersRepository: IUsersRepository,
+    private poolAuthorizationService: PoolAuthorizationService
   ) {}
 
   async execute({ poolId, userId }: IGetPoolUsersRequest) {
@@ -27,15 +28,11 @@ export class GetPoolUsersUseCase {
       throw new ResourceNotFoundError('Pool not found');
     }
 
-    // Check if the user is a participant in the pool or the creator
+    // Validate user has access to the pool
+    await this.poolAuthorizationService.validateUserPoolAccess(poolId, userId, pool.creatorId);
+
+    // Get all participants
     const participants = await this.poolsRepository.getPoolParticipants(poolId);
-    const isParticipant = participants.some((participant) => participant.userId === user.id);
-
-    if (!isParticipant && pool.creatorId !== user.id) {
-      throw new NotParticipantError('User is not a participant or the creator of the pool');
-    }
-
-    // Get all participant IDs
     const participantIds = participants.map((participant) => participant.userId);
 
     // Fetch all user details for the participants

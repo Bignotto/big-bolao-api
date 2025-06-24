@@ -1,7 +1,7 @@
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
-import { NotPoolCreatorError } from './errors/NotPoolCreatorError';
 
 interface IUpdatePoolRequest {
   poolId: number;
@@ -16,7 +16,8 @@ interface IUpdatePoolRequest {
 export class UpdatePoolUseCase {
   constructor(
     private poolsRepository: IPoolsRepository,
-    private usersRepository: IUsersRepository
+    private usersRepository: IUsersRepository,
+    private poolAuthorizationService: PoolAuthorizationService
   ) {}
 
   async execute({
@@ -38,9 +39,9 @@ export class UpdatePoolUseCase {
       throw new ResourceNotFoundError('Pool not found');
     }
 
-    if (pool.creatorId !== userId) {
-      throw new NotPoolCreatorError(`User ${userId} is not the creator of pool ${poolId}`);
-    }
+    // Validate user is the pool creator
+    await this.poolAuthorizationService.validatePoolCreatorAccess(poolId, userId, pool.creatorId);
+
     const updatedPool = await this.poolsRepository.update(poolId, {
       name,
       description,

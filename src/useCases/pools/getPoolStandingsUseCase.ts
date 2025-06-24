@@ -1,7 +1,7 @@
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { PoolStandings } from '@/global/types/poolStandings';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
-import { NotParticipantError } from './errors/NotParticipantError';
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 
 interface GetPoolStandingsRequest {
   poolId: number;
@@ -13,7 +13,10 @@ interface GetPoolStandingsResponse {
 }
 
 export class GetPoolStandingsUseCase {
-  constructor(private poolsRepository: IPoolsRepository) {}
+  constructor(
+    private poolsRepository: IPoolsRepository,
+    private poolAuthorizationService: PoolAuthorizationService
+  ) {}
 
   async execute({ poolId, userId }: GetPoolStandingsRequest): Promise<GetPoolStandingsResponse> {
     const pool = await this.poolsRepository.findById(poolId);
@@ -21,14 +24,8 @@ export class GetPoolStandingsUseCase {
       throw new ResourceNotFoundError('Pool not found');
     }
 
-    // Check authorization
-    const participants = await this.poolsRepository.getPoolParticipants(poolId);
-    const isParticipant = participants.some((participant) => participant.userId === userId);
-    const isCreator = pool.creatorId === userId;
-
-    if (!isParticipant && !isCreator) {
-      throw new NotParticipantError('User is not a participant or the creator of the pool');
-    }
+    // Validate user has access to the pool
+    await this.poolAuthorizationService.validateUserPoolAccess(poolId, userId, pool.creatorId);
 
     const standings = await this.poolsRepository.getPoolStandings(poolId);
 

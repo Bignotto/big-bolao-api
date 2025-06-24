@@ -2,7 +2,7 @@ import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { NotParticipantError } from './errors/NotParticipantError';
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 
 interface IGetPoolRequest {
   poolId: number;
@@ -46,7 +46,8 @@ export class GetPoolUseCase {
   constructor(
     private poolsRepository: IPoolsRepository,
     private usersRepository: IUsersRepository,
-    private tournamentRepository: ITournamentsRepository
+    private tournamentRepository: ITournamentsRepository,
+    private poolAuthorizationService: PoolAuthorizationService
   ) {}
 
   async execute({ poolId, userId }: IGetPoolRequest): Promise<IGetPoolResponse> {
@@ -67,19 +68,20 @@ export class GetPoolUseCase {
       throw new ResourceNotFoundError('Scoring rules not found for this pool');
     }
 
-    // Check authorization
-    const participants = await this.poolsRepository.getPoolParticipants(poolId);
-    const isParticipant = participants.some((participant) => participant.userId === user.id);
-    const isCreator = pool.creatorId === user.id;
-
-    if (!isParticipant && !isCreator) {
-      throw new NotParticipantError('User is not a participant or the creator of the pool');
-    }
+    // Use the authorization service
+    const { isCreator, isParticipant } = await this.poolAuthorizationService.validateUserPoolAccess(
+      poolId,
+      userId,
+      pool.creatorId
+    );
 
     const tournament = await this.tournamentRepository.findById(pool.tournamentId);
     if (!tournament) {
       throw new ResourceNotFoundError('Tournament not found');
     }
+
+    const participants = await this.poolsRepository.getPoolParticipants(poolId);
+
     // Return structured response with additional metadata
     return {
       id: pool.id,
