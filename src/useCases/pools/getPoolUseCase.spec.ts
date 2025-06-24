@@ -5,12 +5,14 @@ import { InMemoryTournamentsRepository } from '@/repositories/tournaments/InMemo
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { GetPoolUseCase } from './getPoolUseCase';
 
 let poolsRepository: IPoolsRepository;
 let usersRepository: IUsersRepository;
 let tournamentRepository: ITournamentsRepository;
+let poolAuthorizationService: PoolAuthorizationService;
 let sut: GetPoolUseCase;
 
 describe('Get Pool Use Case', () => {
@@ -18,7 +20,13 @@ describe('Get Pool Use Case', () => {
     poolsRepository = new InMemoryPoolsRepository();
     usersRepository = new InMemoryUsersRepository();
     tournamentRepository = new InMemoryTournamentsRepository();
-    sut = new GetPoolUseCase(poolsRepository, usersRepository, tournamentRepository);
+    poolAuthorizationService = new PoolAuthorizationService(poolsRepository);
+    sut = new GetPoolUseCase(
+      poolsRepository,
+      usersRepository,
+      tournamentRepository,
+      poolAuthorizationService
+    );
   });
 
   it('should be able to get pool information with participants and scoring rules', async () => {

@@ -3,19 +3,22 @@ import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepos
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { NotPoolCreatorError } from './errors/NotPoolCreatorError';
 import { UpdatePoolUseCase } from './updatePoolUseCase';
 
 let poolsRepository: IPoolsRepository;
 let usersRepository: IUsersRepository;
+let poolAuthorizationService: PoolAuthorizationService;
 let sut: UpdatePoolUseCase;
 
 describe('Update Pool Use Case', () => {
   beforeEach(() => {
     poolsRepository = new InMemoryPoolsRepository();
     usersRepository = new InMemoryUsersRepository();
-    sut = new UpdatePoolUseCase(poolsRepository, usersRepository);
+    poolAuthorizationService = new PoolAuthorizationService(poolsRepository);
+    sut = new UpdatePoolUseCase(poolsRepository, usersRepository, poolAuthorizationService);
   });
 
   it('should be able to update a pool', async () => {

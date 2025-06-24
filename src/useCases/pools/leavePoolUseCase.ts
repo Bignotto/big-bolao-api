@@ -1,8 +1,7 @@
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
-import { NotParticipantError } from './errors/NotParticipantError';
-import { UnauthorizedError } from './errors/UnauthorizedError';
 
 interface ILeavePoolRequest {
   poolId: number;
@@ -12,7 +11,8 @@ interface ILeavePoolRequest {
 export class LeavePoolUseCase {
   constructor(
     private poolsRepository: IPoolsRepository,
-    private usersRepository: IUsersRepository
+    private usersRepository: IUsersRepository,
+    private poolAuthorizationService: PoolAuthorizationService
   ) {}
 
   async execute({ poolId, userId }: ILeavePoolRequest) {
@@ -28,18 +28,8 @@ export class LeavePoolUseCase {
       throw new ResourceNotFoundError('Pool not found');
     }
 
-    // Check if user is a participant
-    const participants = await this.poolsRepository.getPoolParticipants(poolId);
-    const isParticipant = participants.some((participant) => participant.userId === userId);
-
-    if (!isParticipant) {
-      throw new NotParticipantError('User is not a participant in this pool');
-    }
-
-    // Check if user is the creator (creators cannot leave their own pools)
-    if (pool.creatorId === userId) {
-      throw new UnauthorizedError('Pool creator cannot leave their own pool');
-    }
+    // Validate user can leave the pool (is participant but not creator)
+    await this.poolAuthorizationService.validateParticipantCanLeave(poolId, userId, pool.creatorId);
 
     // Remove user from pool participants
     await this.poolsRepository.removeParticipant({

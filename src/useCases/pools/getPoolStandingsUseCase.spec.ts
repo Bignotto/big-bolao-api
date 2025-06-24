@@ -4,6 +4,7 @@ import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepos
 import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemoryPredictionsRepository';
 import { InMemoryTeamsRepository } from '@/repositories/teams/InMemoryTeamsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { createMatch } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
 import { createPrediction } from '@/test/mocks/predictions';
@@ -19,6 +20,7 @@ describe('GetPoolStandingsUseCase', () => {
   let matchesRepository: InMemoryMatchesRepository;
   let teamsRepository: InMemoryTeamsRepository;
   let predictionsRepository: InMemoryPredictionsRepository;
+  let poolAuthorizationService: PoolAuthorizationService;
   let sut: GetPoolStandingsUseCase;
 
   let creator: User;
@@ -32,7 +34,8 @@ describe('GetPoolStandingsUseCase', () => {
     teamsRepository = new InMemoryTeamsRepository();
     matchesRepository = new InMemoryMatchesRepository();
     predictionsRepository = new InMemoryPredictionsRepository();
-    sut = new GetPoolStandingsUseCase(poolsRepository);
+    poolAuthorizationService = new PoolAuthorizationService(poolsRepository);
+    sut = new GetPoolStandingsUseCase(poolsRepository, poolAuthorizationService);
 
     creator = await createUser(usersRepository, {
       fullName: 'Creator User',

@@ -1,8 +1,8 @@
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { Prediction } from '@prisma/client';
-import { NotParticipantError } from './errors/NotParticipantError';
 
 interface GetPoolPredictionsUseCaseRequest {
   poolId: number;
@@ -16,7 +16,8 @@ interface GetPoolPredictionsUseCaseResponse {
 export class GetPoolPredictionsUseCase {
   constructor(
     private predictionsRepository: IPredictionsRepository,
-    private poolsRepository: IPoolsRepository
+    private poolsRepository: IPoolsRepository,
+    private poolAuthorizationService: PoolAuthorizationService
   ) {}
 
   async execute({
@@ -30,14 +31,9 @@ export class GetPoolPredictionsUseCase {
       throw new ResourceNotFoundError('Pool not found');
     }
 
-    // Check if user is the creator or a participant in the pool
-    const participants = await this.poolsRepository.getPoolParticipants(poolId);
-    const isParticipant = participants.some((participant) => participant.userId === userId);
-    const isCreator = pool.creatorId === userId;
+    // Validate user has access to the pool
+    await this.poolAuthorizationService.validateUserPoolAccess(poolId, userId, pool.creatorId);
 
-    if (!isParticipant && !isCreator) {
-      throw new NotParticipantError('You must be a participant in this pool to view predictions');
-    }
     // Get all predictions for the pool
     const predictions = await this.predictionsRepository.findByPoolId(poolId);
 
