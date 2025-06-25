@@ -82,7 +82,17 @@ export class GetPoolUseCase {
 
     const participants = await this.poolsRepository.getPoolParticipants(poolId);
 
-    // Return structured response with additional metadata
+    // Use the mapper to construct response
+    return this.mapToResponse(pool, tournament, participants, isCreator, isParticipant);
+  }
+
+  private mapToResponse(
+    pool: any, // Replace with proper Pool type when available
+    tournament: any, // Replace with proper Tournament type when available
+    participants: any[], // Replace with proper Participant[] type when available
+    isCreator: boolean,
+    isParticipant: boolean
+  ): IGetPoolResponse {
     return {
       id: pool.id,
       name: pool.name,
