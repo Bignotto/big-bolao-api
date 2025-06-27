@@ -272,7 +272,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     return pool || null;
   }
 
-  async findByInviteCode(inviteCode: string): Promise<Pool | null> {
+  async findByInviteCode(inviteCode: string, poolId: number): Promise<Pool | null> {
     const pool = this.pools.find((pool) => pool.inviteCode === inviteCode);
     return pool || null;
   }

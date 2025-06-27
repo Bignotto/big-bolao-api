@@ -5,14 +5,13 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 export async function JoinPoolController(request: FastifyRequest, reply: FastifyReply) {
-  const joinPoolBodySchema = z
-    .object({
-      poolId: z.number().optional(),
-      inviteCode: z.string().optional(),
-    })
-    .refine((data) => data.poolId !== undefined || data.inviteCode !== undefined, {
-      message: 'Either poolId or inviteCode must be provided',
-    });
+  const joinPoolBodySchema = z.object({
+    poolId: z.number(),
+    inviteCode: z.string().optional(),
+  });
+  // .refine((data) => data.poolId !== undefined || data.inviteCode !== undefined, {
+  //   message: 'Either poolId or inviteCode must be provided',
+  // });
 
   try {
     const { poolId, inviteCode } = joinPoolBodySchema.parse(request.body);

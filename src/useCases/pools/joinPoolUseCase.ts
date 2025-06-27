@@ -28,7 +28,7 @@ export class JoinPoolUseCase {
     if (poolId) {
       pool = await this.poolsRepository.findById(poolId);
     } else if (inviteCode) {
-      pool = await this.poolsRepository.findByInviteCode(inviteCode);
+      pool = await this.poolsRepository.findByInviteCode(inviteCode, poolId!);
     } else {
       throw new ResourceNotFoundError('Either poolId or inviteCode must be provided');
     }

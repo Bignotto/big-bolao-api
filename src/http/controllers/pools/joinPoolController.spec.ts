@@ -80,6 +80,7 @@ describe('Join Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         inviteCode: pool.inviteCode,
+        poolId: pool.id, // Optional, but can be included
       });
 
     expect(response.statusCode).toEqual(200);
@@ -107,15 +108,28 @@ describe('Join Pool Controller (e2e)', async () => {
     expect(response.body).toHaveProperty('message');
   });
 
-  it('should return 404 when trying to join a pool with invalid invite code', async () => {
+  it('should return 401 when trying to join a pool with invalid invite code', async () => {
+    const tournament = await createTournament(tournamentsRepository, {});
+    const owner = await createUser(usersRepository, {
+      email: 'some-other-guy@example.com',
+    });
+
+    const pool = await createPool(poolsRepository, {
+      creatorId: owner.id,
+      tournamentId: tournament.id,
+      isPrivate: true,
+    });
+
     const response = await request(app.server)
       .post('/pools/join')
       .set('Authorization', `Bearer ${token}`)
       .send({
         inviteCode: 'invalid-invite-code',
+        poolId: pool.id,
       });
+    console.log(JSON.stringify(response, null, 2));
 
-    expect(response.statusCode).toEqual(404);
+    expect(response.statusCode).toEqual(401);
     expect(response.body).toHaveProperty('message');
   });
 

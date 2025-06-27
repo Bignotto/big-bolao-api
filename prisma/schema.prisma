@@ -117,7 +117,7 @@ model Pool {
   description          String?
   creatorId            String
   isPrivate            Boolean                  @default(false)
-  inviteCode           String?                  @unique
+  inviteCode           String?
   createdAt            DateTime                 @default(now())
   maxParticipants      Int?
   registrationDeadline DateTime?
