@@ -80,7 +80,7 @@ export class GetPoolUseCase {
       throw new ResourceNotFoundError('Tournament not found');
     }
 
-    const participants = await this.poolsRepository.getPoolParticipants(poolId);
+    const participants = pool.participants;
 
     // Use the mapper to construct response
     return this.mapToResponse(pool, tournament, participants, isCreator, isParticipant);
