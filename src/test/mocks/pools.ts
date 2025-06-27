@@ -61,7 +61,7 @@ export async function createPoolWithParticipants(
   pool: Pool;
   participants: User[];
 }> {
-  const useraA = await createUser(repositories.usersRepository, {
+  const userA = await createUser(repositories.usersRepository, {
     fullName: 'John Doe',
     email: faker.internet.email(),
     passwordHash: 'hashed-password',
@@ -74,14 +74,14 @@ export async function createPoolWithParticipants(
   });
 
   const pool = await createPool(repositories.poolsRepository, {
-    creatorId: data.creatorId ?? useraA.id,
+    creatorId: data.creatorId ?? userA.id,
     ...data,
   });
 
   if (data.creatorId)
     await repositories.poolsRepository.addParticipant({
       poolId: pool.id,
-      userId: useraA.id,
+      userId: userA.id,
     });
 
   await repositories.poolsRepository.addParticipant({
@@ -91,6 +91,6 @@ export async function createPoolWithParticipants(
 
   return {
     pool,
-    participants: [useraA, userB],
+    participants: [userA, userB],
   };
 }
