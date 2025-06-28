@@ -24,4 +24,8 @@ export class InMemoryTournamentsRepository implements ITournamentsRepository {
     this.tournaments.push(tournament);
     return tournament;
   }
+
+  async list(): Promise<Tournament[]> {
+    return this.tournaments;
+  }
 }
