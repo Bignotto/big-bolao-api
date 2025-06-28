@@ -16,4 +16,9 @@ export class PrismaTournamentsRepository implements ITournamentsRepository {
     });
     return tournament;
   }
+
+  async list() {
+    const tournaments = await prisma.tournament.findMany();
+    return tournaments;
+  }
 }
