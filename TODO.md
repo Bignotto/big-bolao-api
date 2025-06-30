@@ -1,0 +1,13 @@
+- [ ] **User Management**
+    - [ ] Implement `POST /login` route for user authentication.
+    - [ ] Implement `POST /forgot-password` and `POST /reset-password` routes.
+    - [ ] Implement `DELETE /users/me` route for account deletion.
+- [ ] **Pool Management**
+    - [ ] Implement `POST /pools/:poolId/invite` to generate pool invitation codes.
+    - [ ] Implement `GET /users/me/invites` to list a user's pending invitations.
+    - [ ] Modify `POST /pools/join` to use an invitation code.
+- [ ] **Predictions**
+    - [ ] Implement `POST /predictions/bulk` for creating and updating multiple predictions at once.
+- [ ] **Tournaments**
+    - [ ] Implement `GET /tournaments/:tournamentId` to fetch tournament details.
+    - [ ] Implement `GET /tournaments/:tournamentId/standings` for a global tournament leaderboard.
