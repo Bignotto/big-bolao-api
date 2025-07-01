@@ -1,5 +1,7 @@
 import cors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import fastify, { FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import { env } from './env/config';
@@ -30,6 +32,21 @@ export const createServer = async (): Promise<FastifyInstance> => {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   });
+
+  if (env.NODE_ENV !== 'test') {
+    await server.register(swagger, {
+      openapi: {
+        info: {
+          title: env.THE_APP_NAME,
+          version: env.THE_APP_VERSION,
+        },
+      },
+    });
+
+    await server.register(swaggerUi, {
+      routePrefix: '/docs',
+    });
+  }
 
   // Register custom decorators
   //server.decorateRequest('user', null);
