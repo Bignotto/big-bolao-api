@@ -1,5 +1,7 @@
 import cors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import fastify, { FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import { env } from './env/config';
@@ -29,6 +31,60 @@ export const createServer = async (): Promise<FastifyInstance> => {
     origin: true, // Allows all origins
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
+  });
+
+  // Register Swagger
+  await server.register(swagger, {
+    openapi: {
+      openapi: '3.0.0',
+      info: {
+        title: 'Big Bolão API',
+        description: 'API for managing pools, predictions, and tournaments',
+        version: '1.0.0',
+      },
+      servers: [
+        {
+          url: `http://localhost:${env.PORT || 3333}`,
+          description: 'Development server',
+        },
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+      },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
+    },
+  });
+
+  await server.register(swaggerUi, {
+    routePrefix: '/docs',
+    uiConfig: {
+      docExpansion: 'full',
+      deepLinking: false,
+    },
+    uiHooks: {
+      onRequest: function (request, reply, next) {
+        next();
+      },
+      preHandler: function (request, reply, next) {
+        next();
+      },
+    },
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
+    transformSpecification: (swaggerObject, request, reply) => {
+      return swaggerObject;
+    },
+    transformSpecificationClone: true,
   });
 
   // Register custom decorators
