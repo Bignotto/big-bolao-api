@@ -3,27 +3,44 @@ export const userSchemas = {
   User: {
     type: 'object',
     properties: {
-      id: { type: 'string', description: 'User unique identifier' },
-      email: { type: 'string', format: 'email', description: 'User email address' },
+      id: { type: 'string', description: 'User unique identifier (CUID)' },
       fullName: { type: 'string', description: 'User full name' },
-      profileImageUrl: { type: 'string', description: 'URL to user profile image' },
+      email: { type: 'string', format: 'email', description: 'User email address' },
+      profileImageUrl: { type: 'string', nullable: true, description: 'User profile image URL' },
       createdAt: { type: 'string', format: 'date-time', description: 'User creation timestamp' },
-      updatedAt: { type: 'string', format: 'date-time', description: 'User last update timestamp' },
+      lastLogin: { type: 'string', format: 'date-time', nullable: true, description: 'Last login timestamp' },
+      accountProvider: {
+        type: 'string',
+        enum: ['GOOGLE', 'APPLE', 'EMAIL'],
+        description: 'Account provider type'
+      },
+      role: {
+        type: 'string',
+        enum: ['USER', 'ADMIN'],
+        description: 'User role'
+      },
     },
-    required: ['id', 'email', 'fullName'],
+    required: ['id', 'fullName', 'email', 'createdAt'],
   },
 
   // Create User Request Body
   CreateUserRequest: {
     type: 'object',
     properties: {
-      id: { type: 'string', description: 'Optional user ID' },
-      email: { type: 'string', format: 'email', description: 'User email address' },
-      passwordHash: { type: 'string', description: 'Hashed password' },
+      id: { type: 'string', description: 'User ID (optional, will be generated if not provided)' },
       fullName: { type: 'string', description: 'User full name' },
-      profileImageUrl: { type: 'string', description: 'URL to user profile image' },
+      email: { type: 'string', format: 'email', description: 'User email address' },
+      passwordHash: { type: 'string', description: 'User password hash' },
+      profileImageUrl: { type: 'string', description: 'User profile image URL' },
+      accountProvider: {
+        type: 'string',
+        enum: ['GOOGLE', 'APPLE', 'EMAIL'],
+        description: 'Account provider type',
+        default: 'EMAIL'
+      },
     },
-    required: ['email', 'passwordHash', 'fullName', 'profileImageUrl'],
+    required: ['fullName', 'email', 'passwordHash', 'profileImageUrl'],
+    additionalProperties: false,
   },
 
   // Create User Response
@@ -46,10 +63,11 @@ export const userSchemas = {
   UpdateUserRequest: {
     type: 'object',
     properties: {
-      email: { type: 'string', format: 'email', description: 'User email address' },
       fullName: { type: 'string', description: 'User full name' },
-      profileImageUrl: { type: 'string', description: 'URL to user profile image' },
+      email: { type: 'string', format: 'email', description: 'User email address' },
+      profileImageUrl: { type: 'string', description: 'User profile image URL' },
     },
+    required: [],
     additionalProperties: false,
   },
 
