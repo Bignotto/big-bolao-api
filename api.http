@@ -24,4 +24,6 @@ Authorization: Bearer
 }
 
 ###
-GET http://localhost:3333/users/cm7yj4qnv000008gv6mueoiea
+GET http://localhost:3333/users/me
+Content-Type: application/json
+Authorization: Bearer e
