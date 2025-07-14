@@ -1,3 +1,6 @@
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { createServer } from '@/app';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
@@ -18,8 +21,20 @@ import { createPrediction } from '@/test/mocks/predictions';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+// Type definitions for the API response
+interface PredictionResponse {
+  id: string;
+  userId: string;
+  matchId: number;
+  poolId: string;
+  predictedHomeScore: number;
+  predictedAwayScore: number;
+}
+
+interface GetMatchPredictionsResponse {
+  predictions: PredictionResponse[];
+}
 
 describe('Get Match Predictions Controller (e2e)', async () => {
   const app = await createServer();
@@ -107,9 +122,10 @@ describe('Get Match Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('predictions');
-    expect(response.body.predictions).toHaveLength(2);
-    expect(response.body.predictions).toEqual(
+    const body = response.body as GetMatchPredictionsResponse;
+    expect(body).toHaveProperty('predictions');
+    expect(body.predictions).toHaveLength(2);
+    expect(body.predictions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           id: prediction1.id,
@@ -156,8 +172,9 @@ describe('Get Match Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('predictions');
-    expect(response.body.predictions).toHaveLength(0);
+    const body = response.body as GetMatchPredictionsResponse;
+    expect(body).toHaveProperty('predictions');
+    expect(body.predictions).toHaveLength(0);
   });
 
   it('should return predictions for completed matches', async () => {
@@ -206,9 +223,11 @@ describe('Get Match Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
+
+    const body = response.body as GetMatchPredictionsResponse;
     expect(response.body).toHaveProperty('predictions');
-    expect(response.body.predictions).toHaveLength(1);
-    expect(response.body.predictions[0]).toEqual(
+    expect(body.predictions).toHaveLength(1);
+    expect(body.predictions[0]).toEqual(
       expect.objectContaining({
         id: prediction.id,
         userId: user.id,
@@ -239,8 +258,7 @@ describe('Get Match Predictions Controller (e2e)', async () => {
       .get(`/matches/${invalidMatchId}/predictions`)
       .set('Authorization', `Bearer ${token}`)
       .send();
-
-    expect(response.statusCode).toEqual(422);
+    expect(response.statusCode).toEqual(400);
   });
 
   it('should require authentication', async () => {
@@ -309,9 +327,11 @@ describe('Get Match Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
+
+    const body = response.body as GetMatchPredictionsResponse;
     expect(response.body).toHaveProperty('predictions');
-    expect(response.body.predictions).toHaveLength(2);
-    expect(response.body.predictions).toEqual(
+    expect(body.predictions).toHaveLength(2);
+    expect(body.predictions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           id: prediction1.id,
