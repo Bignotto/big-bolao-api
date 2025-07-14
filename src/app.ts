@@ -4,6 +4,7 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import fastify, { FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
+
 import { env } from './env/config';
 import { routes } from './http/routes';
 import { prisma } from './lib/prisma';
@@ -33,68 +34,88 @@ export const createServer = async (): Promise<FastifyInstance> => {
     credentials: true,
   });
 
-  // Register Swagger
-  await server.register(swagger, {
-    openapi: {
-      openapi: '3.0.0',
-      info: {
-        title: 'Big Bolão API',
-        description: 'API for managing pools, predictions, and tournaments',
-        version: '1.0.0',
-      },
-      servers: [
-        {
-          url: `http://localhost:${env.PORT || 3333}`,
-          description: 'Development server',
+  // Import schemas first
+  const { poolSchemas } = await import('./http/schemas/pool.schemas');
+  const { userSchemas } = await import('./http/schemas/user.schemas');
+  const { matchSchemas } = await import('./http/schemas/match.schemas');
+  const { predictionSchemas } = await import('./http/schemas/prediction.schemas');
+  const { tournamentSchemas } = await import('./http/schemas/tournament.schemas');
+
+  // Combine all schemas and remove duplicates
+  const allSchemas: Record<string, any> = {};
+
+  // Add schemas, with later ones overriding earlier ones if there are duplicates
+  Object.assign(allSchemas, poolSchemas);
+  Object.assign(allSchemas, userSchemas);
+  Object.assign(allSchemas, matchSchemas);
+  Object.assign(allSchemas, predictionSchemas);
+  Object.assign(allSchemas, tournamentSchemas);
+
+  if (env.NODE_ENV !== 'test') {
+    // Register Swagger with all schemas
+    await server.register(swagger, {
+      openapi: {
+        openapi: '3.0.0',
+        info: {
+          title: 'Big Bolão API',
+          description: 'API for managing pools, predictions, and tournaments',
+          version: '1.0.0',
         },
-      ],
-      components: {
-        securitySchemes: {
-          bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
+        servers: [
+          {
+            url: `http://localhost:${env.PORT || 3333}`,
+            description: 'Development server',
           },
+        ],
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: 'http',
+              scheme: 'bearer',
+              bearerFormat: 'JWT',
+            },
+          },
+          schemas: allSchemas,
+        },
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    });
+
+    await server.register(swaggerUi, {
+      routePrefix: '/docs',
+      uiConfig: {
+        docExpansion: 'full',
+        deepLinking: false,
+      },
+      uiHooks: {
+        onRequest: function (_request, _reply, next) {
+          next();
+        },
+        preHandler: function (_request, _reply, next) {
+          next();
         },
       },
-      security: [
-        {
-          bearerAuth: [],
-        },
-      ],
-    },
-  });
-
-  await server.register(swaggerUi, {
-    routePrefix: '/docs',
-    uiConfig: {
-      docExpansion: 'full',
-      deepLinking: false,
-    },
-    uiHooks: {
-      onRequest: function (request, reply, next) {
-        next();
+      staticCSP: true,
+      transformStaticCSP: (header) => header,
+      transformSpecification: (swaggerObject, _request, _reply) => {
+        return swaggerObject;
       },
-      preHandler: function (request, reply, next) {
-        next();
-      },
-    },
-    staticCSP: true,
-    transformStaticCSP: (header) => header,
-    transformSpecification: (swaggerObject, request, reply) => {
-      return swaggerObject;
-    },
-    transformSpecificationClone: true,
+      transformSpecificationClone: true,
+    });
+  }
+  // Register schemas for Fastify validation (these use simple IDs)
+  Object.entries(allSchemas).forEach(([key, schema]) => {
+    server.addSchema({ $id: key, ...(schema as object) });
   });
-
-  // Register custom decorators
-  //server.decorateRequest('user', null);
-
   // Register routes
   await server.register(routes);
 
   // Health check route
-  server.get('/health', async () => {
+  server.get('/health', () => {
     return { status: 'ok', timestamp: new Date().toISOString() };
   });
 
@@ -118,7 +139,6 @@ export const createServer = async (): Promise<FastifyInstance> => {
 
   return server;
 };
-
 // Graceful shutdown handler
 export const closeGracefully = async (signal: string) => {
   if (env.NODE_ENV !== 'test') console.log(`Received signal to terminate: ${signal}`);
@@ -127,5 +147,15 @@ export const closeGracefully = async (signal: string) => {
   process.exit(0);
 };
 
-process.on('SIGINT', () => closeGracefully('SIGINT'));
-process.on('SIGTERM', () => closeGracefully('SIGTERM'));
+process.on('SIGINT', () => {
+  closeGracefully('SIGINT').catch((err) => {
+    console.error('Error during graceful shutdown:', err);
+    process.exit(1);
+  });
+});
+process.on('SIGTERM', () => {
+  closeGracefully('SIGTERM').catch((err) => {
+    console.error('Error during graceful shutdown:', err);
+    process.exit(1);
+  });
+});

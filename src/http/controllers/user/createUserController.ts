@@ -1,7 +1,8 @@
-import { EmailInUseError } from '@/global/errors/EmailInUseError';
-import { makeCreateUserUseCase } from '@/useCases/users/factory/makeCreateUserUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
+
+import { EmailInUseError } from '@/global/errors/EmailInUseError';
+import { makeCreateUserUseCase } from '@/useCases/users/factory/makeCreateUserUseCase';
 
 interface CreateUserControllerRequest {
   id: string;

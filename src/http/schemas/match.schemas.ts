@@ -11,29 +11,48 @@ export const matchSchemas = {
       stadium: { type: 'string', nullable: true },
       stage: {
         type: 'string',
-        enum: ['GROUP', 'ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL', 'THIRD_PLACE', 'LOSERS_MATCH']
+        enum: [
+          'GROUP',
+          'ROUND_OF_16',
+          'QUARTER_FINAL',
+          'SEMI_FINAL',
+          'FINAL',
+          'THIRD_PLACE',
+          'LOSERS_MATCH',
+        ],
       },
       group: { type: 'string', nullable: true },
       homeTeamScore: { type: 'number', nullable: true },
       awayTeamScore: { type: 'number', nullable: true },
       matchStatus: {
         type: 'string',
-        enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'POSTPONED']
+        enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'POSTPONED'],
       },
       hasExtraTime: { type: 'boolean' },
       hasPenalties: { type: 'boolean' },
       penaltyHomeScore: { type: 'number', nullable: true },
       penaltyAwayScore: { type: 'number', nullable: true },
       createdAt: { type: 'string', format: 'date-time' },
-      updatedAt: { type: 'string', format: 'date-time', nullable: true }
+      updatedAt: { type: 'string', format: 'date-time', nullable: true },
     },
-    required: ['id', 'tournamentId', 'homeTeamId', 'awayTeamId', 'matchDatetime', 'stage', 'matchStatus', 'hasExtraTime', 'hasPenalties', 'createdAt']
+    required: [
+      'id',
+      'tournamentId',
+      'homeTeamId',
+      'awayTeamId',
+      'matchDatetime',
+      'stage',
+      'matchStatus',
+      'hasExtraTime',
+      'hasPenalties',
+      'createdAt',
+    ],
   },
 
   // Extended Match with team details
   MatchWithTeams: {
     allOf: [
-      { $ref: '#/components/schemas/Match' },
+      { $ref: 'Match#' }, // Back to original reference
       {
         type: 'object',
         properties: {
@@ -43,9 +62,9 @@ export const matchSchemas = {
               id: { type: 'number' },
               name: { type: 'string' },
               countryCode: { type: 'string', nullable: true },
-              flagUrl: { type: 'string', nullable: true }
+              flagUrl: { type: 'string', nullable: true },
             },
-            required: ['id', 'name']
+            required: ['id', 'name'],
           },
           awayTeam: {
             type: 'object',
@@ -53,22 +72,22 @@ export const matchSchemas = {
               id: { type: 'number' },
               name: { type: 'string' },
               countryCode: { type: 'string', nullable: true },
-              flagUrl: { type: 'string', nullable: true }
+              flagUrl: { type: 'string', nullable: true },
             },
-            required: ['id', 'name']
+            required: ['id', 'name'],
           },
           tournament: {
             type: 'object',
             properties: {
               id: { type: 'number' },
               name: { type: 'string' },
-              logoUrl: { type: 'string', nullable: true }
+              logoUrl: { type: 'string', nullable: true },
             },
-            required: ['id', 'name']
-          }
-        }
-      }
-    ]
+            required: ['id', 'name'],
+          },
+        },
+      },
+    ],
   },
 
   // Match Prediction schema
@@ -93,20 +112,30 @@ export const matchSchemas = {
         properties: {
           id: { type: 'string' },
           fullName: { type: 'string' },
-          profileImageUrl: { type: 'string', nullable: true }
+          profileImageUrl: { type: 'string', nullable: true },
         },
-        required: ['id', 'fullName']
+        required: ['id', 'fullName'],
       },
       pool: {
         type: 'object',
         properties: {
           id: { type: 'number' },
-          name: { type: 'string' }
+          name: { type: 'string' },
         },
-        required: ['id', 'name']
-      }
+        required: ['id', 'name'],
+      },
     },
-    required: ['id', 'poolId', 'matchId', 'userId', 'predictedHomeScore', 'predictedAwayScore', 'submittedAt', 'user', 'pool']
+    required: [
+      'id',
+      'poolId',
+      'matchId',
+      'userId',
+      'predictedHomeScore',
+      'predictedAwayScore',
+      'submittedAt',
+      'user',
+      'pool',
+    ],
   },
 
   // Request schemas
@@ -117,71 +146,40 @@ export const matchSchemas = {
       awayTeamScore: { type: 'number', minimum: 0, nullable: true },
       matchStatus: {
         type: 'string',
-        enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'POSTPONED']
+        enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'POSTPONED'],
       },
       hasExtraTime: { type: 'boolean' },
       hasPenalties: { type: 'boolean' },
       penaltyHomeScore: { type: 'number', minimum: 0, nullable: true },
       penaltyAwayScore: { type: 'number', minimum: 0, nullable: true },
       matchDatetime: { type: 'string', format: 'date-time' },
-      stadium: { type: 'string', nullable: true }
+      stadium: { type: 'string', nullable: true },
     },
-    additionalProperties: false
+    additionalProperties: false,
   },
 
   // Parameter schemas
   MatchIdParam: {
     type: 'object',
     properties: {
-      matchId: { type: 'string', pattern: '^[0-9]+$' }
+      matchId: { type: 'string', pattern: '^[0-9]+$' },
     },
     required: ['matchId'],
-    additionalProperties: false
+    additionalProperties: false,
   },
 
-  // Error schemas
-  ValidationError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string' },
-      errors: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            field: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
-      }
-    }
-  },
-
+  // Error schemas - Remove duplicates, keep only unique ones
   MatchNotFoundError: {
     type: 'object',
     properties: {
-      message: { type: 'string', example: 'Match not found' }
-    }
-  },
-
-  UnauthorizedError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Unauthorized access' }
-    }
+      message: { type: 'string', example: 'Match not found' },
+    },
   },
 
   ForbiddenError: {
     type: 'object',
     properties: {
-      message: { type: 'string', example: 'Insufficient permissions to update match' }
-    }
+      message: { type: 'string', example: 'Insufficient permissions to update match' },
+    },
   },
-
-  InternalServerError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Internal server error' }
-    }
-  }
 };

@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "description": "Corrigir retorno de status HTTP 422 nos erros de validação",
+    "created": 1752485054301,
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": 2,
+    "description": "Corrigir status code esperado nos testes de joinPoolController e outros (401, 404, 422)",
+    "created": 1752485054301,
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": 3,
+    "description": "Verificar e corrigir campos faltando nas respostas: inviteCode, scoringRules, participantsCount etc.",
+    "created": 1752485054301,
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "id": 4,
+    "description": "Corrigir erro no mock createMatch: homeTeam ou awayTeam undefined",
+    "created": 1752485054301,
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": 5,
+    "description": "Investigar e corrigir falhas com erro 500 nos testes de standings e user pools standings",
+    "created": 1752485054301,
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": 6,
+    "description": "Ajustar testes quebrados por mudanças nos contratos de resposta (ex: id como string vs number)",
+    "created": 1752485054301,
+    "status": "pending",
+    "priority": "medium"
+  }
+]

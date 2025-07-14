@@ -10,27 +10,27 @@ export const tournamentSchemas = {
       logoUrl: { type: 'string', nullable: true },
       status: {
         type: 'string',
-        enum: ['UPCOMING', 'ACTIVE', 'COMPLETED']
+        enum: ['UPCOMING', 'ACTIVE', 'COMPLETED'],
       },
-      createdAt: { type: 'string', format: 'date-time' }
+      createdAt: { type: 'string', format: 'date-time' },
     },
-    required: ['id', 'name', 'startDate', 'endDate', 'status', 'createdAt']
+    required: ['id', 'name', 'startDate', 'endDate', 'status', 'createdAt'],
   },
 
   // Tournament with additional stats
   TournamentWithStats: {
     allOf: [
-      { $ref: '#/components/schemas/Tournament' },
+      { $ref: 'Tournament#' }, // Use simple reference for Fastify
       {
         type: 'object',
         properties: {
           totalMatches: { type: 'number' },
           completedMatches: { type: 'number' },
           totalTeams: { type: 'number' },
-          totalPools: { type: 'number' }
-        }
-      }
-    ]
+          totalPools: { type: 'number' },
+        },
+      },
+    ],
   },
 
   // Tournament Team schema
@@ -46,12 +46,12 @@ export const tournamentSchemas = {
           id: { type: 'number' },
           name: { type: 'string' },
           countryCode: { type: 'string', nullable: true },
-          flagUrl: { type: 'string', nullable: true }
+          flagUrl: { type: 'string', nullable: true },
         },
-        required: ['id', 'name']
-      }
+        required: ['id', 'name'],
+      },
     },
-    required: ['tournamentId', 'teamId', 'team']
+    required: ['tournamentId', 'teamId', 'team'],
   },
 
   // Tournament Match schema
@@ -66,14 +66,22 @@ export const tournamentSchemas = {
       stadium: { type: 'string', nullable: true },
       stage: {
         type: 'string',
-        enum: ['GROUP', 'ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL', 'THIRD_PLACE', 'LOSERS_MATCH']
+        enum: [
+          'GROUP',
+          'ROUND_OF_16',
+          'QUARTER_FINAL',
+          'SEMI_FINAL',
+          'FINAL',
+          'THIRD_PLACE',
+          'LOSERS_MATCH',
+        ],
       },
       group: { type: 'string', nullable: true },
       homeTeamScore: { type: 'number', nullable: true },
       awayTeamScore: { type: 'number', nullable: true },
       matchStatus: {
         type: 'string',
-        enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'POSTPONED']
+        enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'POSTPONED'],
       },
       hasExtraTime: { type: 'boolean' },
       hasPenalties: { type: 'boolean' },
@@ -85,9 +93,9 @@ export const tournamentSchemas = {
           id: { type: 'number' },
           name: { type: 'string' },
           countryCode: { type: 'string', nullable: true },
-          flagUrl: { type: 'string', nullable: true }
+          flagUrl: { type: 'string', nullable: true },
         },
-        required: ['id', 'name']
+        required: ['id', 'name'],
       },
       awayTeam: {
         type: 'object',
@@ -95,22 +103,34 @@ export const tournamentSchemas = {
           id: { type: 'number' },
           name: { type: 'string' },
           countryCode: { type: 'string', nullable: true },
-          flagUrl: { type: 'string', nullable: true }
+          flagUrl: { type: 'string', nullable: true },
         },
-        required: ['id', 'name']
-      }
+        required: ['id', 'name'],
+      },
     },
-    required: ['id', 'tournamentId', 'homeTeamId', 'awayTeamId', 'matchDatetime', 'stage', 'matchStatus', 'hasExtraTime', 'hasPenalties', 'homeTeam', 'awayTeam']
+    required: [
+      'id',
+      'tournamentId',
+      'homeTeamId',
+      'awayTeamId',
+      'matchDatetime',
+      'stage',
+      'matchStatus',
+      'hasExtraTime',
+      'hasPenalties',
+      'homeTeam',
+      'awayTeam',
+    ],
   },
 
   // Parameter schemas
   TournamentIdParam: {
     type: 'object',
     properties: {
-      tournamentId: { type: 'string', pattern: '^[0-9]+$' }
+      tournamentId: { type: 'string', pattern: '^[0-9]+$' },
     },
     required: ['tournamentId'],
-    additionalProperties: false
+    additionalProperties: false,
   },
 
   // Query parameters for matches
@@ -119,55 +139,32 @@ export const tournamentSchemas = {
     properties: {
       stage: {
         type: 'string',
-        enum: ['GROUP', 'ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL', 'THIRD_PLACE', 'LOSERS_MATCH']
+        enum: [
+          'GROUP',
+          'ROUND_OF_16',
+          'QUARTER_FINAL',
+          'SEMI_FINAL',
+          'FINAL',
+          'THIRD_PLACE',
+          'LOSERS_MATCH',
+        ],
       },
       status: {
         type: 'string',
-        enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'POSTPONED']
+        enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'POSTPONED'],
       },
       group: { type: 'string' },
       limit: { type: 'number', minimum: 1, maximum: 100, default: 50 },
-      offset: { type: 'number', minimum: 0, default: 0 }
+      offset: { type: 'number', minimum: 0, default: 0 },
     },
-    additionalProperties: false
+    additionalProperties: false,
   },
 
-  // Error schemas
-  ValidationError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string' },
-      errors: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            field: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
-      }
-    }
-  },
-
+  // Error schemas - only unique ones
   TournamentNotFoundError: {
     type: 'object',
     properties: {
-      message: { type: 'string', example: 'Tournament not found' }
-    }
+      message: { type: 'string', example: 'Tournament not found' },
+    },
   },
-
-  UnauthorizedError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Unauthorized access' }
-    }
-  },
-
-  InternalServerError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Internal server error' }
-    }
-  }
 };
