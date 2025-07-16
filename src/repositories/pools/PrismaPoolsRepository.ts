@@ -1,5 +1,7 @@
-import { PoolStandings } from '@/global/types/poolStandings';
 import { Pool, Prisma, ScoringRule } from '@prisma/client';
+
+import { PoolStandings } from '@/global/types/poolStandings';
+
 import { prisma } from '../../lib/prisma';
 import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
 

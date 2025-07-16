@@ -2,6 +2,7 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createServer } from '@/app';
+import { predictionSchemas } from '@/http/schemas/prediction.schemas';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -22,19 +23,10 @@ import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
 
-// Type definitions for the API response
-interface PredictionResponse {
-  id: string;
-  userId: string;
-  matchId: number;
-  poolId: string;
-  predictedHomeScore: number;
-  predictedAwayScore: number;
-}
-
-interface GetMatchPredictionsResponse {
-  predictions: PredictionResponse[];
-}
+// Type the response using the existing schemas
+type GetMatchPredictionsResponse = {
+  predictions: Array<typeof predictionSchemas.Prediction>;
+};
 
 describe('Get Match Predictions Controller (e2e)', async () => {
   const app = await createServer();
@@ -122,6 +114,7 @@ describe('Get Match Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
+
     const body = response.body as GetMatchPredictionsResponse;
     expect(body).toHaveProperty('predictions');
     expect(body.predictions).toHaveLength(2);

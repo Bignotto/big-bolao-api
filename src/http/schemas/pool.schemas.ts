@@ -10,8 +10,17 @@ export const poolSchemas = {
       creatorId: { type: 'string', description: 'Pool creator user ID' },
       isPrivate: { type: 'boolean', description: 'Whether the pool is private' },
       inviteCode: { type: 'string', nullable: true, description: 'Pool invitation code' },
-      maxParticipants: { type: 'number', nullable: true, description: 'Maximum number of participants' },
-      registrationDeadline: { type: 'string', format: 'date-time', nullable: true, description: 'Registration deadline' },
+      maxParticipants: {
+        type: 'number',
+        nullable: true,
+        description: 'Maximum number of participants',
+      },
+      registrationDeadline: {
+        type: 'string',
+        format: 'date-time',
+        nullable: true,
+        description: 'Registration deadline',
+      },
       createdAt: { type: 'string', format: 'date-time', description: 'Pool creation timestamp' },
       creator: {
         type: 'object',
@@ -20,7 +29,7 @@ export const poolSchemas = {
           fullName: { type: 'string' },
           profileImageUrl: { type: 'string', nullable: true },
         },
-        description: 'Pool creator information'
+        description: 'Pool creator information',
       },
       tournament: {
         type: 'object',
@@ -31,10 +40,10 @@ export const poolSchemas = {
           endDate: { type: 'string', format: 'date-time' },
           status: {
             type: 'string',
-            enum: ['UPCOMING', 'ACTIVE', 'COMPLETED']
+            enum: ['UPCOMING', 'ACTIVE', 'COMPLETED'],
           },
         },
-        description: 'Tournament information'
+        description: 'Tournament information',
       },
       participantCount: { type: 'number', description: 'Number of participants in the pool' },
     },
@@ -49,32 +58,38 @@ export const poolSchemas = {
         type: 'string',
         minLength: 1,
         maxLength: 100,
-        description: 'Pool name'
+        description: 'Pool name',
       },
       description: {
         type: 'string',
         maxLength: 500,
-        description: 'Pool description (optional)'
+        description: 'Pool description (optional)',
       },
       tournamentId: {
         type: 'number',
-        description: 'Tournament ID this pool is associated with'
+        description: 'Tournament ID this pool is associated with',
       },
       isPrivate: {
         type: 'boolean',
         description: 'Whether the pool is private (requires invitation code)',
-        default: false
+        default: false,
       },
       maxParticipants: {
         type: 'number',
         minimum: 2,
         maximum: 1000,
-        description: 'Maximum number of participants allowed in the pool (optional)'
+        description: 'Maximum number of participants allowed in the pool (optional)',
       },
       registrationDeadline: {
         type: 'string',
         format: 'date-time',
-        description: 'Registration deadline (optional)'
+        description: 'Registration deadline (optional)',
+      },
+      inviteCode: {
+        type: 'string',
+        minLength: 1,
+        maxLength: 100,
+        description: 'Invitation code for joining the pool (optional)',
       },
     },
     required: ['name', 'tournamentId'],
@@ -96,7 +111,7 @@ export const poolSchemas = {
       poolId: {
         type: 'string',
         pattern: '^[0-9]+$',
-        description: 'Pool unique identifier'
+        description: 'Pool unique identifier',
       },
     },
     required: ['poolId'],
@@ -117,7 +132,7 @@ export const poolSchemas = {
       inviteCode: {
         type: 'string',
         minLength: 1,
-        description: 'Pool invitation code'
+        description: 'Pool invitation code',
       },
     },
     required: ['inviteCode'],
@@ -138,7 +153,7 @@ export const poolSchemas = {
     properties: {
       message: {
         type: 'string',
-        example: 'Successfully left the pool'
+        example: 'Successfully left the pool',
       },
     },
   },
@@ -150,11 +165,11 @@ export const poolSchemas = {
       poolId: {
         type: 'string',
         pattern: '^[0-9]+$',
-        description: 'Pool unique identifier'
+        description: 'Pool unique identifier',
       },
       userId: {
         type: 'string',
-        description: 'User unique identifier to remove'
+        description: 'User unique identifier to remove',
       },
     },
     required: ['poolId', 'userId'],
@@ -166,7 +181,7 @@ export const poolSchemas = {
     properties: {
       message: {
         type: 'string',
-        example: 'User successfully removed from pool'
+        example: 'User successfully removed from pool',
       },
     },
   },
@@ -203,27 +218,27 @@ export const poolSchemas = {
         type: 'string',
         minLength: 1,
         maxLength: 100,
-        description: 'Pool name'
+        description: 'Pool name',
       },
       description: {
         type: 'string',
         maxLength: 500,
-        description: 'Pool description'
+        description: 'Pool description',
       },
       isPrivate: {
         type: 'boolean',
-        description: 'Whether the pool is private'
+        description: 'Whether the pool is private',
       },
       maxParticipants: {
         type: 'number',
         minimum: 2,
         maximum: 1000,
-        description: 'Maximum number of participants allowed'
+        description: 'Maximum number of participants allowed',
       },
       registrationDeadline: {
         type: 'string',
         format: 'date-time',
-        description: 'Registration deadline'
+        description: 'Registration deadline',
       },
     },
     required: [],
