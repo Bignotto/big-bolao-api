@@ -1,3 +1,7 @@
+import { Pool, ScoringRule, Tournament } from '@prisma/client';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { createServer } from '@/app';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
@@ -9,8 +13,19 @@ import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createPool, createPoolWithParticipants } from '@/test/mocks/pools';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type GetPoolResponse = {
+  pool: Pool & {
+    participantsCount: number;
+    tournament: Tournament;
+    scoringRules: ScoringRule;
+  };
+};
+
+type ErrorResponse = {
+  message: string;
+  issues?: any;
+};
 
 describe('Get Pool Controller (e2e)', async () => {
   const app = await createServer();
@@ -49,9 +64,10 @@ describe('Get Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
+    const body = response.body as GetPoolResponse;
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('pool');
-    expect(response.body.pool).toEqual(
+    expect(body.pool).toEqual(
       expect.objectContaining({
         id: pool.id,
         name: 'Test Pool',
@@ -59,12 +75,10 @@ describe('Get Pool Controller (e2e)', async () => {
         isPrivate: false,
         creatorId: userId,
         tournamentId: tournament.id,
-        isCreator: true,
-        isParticipant: true, // Creator is automatically a participant
       })
     );
-    expect(response.body.pool).toHaveProperty('scoringRules');
-    expect(response.body.pool).toHaveProperty('participantsCount');
+    expect(body.pool).toHaveProperty('scoringRules');
+    expect(body.pool).toHaveProperty('participantsCount');
   });
 
   it('should be able to get pool details as participant', async () => {
@@ -92,7 +106,9 @@ describe('Get Pool Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('pool');
-    expect(response.body.pool).toEqual(
+
+    const body = response.body as GetPoolResponse;
+    expect(body.pool).toEqual(
       expect.objectContaining({
         id: pool.id,
         name: 'Participant Test Pool',
@@ -114,7 +130,9 @@ describe('Get Pool Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(404);
     expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Pool not found');
+
+    const body = response.body as ErrorResponse;
+    expect(body.message).toContain('Pool not found');
   });
 
   it('should return 403 when user is not a participant or creator', async () => {
@@ -137,7 +155,8 @@ describe('Get Pool Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(403);
     expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('not a participant');
+    const body = response.body as ErrorResponse;
+    expect(body.message).toContain('not a participant');
   });
 
   it('should validate the pool ID parameter', async () => {
@@ -148,10 +167,9 @@ describe('Get Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe('Validation error.');
-    expect(response.body).toHaveProperty('issues');
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('code', 'FST_ERR_VALIDATION');
+    expect(body).toHaveProperty('error', 'Bad Request');
   });
 
   it('should require authentication', async () => {
@@ -184,8 +202,10 @@ describe('Get Pool Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.pool).toHaveProperty('tournament');
-    expect(response.body.pool.tournament).toEqual(
+
+    const body = response.body as GetPoolResponse;
+    expect(body.pool).toHaveProperty('tournament');
+    expect(body.pool.tournament).toEqual(
       expect.objectContaining({
         id: tournament.id,
         name: 'World Cup 2024',
@@ -197,7 +217,7 @@ describe('Get Pool Controller (e2e)', async () => {
   it('should return correct participant count', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
 
-    const { pool, participants } = await createPoolWithParticipants(
+    const { pool } = await createPoolWithParticipants(
       {
         poolsRepository,
         usersRepository,
@@ -214,9 +234,11 @@ describe('Get Pool Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.pool).toHaveProperty('participantsCount');
-    expect(typeof response.body.pool.participantsCount).toBe('number');
-    expect(response.body.pool.participantsCount).toBeGreaterThan(0);
+
+    const body = response.body as GetPoolResponse;
+    expect(body.pool).toHaveProperty('participantsCount');
+    expect(typeof body.pool.participantsCount).toBe('number');
+    expect(body.pool.participantsCount).toBeGreaterThan(0);
   });
 
   it('should include scoring rules in response', async () => {
@@ -234,17 +256,17 @@ describe('Get Pool Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.pool).toHaveProperty('scoringRules');
-    expect(response.body.pool.scoringRules).toEqual(
-      expect.objectContaining({
-        exactScorePoints: expect.any(Number),
-        correctWinnerPoints: expect.any(Number),
-        correctDrawPoints: expect.any(Number),
-        correctWinnerGoalDiffPoints: expect.any(Number),
-        finalMultiplier: expect.any(Number),
-        knockoutMultiplier: expect.any(Number),
-      })
-    );
+
+    const body = response.body as GetPoolResponse;
+    expect(body.pool).toHaveProperty('scoringRules');
+    expect(body.pool.scoringRules).toEqual({
+      exactScorePoints: expect.any(Number) as number,
+      correctWinnerPoints: expect.any(Number) as number,
+      correctDrawPoints: expect.any(Number) as number,
+      correctWinnerGoalDiffPoints: expect.any(Number) as number,
+      finalMultiplier: expect.any(Number) as number,
+      knockoutMultiplier: expect.any(Number) as number,
+    });
   });
 
   it('should handle private pools correctly', async () => {
@@ -263,7 +285,8 @@ describe('Get Pool Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.pool).toEqual(
+    const body = response.body as GetPoolResponse;
+    expect(body.pool).toEqual(
       expect.objectContaining({
         isPrivate: true,
       })

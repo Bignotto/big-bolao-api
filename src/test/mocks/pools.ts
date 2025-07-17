@@ -1,7 +1,9 @@
-import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
-import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { faker } from '@faker-js/faker';
 import { Pool, User } from '@prisma/client';
+
+import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
+import { IUsersRepository } from '@/repositories/users/IUsersRepository';
+
 import { createUser } from './users';
 
 export async function createPool(

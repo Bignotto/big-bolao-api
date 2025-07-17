@@ -45,7 +45,36 @@ export const poolSchemas = {
         },
         description: 'Tournament information',
       },
-      participantCount: { type: 'number', description: 'Number of participants in the pool' },
+      participantsCount: { type: 'number', description: 'Number of participants in the pool' },
+      isCreator: { type: 'boolean', description: 'Whether the current user is the pool creator' },
+      isParticipant: {
+        type: 'boolean',
+        description: 'Whether the current user is a participant in the pool',
+      },
+      scoringRules: {
+        type: 'object',
+        properties: {
+          exactScorePoints: { type: 'number', description: 'Points for exact score prediction' },
+          correctWinnerPoints: {
+            type: 'number',
+            description: 'Points for correct winner prediction',
+          },
+          correctDrawPoints: { type: 'number', description: 'Points for correct draw prediction' },
+          correctWinnerGoalDiffPoints: {
+            type: 'number',
+            description: 'Points for correct winner with goal difference prediction',
+          },
+          finalMultiplier: {
+            type: 'number',
+            description: 'Multiplier for final stage predictions',
+          },
+          knockoutMultiplier: {
+            type: 'number',
+            description: 'Multiplier for knockout stage predictions',
+          },
+        },
+        description: 'Scoring rules for the pool',
+      },
     },
     required: ['id', 'name', 'tournamentId', 'creatorId', 'isPrivate', 'createdAt'],
   },
