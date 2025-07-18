@@ -13,6 +13,14 @@ beforeAll(() => {
       stdio: 'inherit',
     });
 
+    // Executa o script SQL para criar as views
+    execSync(
+      'npx prisma db execute --file ./prisma/migrations/20250420092255_add_pool_standings_views/migration.sql',
+      {
+        stdio: 'inherit',
+      }
+    );
+
     // Initialize Prisma client
     prisma = new PrismaClient();
 
