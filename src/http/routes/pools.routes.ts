@@ -12,7 +12,7 @@ import { updatePoolController } from '../controllers/pools/updatePoolController'
 import { verifyJwt } from '../middlewares/verifyJWT';
 import { poolSchemas } from '../schemas/pool.schemas';
 
-export function PoolRoutes(app: FastifyInstance) {
+export function PoolRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
 
   app.post(

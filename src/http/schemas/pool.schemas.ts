@@ -289,11 +289,28 @@ export const poolSchemas = {
       id: { type: 'string', description: 'Prediction unique identifier' },
       userId: { type: 'string', description: 'User ID who made the prediction' },
       matchId: { type: 'number', description: 'Match ID' },
-      homeTeamScore: { type: 'number', description: 'Predicted home team score' },
-      awayTeamScore: { type: 'number', description: 'Predicted away team score' },
-      points: { type: 'number', description: 'Points earned from this prediction' },
-      createdAt: { type: 'string', format: 'date-time' },
+      predictedHomeScore: { type: 'number', description: 'Predicted home team score' },
+      predictedAwayScore: { type: 'number', description: 'Predicted away team score' },
+      predictedHasExtraTime: {
+        type: 'boolean',
+        description: 'Whether the prediction includes extra time',
+      },
+      predictedHasPenalties: {
+        type: 'boolean',
+        description: 'Whether the prediction includes penalties',
+      },
+      predictedPenaltyHomeScore: {
+        type: 'number',
+        description: 'Predicted home team penalty score',
+      },
+      predictedPenaltyAwayScore: {
+        type: 'number',
+        description: 'Predicted away team penalty score',
+      },
+      submittedAt: { type: 'string', format: 'date-time' },
+      pointsEarned: { type: 'number', description: 'Points earned for this prediction' },
       updatedAt: { type: 'string', format: 'date-time' },
+      poolId: { type: 'number', description: 'Pool ID this prediction belongs to' },
       user: {
         type: 'object',
         properties: {
