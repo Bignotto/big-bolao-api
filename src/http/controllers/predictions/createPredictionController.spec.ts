@@ -1,47 +1,70 @@
-import { createServer } from '@/app';
+import { MatchStage, MatchStatus } from '@prisma/client';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
-import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
-import { PrismaPredictionsRepository } from '@/repositories/predictions/PrismaPredictionsRepository';
 import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
 import { PrismaTeamsRepository } from '@/repositories/teams/PrismaTeamsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createMatch } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import { MatchStage, MatchStatus } from '@prisma/client';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type CreatePredictionResponse = {
+  prediction: {
+    id: number;
+    matchId: number;
+    poolId: number;
+    userId: string;
+    predictedHomeScore: number;
+    predictedAwayScore: number;
+    predictedHasExtraTime: boolean;
+    predictedHasPenalties: boolean;
+    predictedPenaltyHomeScore?: number;
+    predictedPenaltyAwayScore?: number;
+  };
+};
+
+type ErrorResponse = {
+  code?: string;
+  error?: string;
+  message: string;
+};
 
 describe('Create Prediction Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
+  let tournamentId: number;
 
   let usersRepository: IUsersRepository;
   let poolsRepository: IPoolsRepository;
   let tournamentsRepository: ITournamentsRepository;
   let matchesRepository: IMatchesRepository;
   let teamsRepository: ITeamsRepository;
-  let predictionsRepository: IPredictionsRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
+
     usersRepository = new PrismaUsersRepository();
     poolsRepository = new PrismaPoolsRepository();
     tournamentsRepository = new PrismaTournamentsRepository();
     matchesRepository = new PrismaMatchesRepository();
     teamsRepository = new PrismaTeamsRepository();
-    predictionsRepository = new PrismaPredictionsRepository();
+
+    // Create a tournament for testing
+    const tournament = await createTournament(tournamentsRepository, {});
+    tournamentId = tournament.id;
   });
 
   afterAll(async () => {
@@ -49,11 +72,9 @@ describe('Create Prediction Controller (e2e)', async () => {
   });
 
   it('should create a prediction successfully', async () => {
-    const tournament = await createTournament(tournamentsRepository, {});
-
     const pool = await createPool(poolsRepository, {
       creatorId: userId,
-      tournamentId: tournament.id,
+      tournamentId,
       name: 'Test Pool',
     });
 
@@ -68,7 +89,7 @@ describe('Create Prediction Controller (e2e)', async () => {
     const match = await createMatch(
       matchesRepository,
       {
-        tournamentId: tournament.id,
+        tournamentId,
         matchStatus: MatchStatus.SCHEDULED,
         matchStage: MatchStage.GROUP,
       },
@@ -87,8 +108,10 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(201);
-    expect(response.body).toHaveProperty('prediction');
-    expect(response.body.prediction).toEqual(
+
+    const body = response.body as CreatePredictionResponse;
+    expect(body).toHaveProperty('prediction');
+    expect(body.prediction).toEqual(
       expect.objectContaining({
         matchId: match.id,
         poolId: pool.id,
@@ -102,11 +125,9 @@ describe('Create Prediction Controller (e2e)', async () => {
   });
 
   it('should create a prediction with extra time and penalties for knockout matches', async () => {
-    const tournament = await createTournament(tournamentsRepository, {});
-
     const pool = await createPool(poolsRepository, {
       creatorId: userId,
-      tournamentId: tournament.id,
+      tournamentId,
       name: 'Knockout Test Pool',
     });
 
@@ -121,7 +142,7 @@ describe('Create Prediction Controller (e2e)', async () => {
     const match = await createMatch(
       matchesRepository,
       {
-        tournamentId: tournament.id,
+        tournamentId,
         matchStatus: MatchStatus.SCHEDULED,
         matchStage: MatchStage.QUARTER_FINAL,
       },
@@ -144,7 +165,9 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(201);
-    expect(response.body.prediction).toEqual(
+
+    const body = response.body as CreatePredictionResponse;
+    expect(body.prediction).toEqual(
       expect.objectContaining({
         predictedHomeScore: 1,
         predictedAwayScore: 1,
@@ -157,8 +180,6 @@ describe('Create Prediction Controller (e2e)', async () => {
   });
 
   it('should return 404 when pool does not exist', async () => {
-    const tournament = await createTournament(tournamentsRepository, {});
-
     const homeTeam = await createTeam(teamsRepository, {
       name: 'Home Team 404',
     });
@@ -170,7 +191,7 @@ describe('Create Prediction Controller (e2e)', async () => {
     const match = await createMatch(
       matchesRepository,
       {
-        tournamentId: tournament.id,
+        tournamentId,
         matchStatus: MatchStatus.SCHEDULED,
       },
       homeTeam,
@@ -190,16 +211,16 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Pool not found');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Pool not found');
   });
 
   it('should return 404 when match does not exist', async () => {
-    const tournament = await createTournament(tournamentsRepository, {});
-
     const pool = await createPool(poolsRepository, {
       creatorId: userId,
-      tournamentId: tournament.id,
+      tournamentId,
       name: 'Match 404 Pool',
     });
 
@@ -216,20 +237,20 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Match not found');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Match not found');
   });
 
   it('should return 403 when user is not a participant in the pool', async () => {
-    const tournament = await createTournament(tournamentsRepository, {});
-
     const otherUser = await createUser(usersRepository, {
       email: 'other-user@example.com',
     });
 
     const pool = await createPool(poolsRepository, {
       creatorId: otherUser.id,
-      tournamentId: tournament.id,
+      tournamentId,
       name: 'Not Participant Pool',
     });
 
@@ -244,7 +265,7 @@ describe('Create Prediction Controller (e2e)', async () => {
     const match = await createMatch(
       matchesRepository,
       {
-        tournamentId: tournament.id,
+        tournamentId,
         matchStatus: MatchStatus.SCHEDULED,
       },
       homeTeam,
@@ -262,16 +283,16 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(403);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain(`Not participant: ${userId}`);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain(`Not participant: ${userId}`);
   });
 
   it('should return 400 when match is not scheduled', async () => {
-    const tournament = await createTournament(tournamentsRepository, {});
-
     const pool = await createPool(poolsRepository, {
       creatorId: userId,
-      tournamentId: tournament.id,
+      tournamentId,
       name: 'Completed Match Pool',
     });
 
@@ -286,7 +307,7 @@ describe('Create Prediction Controller (e2e)', async () => {
     const match = await createMatch(
       matchesRepository,
       {
-        tournamentId: tournament.id,
+        tournamentId,
         matchStatus: MatchStatus.COMPLETED,
       },
       homeTeam,
@@ -304,16 +325,16 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(400);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain(`Invalid Match Status: ${match.matchStatus}`);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain(`Invalid Match Status: ${match.matchStatus}`);
   });
 
   it('should return 409 when prediction already exists', async () => {
-    const tournament = await createTournament(tournamentsRepository, {});
-
     const pool = await createPool(poolsRepository, {
       creatorId: userId,
-      tournamentId: tournament.id,
+      tournamentId,
       name: 'Duplicate Prediction Pool',
     });
 
@@ -328,7 +349,7 @@ describe('Create Prediction Controller (e2e)', async () => {
     const match = await createMatch(
       matchesRepository,
       {
-        tournamentId: tournament.id,
+        tournamentId,
         matchStatus: MatchStatus.SCHEDULED,
       },
       homeTeam,
@@ -355,16 +376,16 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(409);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('already exists');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('already exists');
   });
 
-  it('should return 400 when trying to predict extra time for group stage match', async () => {
-    const tournament = await createTournament(tournamentsRepository, {});
-
+  it('should return 409 when trying to predict extra time for group stage match', async () => {
     const pool = await createPool(poolsRepository, {
       creatorId: userId,
-      tournamentId: tournament.id,
+      tournamentId,
       name: 'Group Extra Time Pool',
     });
 
@@ -379,7 +400,7 @@ describe('Create Prediction Controller (e2e)', async () => {
     const match = await createMatch(
       matchesRepository,
       {
-        tournamentId: tournament.id,
+        tournamentId,
         matchStatus: MatchStatus.SCHEDULED,
         matchStage: MatchStage.GROUP,
       },
@@ -399,8 +420,10 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(409);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Non knockout matches cannot have extra time');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Non knockout matches cannot have extra time');
   });
 
   it('should return 409 when predicting penalties without tied scores', async () => {
@@ -445,8 +468,9 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(409);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Penalties can only be predicted when scores are tied');
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Penalties can only be predicted when scores are tied');
   });
 
   it('should return 409 when predicting penalties without penalty scores', async () => {
@@ -490,13 +514,12 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(409);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain(
-      'Penalty scores must be provided when penalties are predicted'
-    );
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Penalty scores must be provided when penalties are predicted');
   });
 
-  it('should return 422 when validation fails for negative scores', async () => {
+  it('should return 400 when validation fails for negative scores', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
 
     const pool = await createPool(poolsRepository, {
@@ -533,12 +556,13 @@ describe('Create Prediction Controller (e2e)', async () => {
         predictedAwayScore: 2,
       });
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe('Validation error');
+    expect(response.statusCode).toEqual(400);
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toBe('body/predictedHomeScore must be >= 0');
   });
 
-  it('should return 422 when required fields are missing', async () => {
+  it('should return 400 when required fields are missing', async () => {
     const response = await request(app.server)
       .post('/predictions')
       .set('Authorization', `Bearer ${token}`)
@@ -547,9 +571,10 @@ describe('Create Prediction Controller (e2e)', async () => {
         // Missing poolId, predictedHomeScore, predictedAwayScore
       });
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe('Validation error');
+    expect(response.statusCode).toEqual(400);
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toBe(`body must have required property 'poolId'`);
   });
 
   it('should require authentication', async () => {
@@ -607,7 +632,8 @@ describe('Create Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Match not found in the pool');
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Match not found in the pool');
   });
 });
