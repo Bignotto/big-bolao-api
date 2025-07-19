@@ -15,6 +15,7 @@ export async function createPool(
     creatorId?: string;
     isPrivate?: boolean;
     inviteCode?: string;
+    maxParticipants?: number;
   }
 ): Promise<Pool> {
   const randomPoolNumber = Math.floor(Math.random() * 100);
@@ -26,6 +27,7 @@ export async function createPool(
     creator: { connect: { id: data.creatorId ?? `faker-${randomPoolNumber}` } },
     inviteCode: data.inviteCode ?? `invite-${randomPoolNumber}`,
     isPrivate: data.isPrivate ?? false,
+    maxParticipants: data.maxParticipants ?? 100,
   });
 
   await repository.createScoringRules({

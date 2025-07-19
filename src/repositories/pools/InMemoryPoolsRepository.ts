@@ -2,6 +2,7 @@ import { Match, Pool, Prediction, Prisma, ScoringRule } from '@prisma/client';
 
 import { PoolStandings } from '@/global/types/poolStandings';
 import { PredictionPoints } from '@/global/types/predictionPoints';
+
 import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
 
 export class InMemoryPoolsRepository implements IPoolsRepository {
@@ -32,7 +33,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     }
 
     const predictionsPoints: PredictionPoints[] = [];
-    let summary: { [id: string]: PoolStandings } = {};
+    const summary: { [id: string]: PoolStandings } = {};
 
     for (const prediction of poolPredictions) {
       const match = this.matches.find((match) => match.id === prediction.matchId);
@@ -129,7 +130,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
         };
       }
     }
-    return Object.values(summary);
+    return Promise.resolve(Object.values(summary));
   }
 
   /*
@@ -164,7 +165,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
       ranking: 3,
       totalPredictions: 4,
     });
-    return userStandings;
+    return Promise.resolve(userStandings);
   }
 
   async create(data: Prisma.PoolCreateInput): Promise<Pool> {
@@ -184,15 +185,17 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     };
 
     this.pools.push(pool);
-    return pool;
+    return Promise.resolve(pool);
   }
 
   async getScoringRules(poolId: number): Promise<ScoringRule[]> {
-    return this.scoringRules.filter((rule) => rule.poolId === poolId);
+    return Promise.resolve(this.scoringRules.filter((rule) => rule.poolId === poolId));
   }
 
   async getPoolParticipants(poolId: number): Promise<{ poolId: number; userId: string }[]> {
-    return this.participants.filter((participant) => participant.poolId === poolId);
+    return Promise.resolve(
+      this.participants.filter((participant) => participant.poolId === poolId)
+    );
   }
 
   async getPool(poolId: number): Promise<PoolCompleteInfo | null> {
@@ -204,11 +207,11 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
       return null;
     }
 
-    return {
+    return Promise.resolve({
       ...pool,
       participants,
       scoringRules: scoringRules[0],
-    };
+    });
   }
 
   async update(id: number, data: Prisma.PoolUpdateInput): Promise<Pool> {
@@ -240,8 +243,8 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
       id: this.pools[poolIndex].id,
     };
 
-    this.pools[poolIndex] = updatedPool as Pool;
-    return updatedPool as Pool;
+    this.pools[poolIndex] = updatedPool;
+    return Promise.resolve(updatedPool);
   }
 
   async createScoringRules(data: Prisma.ScoringRuleCreateInput): Promise<ScoringRule> {
@@ -250,35 +253,36 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     const scoringRule: ScoringRule = {
       id: newId,
       poolId: data.pool.connect?.id as number,
-      correctDrawPoints: data.correctDrawPoints as number,
-      correctWinnerGoalDiffPoints: data.correctWinnerGoalDiffPoints as number,
-      correctWinnerPoints: data.correctWinnerPoints as number,
-      exactScorePoints: data.exactScorePoints as number,
+      correctDrawPoints: data.correctDrawPoints,
+      correctWinnerGoalDiffPoints: data.correctWinnerGoalDiffPoints,
+      correctWinnerPoints: data.correctWinnerPoints,
+      exactScorePoints: data.exactScorePoints,
       finalMultiplier: new Prisma.Decimal(data.finalMultiplier as number),
       knockoutMultiplier: new Prisma.Decimal(data.knockoutMultiplier as number),
       specialEventPoints: data.specialEventPoints as number,
     };
 
     this.scoringRules.push(scoringRule);
-    return scoringRule;
+    return Promise.resolve(scoringRule);
   }
 
   async addParticipant(data: { poolId: number; userId: string }): Promise<void> {
     this.participants.push({ ...data, joinedAt: new Date() });
+    return Promise.resolve();
   }
 
   async findById(id: number): Promise<Pool | null> {
     const pool = this.pools.find((pool) => pool.id === id);
-    return pool || null;
+    return Promise.resolve(pool || null);
   }
 
-  async findByInviteCode(inviteCode: string, poolId: number): Promise<Pool | null> {
+  async findByInviteCode(inviteCode: string, _poolId: number): Promise<Pool | null> {
     const pool = this.pools.find((pool) => pool.inviteCode === inviteCode);
-    return pool || null;
+    return Promise.resolve(pool || null);
   }
 
   async findByCreatorId(creatorId: string): Promise<Pool[]> {
-    return this.pools.filter((pool) => pool.creatorId === creatorId);
+    return Promise.resolve(this.pools.filter((pool) => pool.creatorId === creatorId));
   }
 
   async findByParticipantId(userId: string): Promise<Pool[]> {
@@ -286,8 +290,8 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
       .filter((participant) => participant.userId === userId)
       .map((participant) => participant.poolId);
 
-    return this.pools.filter(
-      (pool) => participantPoolIds.includes(pool.id) || pool.creatorId === userId
+    return Promise.resolve(
+      this.pools.filter((pool) => participantPoolIds.includes(pool.id) || pool.creatorId === userId)
     );
   }
 
@@ -301,10 +305,14 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     }
 
     this.participants.splice(participantIndex, 1);
+    return Promise.resolve();
   }
 
   async findByName(name: string): Promise<Pool | null> {
     const pool = this.pools.find((pool) => pool.name === name);
-    return pool || null;
+    return Promise.resolve(pool || null);
+  }
+  deletePoolById(_poolId: number): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 }

@@ -2,8 +2,8 @@ import { Pool, Prisma, ScoringRule } from '@prisma/client';
 
 import { PoolStandings } from '@/global/types/poolStandings';
 
-import { prisma } from '../../lib/prisma';
 import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
+import { prisma } from '../../lib/prisma';
 
 export class PrismaPoolsRepository implements IPoolsRepository {
   async getScoringRules(poolId: number): Promise<ScoringRule[]> {
@@ -156,5 +156,17 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     });
 
     return pool;
+  }
+
+  async deletePoolById(poolId: number): Promise<void> {
+    await prisma.poolParticipant.deleteMany({
+      where: { poolId },
+    });
+    await prisma.scoringRule.deleteMany({
+      where: { poolId },
+    });
+    await prisma.pool.delete({
+      where: { id: poolId },
+    });
   }
 }
