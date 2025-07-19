@@ -5,7 +5,7 @@ import { getPoolController } from '../controllers/pools/getPoolController';
 import { getPoolPredictionsController } from '../controllers/pools/getPoolPredictionsController';
 import { getPoolStandingsController } from '../controllers/pools/getPoolStandingsController';
 import { getPoolUsersController } from '../controllers/pools/getPoolUsersController';
-import { JoinPoolController } from '../controllers/pools/joinPoolController';
+import { joinPoolController } from '../controllers/pools/joinPoolController';
 import { leavePoolController } from '../controllers/pools/leavePoolController';
 import { removeUserFromPoolController } from '../controllers/pools/removeUserFromPoolController';
 import { updatePoolController } from '../controllers/pools/updatePoolController';
@@ -110,7 +110,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         },
       },
     },
-    JoinPoolController
+    joinPoolController
   );
 
   app.post(
