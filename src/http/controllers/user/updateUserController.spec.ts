@@ -1,21 +1,35 @@
-import { createServer } from '@/app';
-import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
-import { getSupabaseAccessToken } from '@/test/mockJwt';
-import { createUser } from '@/test/mocks/users';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { IUsersRepository } from '@/repositories/users/IUsersRepository';
+import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+import { createTestApp } from '@/test/helper-e2e';
+import { getSupabaseAccessToken } from '@/test/mockJwt';
+import { createUser } from '@/test/mocks/users';
+
+type UpdateUserResponse = {
+  user: {
+    id: string;
+    email: string;
+    fullName: string;
+    profileImageUrl: string;
+  };
+};
+
+type ErrorResponse = {
+  code?: string;
+  error?: string;
+  message: string;
+};
+
 describe('Update User Controller (e2e)', async () => {
-  const app = await createServer();
-  let userId: string;
+  const app = await createTestApp();
   let token: string;
 
   let usersRepository: IUsersRepository;
 
   beforeAll(async () => {
-    await app.ready();
-    ({ token, userId } = await getSupabaseAccessToken(app));
+    ({ token } = await getSupabaseAccessToken(app));
     usersRepository = new PrismaUsersRepository();
   });
 
@@ -35,8 +49,11 @@ describe('Update User Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.user.fullName).toEqual('Updated Name');
-    expect(response.body.user.profileImageUrl).toEqual('https://example.com/updated-image.jpg');
+
+    const body = response.body as UpdateUserResponse;
+    expect(body).toHaveProperty('user');
+    expect(body.user.fullName).toEqual('Updated Name');
+    expect(body.user.profileImageUrl).toEqual('https://example.com/updated-image.jpg');
 
     const updatedUser = await usersRepository.findById(user.id);
 
@@ -57,7 +74,9 @@ describe('Update User Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.user).toEqual(
+
+    const body = response.body as UpdateUserResponse;
+    expect(body.user).toEqual(
       expect.objectContaining({
         id: user.id,
         email: newEmail,
@@ -81,7 +100,9 @@ describe('Update User Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
   });
 
   it('should validate the request body', async () => {
@@ -94,7 +115,10 @@ describe('Update User Controller (e2e)', async () => {
         email: 'invalid-email', // Invalid email format
       });
 
-    expect(response.statusCode).toEqual(422);
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'body/email must match format "email"');
   });
 
   it('should validate the user ID parameter', async () => {
@@ -108,5 +132,166 @@ describe('Update User Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(422);
+    console.log(JSON.stringify(response, null, 2));
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'Validation error');
+    expect(body).toHaveProperty('issues');
+  });
+
+  it('should require authentication', async () => {
+    const user = await createUser(usersRepository, {});
+
+    const response = await request(app.server).put(`/users/${user.id}`).send({
+      fullName: 'Unauthenticated Update',
+    });
+
+    expect(response.statusCode).toEqual(401);
+  });
+
+  it('should update only the provided fields', async () => {
+    const user = await createUser(usersRepository, {
+      fullName: 'Original Name',
+      email: 'original@example.com',
+      profileImageUrl: 'https://example.com/original.jpg',
+    });
+
+    // Update only the name
+    const response = await request(app.server)
+      .put(`/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        fullName: 'Only Name Updated',
+      });
+
+    expect(response.statusCode).toEqual(200);
+
+    const body = response.body as UpdateUserResponse;
+    expect(body.user).toHaveProperty('fullName', 'Only Name Updated');
+    expect(body.user).toHaveProperty('email', user.email); // Should remain unchanged
+    expect(body.user).toHaveProperty('profileImageUrl', user.profileImageUrl); // Should remain unchanged
+  });
+
+  it('should handle empty request body', async () => {
+    const user = await createUser(usersRepository, {});
+
+    const response = await request(app.server)
+      .put(`/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({});
+
+    expect(response.statusCode).toEqual(200);
+
+    const body = response.body as UpdateUserResponse;
+    expect(body).toHaveProperty('user');
+    expect(body.user.id).toEqual(user.id);
+  });
+
+  it('should return user with all expected properties', async () => {
+    const user = await createUser(usersRepository, {});
+
+    const response = await request(app.server)
+      .put(`/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        fullName: 'Properties Test User',
+      });
+
+    expect(response.statusCode).toEqual(200);
+
+    const body = response.body as UpdateUserResponse;
+    expect(body.user).toHaveProperty('id');
+    expect(body.user).toHaveProperty('email');
+    expect(body.user).toHaveProperty('fullName');
+    expect(body.user).toHaveProperty('profileImageUrl');
+    expect(body.user).not.toHaveProperty('passwordHash'); // Should not expose password hash
+  });
+
+  it('should return consistent response structure', async () => {
+    const user = await createUser(usersRepository, {});
+
+    const response = await request(app.server)
+      .put(`/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        fullName: 'Structure Test User',
+      });
+
+    expect(response.statusCode).toEqual(200);
+
+    const body = response.body as UpdateUserResponse;
+    expect(Object.keys(body)).toEqual(['user']);
+    expect(body.user).toHaveProperty('id');
+    expect(body.user).toHaveProperty('email');
+    expect(body.user).toHaveProperty('fullName');
+    expect(body.user).toHaveProperty('profileImageUrl');
+    expect(body.user).not.toHaveProperty('passwordHash'); // Should not expose password hash
+  });
+
+  it('should handle invalid email format', async () => {
+    const user = await createUser(usersRepository, {});
+
+    const response = await request(app.server)
+      .put(`/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email: 'not-an-email',
+      });
+
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'body/email must match format "email"');
+  });
+
+  it('should handle empty string values', async () => {
+    const user = await createUser(usersRepository, {});
+
+    const response = await request(app.server)
+      .put(`/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email: '',
+        fullName: '',
+        profileImageUrl: '',
+      });
+
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'body/email must match format "email"');
+  });
+
+  it('should update all fields when provided', async () => {
+    const user = await createUser(usersRepository, {});
+
+    const updateData = {
+      email: 'all-fields@example.com',
+      fullName: 'All Fields Updated',
+      profileImageUrl: 'https://example.com/all-fields.jpg',
+    };
+
+    const response = await request(app.server)
+      .put(`/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(updateData);
+
+    expect(response.statusCode).toEqual(200);
+
+    const body = response.body as UpdateUserResponse;
+    expect(body.user).toEqual(
+      expect.objectContaining({
+        id: user.id,
+        email: updateData.email,
+        fullName: updateData.fullName,
+        profileImageUrl: updateData.profileImageUrl,
+      })
+    );
+
+    // Verify the user was actually updated in the database
+    const updatedUser = await usersRepository.findById(user.id);
+    expect(updatedUser?.email).toEqual(updateData.email);
+    expect(updatedUser?.fullName).toEqual(updateData.fullName);
+    expect(updatedUser?.profileImageUrl).toEqual(updateData.profileImageUrl);
   });
 });

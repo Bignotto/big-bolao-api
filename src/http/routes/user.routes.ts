@@ -6,7 +6,7 @@ import { GetUserInfoController } from '../controllers/user/getUserInfoController
 import { getUserPoolsController } from '../controllers/user/getUserPoolsController';
 import { getUserPoolsStandingsController } from '../controllers/user/getUserPoolsStandingsController';
 import { getUserPredictionsController } from '../controllers/user/getUserPredictionsController';
-import { UpdateUserController } from '../controllers/user/updateUserController';
+import { updateUserController } from '../controllers/user/updateUserController';
 import { verifyJwt } from '../middlewares/verifyJWT';
 import { userSchemas } from '../schemas/user.schemas';
 
@@ -71,7 +71,7 @@ export function UserRoutes(app: FastifyInstance): void {
         },
       },
     },
-    UpdateUserController
+    updateUserController
   );
 
   app.get(
