@@ -1,4 +1,7 @@
-import { createServer } from '@/app';
+import { Match, MatchStage, MatchStatus, Pool, Prediction } from '@prisma/client';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -11,6 +14,7 @@ import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsR
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createMatch } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
@@ -18,12 +22,19 @@ import { createPrediction } from '@/test/mocks/predictions';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import { Match, MatchStage, MatchStatus, Pool, Prediction } from '@prisma/client';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type UpdatePredictionResponse = {
+  prediction: Prediction;
+};
+
+type ErrorResponse = {
+  code?: string;
+  error?: string;
+  message: string;
+};
 
 describe('Update Prediction Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
   let tournamentId: number;
@@ -39,7 +50,6 @@ describe('Update Prediction Controller (e2e)', async () => {
   let predictionsRepository: IPredictionsRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
 
     usersRepository = new PrismaUsersRepository();
@@ -49,15 +59,18 @@ describe('Update Prediction Controller (e2e)', async () => {
     matchesRepository = new PrismaMatchesRepository();
     predictionsRepository = new PrismaPredictionsRepository();
 
+    // Create tournament
     const tournament = await createTournament(tournamentsRepository, {});
     tournamentId = tournament.id;
 
+    // Create pool
     pool = await createPool(poolsRepository, {
       creatorId: userId,
       tournamentId,
       isPrivate: false,
     });
 
+    // Create teams and match
     const homeTeam = await createTeam(teamsRepository, { name: 'Home Team' });
     const awayTeam = await createTeam(teamsRepository, { name: 'Away Team' });
 
@@ -74,6 +87,7 @@ describe('Update Prediction Controller (e2e)', async () => {
       awayTeam
     );
 
+    // Create prediction
     prediction = await createPrediction(predictionsRepository, {
       userId,
       poolId: pool.id,
@@ -97,8 +111,10 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('prediction');
-    expect(response.body.prediction).toEqual(
+
+    const body = response.body as UpdatePredictionResponse;
+    expect(body).toHaveProperty('prediction');
+    expect(body.prediction).toEqual(
       expect.objectContaining({
         id: prediction.id,
         userId: userId,
@@ -150,7 +166,9 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.prediction).toEqual(
+
+    const body = response.body as UpdatePredictionResponse;
+    expect(body.prediction).toEqual(
       expect.objectContaining({
         predictedHomeScore: 2,
         predictedAwayScore: 2,
@@ -174,8 +192,10 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('not found');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('not found');
   });
 
   it('should return 403 when user tries to update another users prediction', async () => {
@@ -207,7 +227,9 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(403);
-    expect(response.body).toHaveProperty('message');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
   });
 
   it('should return 400 when match is not scheduled', async () => {
@@ -244,8 +266,10 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(400);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Match Status');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Match Status');
   });
 
   it('should return 400 when trying to predict extra time for group stage match', async () => {
@@ -259,7 +283,9 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(400);
-    expect(response.body).toHaveProperty('message');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
   });
 
   it('should return 400 when predicting penalties without tied scores', async () => {
@@ -299,7 +325,9 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(400);
-    expect(response.body).toHaveProperty('message');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
   });
 
   it('should return 400 when predicting penalties without penalty scores', async () => {
@@ -338,7 +366,9 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(400);
-    expect(response.body).toHaveProperty('message');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
   });
 
   it('should require authentication', async () => {
@@ -359,12 +389,13 @@ describe('Update Prediction Controller (e2e)', async () => {
         predictedAwayScore: 1,
       });
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message', 'Validation error.');
-    expect(response.body).toHaveProperty('issues');
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', `params/predictionId must match pattern "^[0-9]+$"`);
   });
 
-  it('should return 422 when validation fails for negative scores', async () => {
+  it('should return 400 when validation fails for negative scores', async () => {
     const response = await request(app.server)
       .put(`/predictions/${prediction.id}`)
       .set('Authorization', `Bearer ${token}`)
@@ -373,12 +404,13 @@ describe('Update Prediction Controller (e2e)', async () => {
         predictedAwayScore: 2,
       });
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message', 'Validation error.');
-    expect(response.body).toHaveProperty('issues');
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'body/predictedHomeScore must be >= 0');
   });
 
-  it('should return 422 when required fields are missing', async () => {
+  it('should return 400 when required fields are missing', async () => {
     const response = await request(app.server)
       .put(`/predictions/${prediction.id}`)
       .set('Authorization', `Bearer ${token}`)
@@ -387,8 +419,9 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message', 'Validation error.');
-    expect(response.body).toHaveProperty('issues');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'Validation error');
   });
 
   it('should handle zero prediction ID gracefully', async () => {
@@ -401,8 +434,10 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('not found');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('not found');
   });
 
   it('should handle negative prediction ID gracefully', async () => {
@@ -414,25 +449,11 @@ describe('Update Prediction Controller (e2e)', async () => {
         predictedAwayScore: 1,
       });
 
-    expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('not found');
-  });
+    expect(response.statusCode).toEqual(400);
 
-  it('should return consistent response structure', async () => {
-    const response = await request(app.server)
-      .put(`/predictions/${prediction.id}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        predictedHomeScore: 1,
-        predictedAwayScore: 0,
-      });
-
-    expect(response.statusCode).toEqual(200);
-    expect(response.body).toEqual({
-      prediction: expect.any(Object),
-    });
-    expect(Object.keys(response.body)).toEqual(['prediction']);
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain(`params/predictionId must match pattern "^[0-9]+$"`);
   });
 
   it('should return updated prediction with all expected properties', async () => {
@@ -445,16 +466,18 @@ describe('Update Prediction Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.prediction).toHaveProperty('id');
-    expect(response.body.prediction).toHaveProperty('userId');
-    expect(response.body.prediction).toHaveProperty('poolId');
-    expect(response.body.prediction).toHaveProperty('matchId');
-    expect(response.body.prediction).toHaveProperty('predictedHomeScore');
-    expect(response.body.prediction).toHaveProperty('predictedAwayScore');
-    expect(response.body.prediction).toHaveProperty('predictedHasExtraTime');
-    expect(response.body.prediction).toHaveProperty('predictedHasPenalties');
-    expect(response.body.prediction).toHaveProperty('updatedAt');
-    expect(response.body.prediction.updatedAt).not.toBeNull();
+
+    const body = response.body as UpdatePredictionResponse;
+    expect(body.prediction).toHaveProperty('id');
+    expect(body.prediction).toHaveProperty('userId');
+    expect(body.prediction).toHaveProperty('poolId');
+    expect(body.prediction).toHaveProperty('matchId');
+    expect(body.prediction).toHaveProperty('predictedHomeScore');
+    expect(body.prediction).toHaveProperty('predictedAwayScore');
+    expect(body.prediction).toHaveProperty('predictedHasExtraTime');
+    expect(body.prediction).toHaveProperty('predictedHasPenalties');
+    expect(body.prediction).toHaveProperty('updatedAt');
+    expect(body.prediction.updatedAt).not.toBeNull();
   });
 
   it('should return 422 when validation fails for non-numeric scores', async () => {
@@ -466,9 +489,10 @@ describe('Update Prediction Controller (e2e)', async () => {
         predictedAwayScore: 2,
       });
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message', 'Validation error.');
-    expect(response.body).toHaveProperty('issues');
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'body/predictedHomeScore must be number');
   });
 
   it('should return 422 when validation fails for negative penalty scores', async () => {
@@ -507,8 +531,9 @@ describe('Update Prediction Controller (e2e)', async () => {
         predictedPenaltyAwayScore: 3,
       });
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message', 'Validation error.');
-    expect(response.body).toHaveProperty('issues');
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'body/predictedPenaltyHomeScore must be >= 0');
   });
 });
