@@ -1,9 +1,18 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { makeGetMatchPredictionsUseCase } from '@/useCases/matches/factories/makeGetMatchPredictionsUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function getMatchPredictions(request: FastifyRequest, reply: FastifyReply) {
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { makeGetMatchPredictionsUseCase } from '@/useCases/matches/factories/makeGetMatchPredictionsUseCase';
+
+// Interface for request params
+interface GetMatchPredictionsParams {
+  matchId: number;
+}
+
+export async function getMatchPredictions(
+  request: FastifyRequest<{ Params: GetMatchPredictionsParams }>,
+  reply: FastifyReply
+): Promise<FastifyReply> {
   const getMatchPredictionsParamsSchema = z.object({
     matchId: z.coerce.number(),
   });

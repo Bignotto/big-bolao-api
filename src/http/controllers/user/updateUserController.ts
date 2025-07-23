@@ -1,32 +1,26 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { makeUpdateUserUseCase } from '@/useCases/users/factory/makeUpdateUserUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-interface UpdateUserControllerRequest {
-  userId: string;
-  email?: string;
-  fullName?: string;
-  profileImageUrl?: string;
-}
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { makeUpdateUserUseCase } from '@/useCases/users/factory/makeUpdateUserUseCase';
 
-export async function UpdateUserController(
-  request: FastifyRequest<{
-    Params: { userId: string };
-    Body: UpdateUserControllerRequest;
-  }>,
+const updateUserParamsSchema = z.object({
+  userId: z.string().cuid(),
+});
+
+const updateUserBodySchema = z.object({
+  email: z.string().email().optional(),
+  fullName: z.string().optional(),
+  profileImageUrl: z.string().optional(),
+});
+
+type UpdateUserParams = z.infer<typeof updateUserParamsSchema>;
+type UpdateUserBody = z.infer<typeof updateUserBodySchema>;
+
+export async function updateUserController(
+  request: FastifyRequest<{ Params: UpdateUserParams; Body: UpdateUserBody }>,
   reply: FastifyReply
-) {
-  const updateUserParamsSchema = z.object({
-    userId: z.string().cuid(),
-  });
-
-  const updateUserBodySchema = z.object({
-    email: z.string().email().optional(),
-    fullName: z.string().optional(),
-    profileImageUrl: z.string().optional(),
-  });
-
+): Promise<void> {
   try {
     const { userId } = updateUserParamsSchema.parse(request.params);
     const { email, fullName, profileImageUrl } = updateUserBodySchema.parse(request.body);
@@ -47,10 +41,14 @@ export async function UpdateUserController(
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message });
     }
+
     if (error instanceof z.ZodError) {
-      return reply.status(422).send({ message: 'Validation error.', issues: error.format() });
+      return reply.status(422).send({
+        message: 'Validation error',
+        issues: error.format(),
+      });
     }
 
-    throw error;
+    throw error; // Re-throw to be handled by global error handler
   }
 }

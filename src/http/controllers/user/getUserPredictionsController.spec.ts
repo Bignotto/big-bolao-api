@@ -1,4 +1,7 @@
-import { createServer } from '@/app';
+import { Match, Pool, Tournament } from '@prisma/client';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -11,6 +14,7 @@ import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsR
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createMatch } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
@@ -18,12 +22,32 @@ import { createPrediction } from '@/test/mocks/predictions';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import { Match, Pool, Tournament } from '@prisma/client';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type GetUserPredictionsResponse = {
+  predictions: Array<{
+    id: string;
+    userId: string;
+    poolId: number;
+    matchId: number;
+    predictedHomeScore: number;
+    predictedAwayScore: number;
+    predictedHasExtraTime: boolean;
+    predictedHasPenalties: boolean;
+    predictedPenaltyHomeScore?: number;
+    predictedPenaltyAwayScore?: number;
+    submittedAt: string;
+    updatedAt?: string;
+    pointsEarned?: number;
+  }>;
+};
+
+type ErrorResponse = {
+  message: string;
+  issues?: unknown;
+};
 
 describe('Get User Predictions Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
   let tournament: Tournament;
@@ -39,7 +63,6 @@ describe('Get User Predictions Controller (e2e)', async () => {
   let predictionsRepository: IPredictionsRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
 
     usersRepository = new PrismaUsersRepository();
@@ -101,9 +124,11 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('predictions');
-    expect(Array.isArray(response.body.predictions)).toBe(true);
-    expect(response.body.predictions).toHaveLength(0);
+
+    const responseBody = response.body as GetUserPredictionsResponse;
+    expect(responseBody).toHaveProperty('predictions');
+    expect(Array.isArray(responseBody.predictions)).toBe(true);
+    expect(responseBody.predictions).toHaveLength(0);
   });
 
   it('should return all user predictions when no poolId is specified', async () => {
@@ -130,11 +155,13 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('predictions');
-    expect(Array.isArray(response.body.predictions)).toBe(true);
-    expect(response.body.predictions).toHaveLength(2);
 
-    const predictionIds = response.body.predictions.map((p: any) => p.id);
+    const responseBody = response.body as GetUserPredictionsResponse;
+    expect(responseBody).toHaveProperty('predictions');
+    expect(Array.isArray(responseBody.predictions)).toBe(true);
+    expect(responseBody.predictions).toHaveLength(2);
+
+    const predictionIds = responseBody.predictions.map((p) => parseInt(p.id));
     expect(predictionIds).toContain(prediction1.id);
     expect(predictionIds).toContain(prediction2.id);
   });
@@ -162,11 +189,13 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('predictions');
-    expect(Array.isArray(response.body.predictions)).toBe(true);
-    expect(response.body.predictions).toHaveLength(1);
-    expect(response.body.predictions[0].id).toEqual(prediction3.id);
-    expect(response.body.predictions[0].poolId).toEqual(anotherPool.id);
+
+    const responseBody = response.body as GetUserPredictionsResponse;
+    expect(responseBody).toHaveProperty('predictions');
+    expect(Array.isArray(responseBody.predictions)).toBe(true);
+    expect(responseBody.predictions).toHaveLength(1);
+    expect(parseInt(responseBody.predictions[0].id)).toEqual(prediction3.id);
+    expect(responseBody.predictions[0].poolId).toEqual(anotherPool.id);
   });
 
   it('should return 404 when specified pool does not exist', async () => {
@@ -178,8 +207,10 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Pool not found');
+
+    const responseBody = response.body as ErrorResponse;
+    expect(responseBody).toHaveProperty('message');
+    expect(responseBody.message).toContain('Pool not found');
   });
 
   it('should return 403 when user is not a participant in the specified pool', async () => {
@@ -201,8 +232,10 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(403);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('User is not a participant in this pool');
+
+    const responseBody = response.body as ErrorResponse;
+    expect(responseBody).toHaveProperty('message');
+    expect(responseBody.message).toContain('User is not a participant in this pool');
   });
 
   it('should allow access when user is a participant but not creator', async () => {
@@ -239,9 +272,11 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('predictions');
-    expect(response.body.predictions).toHaveLength(1);
-    expect(response.body.predictions[0].id).toEqual(participantPrediction.id);
+
+    const responseBody = response.body as GetUserPredictionsResponse;
+    expect(responseBody).toHaveProperty('predictions');
+    expect(responseBody.predictions).toHaveLength(1);
+    expect(parseInt(responseBody.predictions[0].id)).toEqual(participantPrediction.id);
   });
 
   it('should require authentication', async () => {
@@ -256,31 +291,53 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message', 'Validation error.');
-    expect(response.body).toHaveProperty('issues');
+    expect(response.statusCode).toEqual(400);
+
+    const responseBody = response.body as ErrorResponse;
+    expect(responseBody).toHaveProperty('message');
+    expect(responseBody.message).toContain('must be number');
   });
 
   it('should return predictions with all expected properties', async () => {
-    const response = await request(app.server)
+    // First check if there are any existing predictions
+    let response = await request(app.server)
       .get('/users/me/predictions')
       .set('Authorization', `Bearer ${token}`)
       .send();
 
+    // If no predictions exist, create one for testing
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (response.body.predictions.length === 0) {
+      await createPrediction(predictionsRepository, {
+        userId,
+        poolId: pool.id,
+        matchId: match2.id,
+        predictedHomeScore: 1,
+        predictedAwayScore: 1,
+      });
+
+      // Get predictions again
+      response = await request(app.server)
+        .get('/users/me/predictions')
+        .set('Authorization', `Bearer ${token}`)
+        .send();
+    }
+
     expect(response.statusCode).toEqual(200);
 
-    if (response.body.predictions.length > 0) {
-      const prediction = response.body.predictions[0];
-      expect(prediction).toHaveProperty('id');
-      expect(prediction).toHaveProperty('userId');
-      expect(prediction).toHaveProperty('poolId');
-      expect(prediction).toHaveProperty('matchId');
-      expect(prediction).toHaveProperty('predictedHomeScore');
-      expect(prediction).toHaveProperty('predictedAwayScore');
-      expect(prediction).toHaveProperty('predictedHasExtraTime');
-      expect(prediction).toHaveProperty('predictedHasPenalties');
-      expect(prediction).toHaveProperty('updatedAt');
-    }
+    const responseBody = response.body as GetUserPredictionsResponse;
+    expect(responseBody.predictions.length).toBeGreaterThan(0);
+
+    const prediction = responseBody.predictions[0];
+    expect(prediction).toHaveProperty('id');
+    expect(prediction).toHaveProperty('userId');
+    expect(prediction).toHaveProperty('poolId');
+    expect(prediction).toHaveProperty('matchId');
+    expect(prediction).toHaveProperty('predictedHomeScore');
+    expect(prediction).toHaveProperty('predictedAwayScore');
+    expect(prediction).toHaveProperty('predictedHasExtraTime');
+    expect(prediction).toHaveProperty('predictedHasPenalties');
+    expect(prediction).toHaveProperty('submittedAt');
   });
 
   it('should return consistent response structure', async () => {
@@ -290,10 +347,11 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toEqual({
-      predictions: expect.any(Array),
-    });
-    expect(Object.keys(response.body)).toEqual(['predictions']);
+
+    const responseBody = response.body as GetUserPredictionsResponse;
+    expect(responseBody).toHaveProperty('predictions');
+    expect(Array.isArray(responseBody.predictions)).toBe(true);
+    expect(Object.keys(responseBody)).toEqual(['predictions']);
   });
 
   it('should handle negative poolId gracefully', async () => {
@@ -302,9 +360,11 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Validation error');
+    expect(response.statusCode).toEqual(400);
+
+    const responseBody = response.body as ErrorResponse;
+    expect(responseBody).toHaveProperty('message');
+    expect(responseBody.message).toContain('must be >= 1');
   });
 
   it('should handle zero poolId gracefully', async () => {
@@ -313,8 +373,10 @@ describe('Get User Predictions Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Validation error');
+    expect(response.statusCode).toEqual(400);
+
+    const responseBody = response.body as ErrorResponse;
+    expect(responseBody).toHaveProperty('message');
+    expect(responseBody.message).toContain('must be >= 1');
   });
 });

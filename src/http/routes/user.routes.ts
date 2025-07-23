@@ -1,15 +1,16 @@
 import { FastifyInstance } from 'fastify';
-import { CreateUserController } from '../controllers/user/createUserController';
+
+import { createUserController } from '../controllers/user/createUserController';
 import { GetLoggedUserInfoController } from '../controllers/user/getLoggedUserInfoController';
 import { GetUserInfoController } from '../controllers/user/getUserInfoController';
 import { getUserPoolsController } from '../controllers/user/getUserPoolsController';
 import { getUserPoolsStandingsController } from '../controllers/user/getUserPoolsStandingsController';
 import { getUserPredictionsController } from '../controllers/user/getUserPredictionsController';
-import { UpdateUserController } from '../controllers/user/updateUserController';
+import { updateUserController } from '../controllers/user/updateUserController';
 import { verifyJwt } from '../middlewares/verifyJWT';
 import { userSchemas } from '../schemas/user.schemas';
 
-export async function UserRoutes(app: FastifyInstance) {
+export function UserRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
 
   app.post(
@@ -39,7 +40,7 @@ export async function UserRoutes(app: FastifyInstance) {
         },
       },
     },
-    CreateUserController
+    createUserController
   );
 
   app.put(
@@ -70,7 +71,7 @@ export async function UserRoutes(app: FastifyInstance) {
         },
       },
     },
-    UpdateUserController
+    updateUserController
   );
 
   app.get(

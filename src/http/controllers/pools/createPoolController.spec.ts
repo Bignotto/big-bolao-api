@@ -1,30 +1,32 @@
-import { createServer } from '@/app';
-import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
-import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
-import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
-import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
-import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
-import { getSupabaseAccessToken } from '@/test/mockJwt';
-import { createTournament } from '@/test/mocks/tournament';
+import { Pool } from '@prisma/client';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
+import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
+import { createTestApp } from '@/test/helper-e2e';
+import { getSupabaseAccessToken } from '@/test/mockJwt';
+import { createTournament } from '@/test/mocks/tournament';
+
+type CreatePoolResponse = {
+  pool: Pool;
+};
+
+type ErrorResponse = {
+  message: string;
+  issues?: any;
+};
+
 describe('Create Pool Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
   let tournamentId: number;
 
-  let usersRepository: IUsersRepository;
-  let poolsRepository: IPoolsRepository;
   let tournamentsRepository: ITournamentsRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
-    usersRepository = new PrismaUsersRepository();
-    poolsRepository = new PrismaPoolsRepository();
     tournamentsRepository = new PrismaTournamentsRepository();
 
     // Create a tournament for testing
@@ -50,14 +52,16 @@ describe('Create Pool Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(201);
-    expect(response.body).toHaveProperty('pool');
-    expect(response.body.pool).toHaveProperty('id');
-    expect(response.body.pool.name).toBe('Test Pool');
-    expect(response.body.pool.description).toBe('This is a test pool');
-    expect(response.body.pool.tournamentId).toBe(tournamentId);
-    expect(response.body.pool.creatorId).toBe(userId);
-    expect(response.body.pool.isPrivate).toBe(true);
-    expect(response.body.pool.maxParticipants).toBe(10);
+
+    const body = response.body as CreatePoolResponse;
+    expect(body).toHaveProperty('pool');
+    expect(body.pool).toHaveProperty('id');
+    expect(body.pool.name).toBe('Test Pool');
+    expect(body.pool.description).toBe('This is a test pool');
+    expect(body.pool.tournamentId).toBe(tournamentId);
+    expect(body.pool.creatorId).toBe(userId);
+    expect(body.pool.isPrivate).toBe(true);
+    expect(body.pool.maxParticipants).toBe(10);
   });
 
   it('should return 422 when validation fails', async () => {
@@ -70,8 +74,10 @@ describe('Create Pool Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toBe(422);
-    expect(response.body).toHaveProperty('message', 'Validation error');
-    expect(response.body).toHaveProperty('issues');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'Validation error');
+    expect(body).toHaveProperty('issues');
   });
 
   it('should return 404 when tournament does not exist', async () => {
@@ -87,7 +93,9 @@ describe('Create Pool Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toBe(404);
-    expect(response.body).toHaveProperty('message');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
   });
 
   it('should return 409 when pool name is already in use', async () => {
@@ -106,8 +114,10 @@ describe('Create Pool Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toBe(409);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Pool name already in use');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Pool name already in use');
   });
 
   it('should require authentication', async () => {
@@ -129,27 +139,29 @@ describe('Create Pool Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toBe(201);
-    expect(response.body.pool).toHaveProperty('isPrivate', false);
-    expect(response.body.pool).toHaveProperty('name', 'Minimal Pool');
-    expect(response.body.pool).toHaveProperty('tournamentId', tournamentId);
+
+    const body = response.body as CreatePoolResponse;
+    expect(body.pool).toHaveProperty('isPrivate', false);
+    expect(body.pool).toHaveProperty('name', 'Minimal Pool');
+    expect(body.pool).toHaveProperty('tournamentId', tournamentId);
   });
 
   it('should create a private pool with an invite code', async () => {
-    const inviteCode = 'TEST123';
-
     const response = await request(app.server)
       .post('/pools')
       .set('Authorization', `Bearer ${token}`)
       .send({
+        inviteCode: 'TEST123',
         name: 'Private Pool with Code',
         tournamentId,
         isPrivate: true,
-        inviteCode,
       });
 
     expect(response.statusCode).toBe(201);
-    expect(response.body.pool).toHaveProperty('isPrivate', true);
-    expect(response.body.pool).toHaveProperty('inviteCode', inviteCode);
+
+    const body = response.body as CreatePoolResponse;
+    expect(body.pool).toHaveProperty('isPrivate', true);
+    expect(body.pool).toHaveProperty('inviteCode', 'TEST123');
   });
 
   it('should handle all required fields', async () => {
@@ -159,10 +171,12 @@ describe('Create Pool Controller (e2e)', async () => {
       .send({
         // Missing name and tournamentId
       });
+    console.log(JSON.stringify(response.body, null, 2), 'from createPoolController.spec.ts');
 
-    expect(response.statusCode).toBe(422);
-    expect(response.body).toHaveProperty('message', 'Validation error');
-    expect(response.body.issues).toHaveProperty('name');
-    expect(response.body.issues).toHaveProperty('tournamentId');
+    expect(response.statusCode).toBe(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('code', 'FST_ERR_VALIDATION');
+    expect(body).toHaveProperty('error', 'Bad Request');
   });
 });

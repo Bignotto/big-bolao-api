@@ -1,21 +1,27 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { PoolNameInUseError } from '@/useCases/pools/errors/PoolNameInUseError';
-import { makeCreatePoolUseCase } from '@/useCases/pools/factory/makeCreatePoolUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function createPoolController(request: FastifyRequest, reply: FastifyReply) {
-  try {
-    const createPoolBodySchema = z.object({
-      name: z.string().min(3),
-      description: z.string().optional(),
-      tournamentId: z.number(),
-      isPrivate: z.boolean().default(false),
-      maxParticipants: z.number().optional(),
-      inviteCode: z.string().optional(),
-      registrationDeadline: z.date().optional(),
-    });
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { PoolNameInUseError } from '@/useCases/pools/errors/PoolNameInUseError';
+import { makeCreatePoolUseCase } from '@/useCases/pools/factory/makeCreatePoolUseCase';
 
+const createPoolBodySchema = z.object({
+  name: z.string().min(3),
+  description: z.string().optional(),
+  tournamentId: z.number(),
+  isPrivate: z.boolean().default(false),
+  maxParticipants: z.number().optional(),
+  inviteCode: z.string().optional(),
+  registrationDeadline: z.date().optional(),
+});
+
+type CreatePoolBody = z.infer<typeof createPoolBodySchema>;
+
+export async function createPoolController(
+  request: FastifyRequest<{ Body: CreatePoolBody }>,
+  reply: FastifyReply
+): Promise<void> {
+  try {
     const {
       name,
       tournamentId,
@@ -56,7 +62,6 @@ export async function createPoolController(request: FastifyRequest, reply: Fasti
       return reply.status(422).send({ message: 'Validation error', issues: error.format() });
     }
 
-    console.error(error);
-    return reply.status(500).send({ message: 'Internal server error.' });
+    throw error; // Re-throw to be handled by global error handler
   }
 }

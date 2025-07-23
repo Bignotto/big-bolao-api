@@ -1,4 +1,7 @@
-import { createServer } from '@/app';
+import { Match, Pool, Prediction } from '@prisma/client';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -11,6 +14,7 @@ import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsR
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createMatch } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
@@ -18,12 +22,19 @@ import { createPrediction } from '@/test/mocks/predictions';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import { Match, Pool, Prediction } from '@prisma/client';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type GetPredictionResponse = {
+  prediction: Prediction;
+};
+
+type ErrorResponse = {
+  code?: string;
+  error?: string;
+  message: string;
+};
 
 describe('Get Prediction Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
   let tournamentId: number;
@@ -39,7 +50,6 @@ describe('Get Prediction Controller (e2e)', async () => {
   let predictionsRepository: IPredictionsRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
 
     usersRepository = new PrismaUsersRepository();
@@ -49,15 +59,18 @@ describe('Get Prediction Controller (e2e)', async () => {
     matchesRepository = new PrismaMatchesRepository();
     predictionsRepository = new PrismaPredictionsRepository();
 
+    // Create tournament
     const tournament = await createTournament(tournamentsRepository, {});
     tournamentId = tournament.id;
 
+    // Create pool
     pool = await createPool(poolsRepository, {
       creatorId: userId,
       tournamentId,
       isPrivate: false,
     });
 
+    // Create teams and match
     const homeTeam = await createTeam(teamsRepository, { name: 'Home Team' });
     const awayTeam = await createTeam(teamsRepository, { name: 'Away Team' });
 
@@ -74,6 +87,7 @@ describe('Get Prediction Controller (e2e)', async () => {
       awayTeam
     );
 
+    // Create prediction
     prediction = await createPrediction(predictionsRepository, {
       userId,
       poolId: pool.id,
@@ -94,8 +108,10 @@ describe('Get Prediction Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('prediction');
-    expect(response.body.prediction).toEqual(
+
+    const body = response.body as GetPredictionResponse;
+    expect(body).toHaveProperty('prediction');
+    expect(body.prediction).toEqual(
       expect.objectContaining({
         id: prediction.id,
         userId: userId,
@@ -116,8 +132,10 @@ describe('Get Prediction Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Prediction not found');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Prediction not found');
   });
 
   it('should return 403 when user tries to access another users prediction', async () => {
@@ -146,8 +164,10 @@ describe('Get Prediction Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(403);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('You can only access your own predictions');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('You can only access your own predictions');
   });
 
   it('should require authentication', async () => {
@@ -162,9 +182,11 @@ describe('Get Prediction Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message', 'Validation error.');
-    expect(response.body).toHaveProperty('issues');
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('code', 'FST_ERR_VALIDATION');
+    expect(body).toHaveProperty('error', 'Bad Request');
   });
 
   it('should return prediction with all expected properties', async () => {
@@ -174,15 +196,17 @@ describe('Get Prediction Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.prediction).toHaveProperty('id');
-    expect(response.body.prediction).toHaveProperty('userId');
-    expect(response.body.prediction).toHaveProperty('poolId');
-    expect(response.body.prediction).toHaveProperty('matchId');
-    expect(response.body.prediction).toHaveProperty('predictedHomeScore');
-    expect(response.body.prediction).toHaveProperty('predictedAwayScore');
-    expect(response.body.prediction).toHaveProperty('predictedHasExtraTime');
-    expect(response.body.prediction).toHaveProperty('predictedHasPenalties');
-    expect(response.body.prediction).toHaveProperty('updatedAt');
+
+    const body = response.body as GetPredictionResponse;
+    expect(body.prediction).toHaveProperty('id');
+    expect(body.prediction).toHaveProperty('userId');
+    expect(body.prediction).toHaveProperty('poolId');
+    expect(body.prediction).toHaveProperty('matchId');
+    expect(body.prediction).toHaveProperty('predictedHomeScore');
+    expect(body.prediction).toHaveProperty('predictedAwayScore');
+    expect(body.prediction).toHaveProperty('predictedHasExtraTime');
+    expect(body.prediction).toHaveProperty('predictedHasPenalties');
+    expect(body.prediction).toHaveProperty('updatedAt');
   });
 
   it('should get prediction with extra time and penalties for knockout matches', async () => {
@@ -220,7 +244,9 @@ describe('Get Prediction Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.prediction).toEqual(
+
+    const body = response.body as GetPredictionResponse;
+    expect(body.prediction).toEqual(
       expect.objectContaining({
         id: knockoutPrediction.id,
         predictedHomeScore: 1,
@@ -239,9 +265,11 @@ describe('Get Prediction Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Prediction not found');
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain(`params/predictionId must match pattern "^[0-9]+$"`);
   });
 
   it('should handle zero prediction ID gracefully', async () => {
@@ -251,8 +279,10 @@ describe('Get Prediction Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Prediction not found');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Prediction not found');
   });
 
   it('should return consistent response structure', async () => {
@@ -262,9 +292,37 @@ describe('Get Prediction Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toEqual({
-      prediction: expect.any(Object),
+
+    const body = response.body as GetPredictionResponse;
+    expect(body).toEqual({
+      prediction: {
+        id: prediction.id,
+        userId: prediction.userId,
+        poolId: prediction.poolId,
+        matchId: prediction.matchId,
+        predictedHomeScore: prediction.predictedHomeScore,
+        predictedAwayScore: prediction.predictedAwayScore,
+        predictedHasExtraTime: prediction.predictedHasExtraTime,
+        predictedHasPenalties: prediction.predictedHasPenalties,
+        predictedPenaltyHomeScore: prediction.predictedPenaltyHomeScore,
+        predictedPenaltyAwayScore: prediction.predictedPenaltyAwayScore,
+        updatedAt: prediction.updatedAt,
+        pointsEarned: prediction.pointsEarned,
+        submittedAt: prediction.submittedAt.toISOString(),
+      },
     });
-    expect(Object.keys(response.body)).toEqual(['prediction']);
+    expect(Object.keys(body)).toEqual(['prediction']);
+  });
+
+  it('should handle validation error with proper format', async () => {
+    const response = await request(app.server)
+      .get('/predictions/not-a-number')
+      .set('Authorization', `Bearer ${token}`)
+      .send();
+
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', `params/predictionId must match pattern "^[0-9]+$"`);
   });
 });

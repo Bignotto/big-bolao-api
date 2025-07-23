@@ -2,6 +2,7 @@ import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { ITournamentsRepository } from '../../repositories/tournaments/ITournamentsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
+// eslint-disable-next-line import/order
 import { PoolNameInUseError } from './errors/PoolNameInUseError';
 
 interface ICreatePoolRequest {

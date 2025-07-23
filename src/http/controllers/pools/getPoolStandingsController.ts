@@ -1,10 +1,14 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { NotParticipantError } from '@/useCases/pools/errors/NotParticipantError';
-import { makeGetPoolStandingsUseCase } from '@/useCases/pools/factory/makeGetPoolStandingsUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function getPoolStandingsController(request: FastifyRequest, reply: FastifyReply) {
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { NotParticipantError } from '@/useCases/pools/errors/NotParticipantError';
+import { makeGetPoolStandingsUseCase } from '@/useCases/pools/factory/makeGetPoolStandingsUseCase';
+
+export async function getPoolStandingsController(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<FastifyReply> {
   try {
     const getPoolStandingsParamsSchema = z.object({
       poolId: z.coerce.number(),
@@ -35,8 +39,6 @@ export async function getPoolStandingsController(request: FastifyRequest, reply:
     if (error instanceof z.ZodError) {
       return reply.status(422).send({ message: 'Validation error.', issues: error.format() });
     }
-
-    console.error(error);
-    return reply.status(500).send({ message: 'Internal server error.' });
+    throw error;
   }
 }

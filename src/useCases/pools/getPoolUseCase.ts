@@ -1,3 +1,5 @@
+import { Pool, PoolParticipant, ScoringRule, Tournament } from '@prisma/client';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
@@ -51,22 +53,21 @@ export class GetPoolUseCase {
   ) {}
 
   async execute({ poolId, userId }: IGetPoolRequest): Promise<IGetPoolResponse> {
-    // Validate user exists
     const user = await this.usersRepository.findById(userId);
     if (!user) {
       throw new ResourceNotFoundError('User not found');
     }
 
-    // Get pool with related data
     const pool = await this.poolsRepository.getPool(poolId);
     if (!pool) {
       throw new ResourceNotFoundError('Pool not found');
     }
 
-    // Validate scoring rules exist
     if (!pool.scoringRules) {
       throw new ResourceNotFoundError('Scoring rules not found for this pool');
     }
+
+    const scoringRules = pool.scoringRules;
 
     // Use the authorization service
     const { isCreator, isParticipant } = await this.poolAuthorizationService.validateUserPoolAccess(
@@ -82,14 +83,21 @@ export class GetPoolUseCase {
 
     const participants = pool.participants;
 
-    // Use the mapper to construct response
-    return this.mapToResponse(pool, tournament, participants, isCreator, isParticipant);
+    return this.mapToResponse(
+      pool,
+      scoringRules,
+      tournament,
+      participants,
+      isCreator,
+      isParticipant
+    );
   }
 
   private mapToResponse(
-    pool: any, // Replace with proper Pool type when available
-    tournament: any, // Replace with proper Tournament type when available
-    participants: any[], // Replace with proper Participant[] type when available
+    pool: Pool,
+    scoringRules: ScoringRule,
+    tournament: Tournament,
+    participants: PoolParticipant[],
     isCreator: boolean,
     isParticipant: boolean
   ): IGetPoolResponse {
@@ -104,18 +112,18 @@ export class GetPoolUseCase {
       creatorId: pool.creatorId,
       tournamentId: pool.tournamentId,
       scoringRules: {
-        exactScorePoints: pool.scoringRules.exactScorePoints,
-        correctWinnerPoints: pool.scoringRules.correctWinnerPoints,
-        correctDrawPoints: pool.scoringRules.correctDrawPoints,
-        correctWinnerGoalDiffPoints: pool.scoringRules.correctWinnerGoalDiffPoints,
-        finalMultiplier: pool.scoringRules.finalMultiplier.toNumber(),
-        knockoutMultiplier: pool.scoringRules.knockoutMultiplier.toNumber(),
+        exactScorePoints: scoringRules.exactScorePoints,
+        correctWinnerPoints: scoringRules.correctWinnerPoints,
+        correctDrawPoints: scoringRules.correctDrawPoints,
+        correctWinnerGoalDiffPoints: scoringRules.correctWinnerGoalDiffPoints,
+        finalMultiplier: scoringRules.finalMultiplier.toNumber(),
+        knockoutMultiplier: scoringRules.knockoutMultiplier.toNumber(),
       },
       tournament: tournament,
       participants: participants,
       participantsCount: participants.length,
       isCreator,
       isParticipant,
-    };
+    } as IGetPoolResponse;
   }
 }

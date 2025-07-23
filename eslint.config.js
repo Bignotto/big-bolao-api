@@ -1,10 +1,13 @@
+// Add this near the top of your config
 import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   // Base ESLint recommended rules
   js.configs.recommended,
+  prettier,
 
   // TypeScript ESLint recommended rules
   ...tseslint.configs.recommended,

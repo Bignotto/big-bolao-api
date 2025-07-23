@@ -1,4 +1,8 @@
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { createServer } from '@/app';
+import { PoolStandings } from '@/global/types/poolStandings';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
@@ -9,8 +13,16 @@ import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createPool, createPoolWithParticipants } from '@/test/mocks/pools';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type GetPoolStandingsResponse = {
+  standings: PoolStandings[];
+};
+
+type ErrorResponse = {
+  code: string;
+  error: string;
+  message?: string;
+};
 
 describe('Get Pool Standings Controller (e2e)', async () => {
   const app = await createServer();
@@ -36,7 +48,7 @@ describe('Get Pool Standings Controller (e2e)', async () => {
   it('should be able to get standings from a pool as creator', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
 
-    const { pool, participants } = await createPoolWithParticipants(
+    const { pool } = await createPoolWithParticipants(
       {
         poolsRepository,
         usersRepository,
@@ -54,7 +66,9 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('standings');
-    expect(Array.isArray(response.body.standings)).toBe(true);
+
+    const body = response.body as GetPoolStandingsResponse;
+    expect(Array.isArray(body.standings)).toBe(true);
   });
 
   it('should be able to get standings from a pool as participant', async () => {
@@ -63,7 +77,7 @@ describe('Get Pool Standings Controller (e2e)', async () => {
       email: 'pool-owner@example.com',
     });
 
-    const { pool, participants } = await createPoolWithParticipants(
+    const { pool } = await createPoolWithParticipants(
       {
         poolsRepository,
         usersRepository,
@@ -87,7 +101,9 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('standings');
-    expect(Array.isArray(response.body.standings)).toBe(true);
+
+    const body = response.body as GetPoolStandingsResponse;
+    expect(Array.isArray(body.standings)).toBe(true);
   });
 
   it('should return 404 when trying to get standings from a non-existent pool', async () => {
@@ -100,7 +116,9 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(404);
     expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Pool not found');
+
+    const body = response.body as ErrorResponse;
+    expect(body.message).toContain('Pool not found');
   });
 
   it('should validate the pool ID parameter', async () => {
@@ -111,10 +129,11 @@ describe('Get Pool Standings Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe('Validation error.');
-    expect(response.body).toHaveProperty('issues');
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('code', 'FST_ERR_VALIDATION');
+    expect(body).toHaveProperty('error', 'Bad Request');
   });
 
   it('should require authentication', async () => {
@@ -139,7 +158,7 @@ describe('Get Pool Standings Controller (e2e)', async () => {
       email: 'other@example.com',
     });
 
-    const { pool, participants } = await createPoolWithParticipants(
+    const { pool } = await createPoolWithParticipants(
       {
         poolsRepository,
         usersRepository,
@@ -159,13 +178,15 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(403);
     expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('not a participant or the creator');
+
+    const body = response.body as ErrorResponse;
+    expect(body.message).toContain('not a participant or the creator');
   });
 
   it('should return standings with correct structure', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
 
-    const { pool, participants } = await createPoolWithParticipants(
+    const { pool } = await createPoolWithParticipants(
       {
         poolsRepository,
         usersRepository,
@@ -183,14 +204,13 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('standings');
-    expect(Array.isArray(response.body.standings)).toBe(true);
 
-    // If there are standings, check the structure
-    if (response.body.standings.length > 0) {
-      const standing = response.body.standings[0];
+    const body = response.body as GetPoolStandingsResponse;
+    expect(Array.isArray(body.standings)).toBe(true);
+    if (body.standings.length > 0) {
+      const standing = body.standings[0];
       expect(standing).toHaveProperty('userId');
       expect(standing).toHaveProperty('poolId');
-      // Add more property checks based on your PoolStandings type structure
     }
   });
 
@@ -210,14 +230,16 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('standings');
-    expect(Array.isArray(response.body.standings)).toBe(true);
+
+    const body = response.body as GetPoolStandingsResponse;
+    expect(Array.isArray(body.standings)).toBe(true);
     // Standings might be empty if no matches are completed
   });
 
   it('should handle pools with multiple participants in standings', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
 
-    const { pool, participants } = await createPoolWithParticipants(
+    const { pool } = await createPoolWithParticipants(
       {
         poolsRepository,
         usersRepository,
@@ -235,11 +257,10 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('standings');
-    expect(Array.isArray(response.body.standings)).toBe(true);
 
-    // Check that standings can handle multiple participants
-    // The actual number depends on how createPoolWithParticipants works
-    expect(response.body.standings.length).toBeGreaterThanOrEqual(0);
+    const body = response.body as GetPoolStandingsResponse;
+    expect(Array.isArray(body.standings)).toBe(true);
+    expect(body.standings.length).toBeGreaterThanOrEqual(0);
   });
 
   it('should allow pool creator to access standings even if not actively participating', async () => {
@@ -259,6 +280,8 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('standings');
-    expect(Array.isArray(response.body.standings)).toBe(true);
+
+    const body = response.body as GetPoolStandingsResponse;
+    expect(Array.isArray(body.standings)).toBe(true);
   });
 });

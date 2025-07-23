@@ -1,23 +1,30 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { NotPoolCreatorError } from '@/useCases/pools/errors/NotPoolCreatorError';
-import { makeUpdatePoolUseCase } from '@/useCases/pools/factory/makeUpdatePoolUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function updatePoolController(request: FastifyRequest, reply: FastifyReply) {
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { NotPoolCreatorError } from '@/useCases/pools/errors/NotPoolCreatorError';
+import { makeUpdatePoolUseCase } from '@/useCases/pools/factory/makeUpdatePoolUseCase';
+
+const updatePoolParamsSchema = z.object({
+  poolId: z.coerce.number(),
+});
+
+const updatePoolBodySchema = z.object({
+  name: z.string().min(3).optional(),
+  description: z.string().optional(),
+  isPrivate: z.boolean().optional(),
+  maxParticipants: z.number().optional(),
+  registrationDeadline: z.date().optional(),
+});
+
+type UpdatePoolParams = z.infer<typeof updatePoolParamsSchema>;
+type UpdatePoolBody = z.infer<typeof updatePoolBodySchema>;
+
+export async function updatePoolController(
+  request: FastifyRequest<{ Params: UpdatePoolParams; Body: UpdatePoolBody }>,
+  reply: FastifyReply
+): Promise<void> {
   try {
-    const updatePoolParamsSchema = z.object({
-      poolId: z.coerce.number(),
-    });
-
-    const updatePoolBodySchema = z.object({
-      name: z.string().min(3).optional(),
-      description: z.string().optional(),
-      isPrivate: z.boolean().optional(),
-      maxParticipants: z.number().optional(),
-      registrationDeadline: z.date().optional(),
-    });
-
     const { poolId } = updatePoolParamsSchema.parse(request.params);
     const { name, description, isPrivate, maxParticipants, registrationDeadline } =
       updatePoolBodySchema.parse(request.body);
@@ -44,15 +51,17 @@ export async function updatePoolController(request: FastifyRequest, reply: Fasti
       return reply.status(404).send({ message: error.message });
     }
 
-    if (error instanceof z.ZodError) {
-      return reply.status(422).send({ message: 'Validation error', issues: error.format() });
-    }
-
     if (error instanceof NotPoolCreatorError) {
       return reply.status(403).send({ message: error.message });
     }
 
-    console.error(error);
-    return reply.status(500).send({ message: 'Internal server error.' });
+    if (error instanceof z.ZodError) {
+      return reply.status(422).send({
+        message: 'Validation error',
+        issues: error.format(),
+      });
+    }
+
+    throw error; // Re-throw to be handled by global error handler
   }
 }

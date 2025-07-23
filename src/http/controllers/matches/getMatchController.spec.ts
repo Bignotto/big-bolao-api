@@ -1,19 +1,22 @@
-import { createServer } from '@/app';
+import { FastifyInstance } from 'fastify';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
 import { PrismaTeamsRepository } from '@/repositories/teams/PrismaTeamsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
+import { closeTestApp, createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createMatch, createMatchWithTeams } from '@/test/mocks/match';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 describe('Get Match Controller (e2e)', async () => {
-  const app = await createServer();
+  let app: FastifyInstance;
+
   let userId: string;
   let token: string;
 
@@ -22,7 +25,7 @@ describe('Get Match Controller (e2e)', async () => {
   let tournamentsRepository: ITournamentsRepository;
 
   beforeAll(async () => {
-    await app.ready();
+    app = await createTestApp();
     ({ token, userId } = await getSupabaseAccessToken(app));
     matchesRepository = new PrismaMatchesRepository();
     teamsRepository = new PrismaTeamsRepository();
@@ -30,7 +33,7 @@ describe('Get Match Controller (e2e)', async () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await closeTestApp();
   });
 
   it('should be able to get a match by id', async () => {

@@ -1,37 +1,23 @@
-import { EmailInUseError } from '@/global/errors/EmailInUseError';
-import { makeCreateUserUseCase } from '@/useCases/users/factory/makeCreateUserUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-interface CreateUserControllerRequest {
-  id: string;
-  email: string;
-  passwordHash: string;
-  fullName: string;
-  profileImageUrl: string;
-}
+import { EmailInUseError } from '@/global/errors/EmailInUseError';
+import { makeCreateUserUseCase } from '@/useCases/users/factory/makeCreateUserUseCase';
 
-interface CreateUserControllerResponse {
-  id: string;
-  email: string;
-  fullName: string;
-  profileImageUrl: string;
-}
+const createUserBodySchema = z.object({
+  id: z.string().optional(),
+  email: z.string().email(),
+  passwordHash: z.string(),
+  fullName: z.string(),
+  profileImageUrl: z.string(),
+});
 
-export async function CreateUserController(
-  request: FastifyRequest<{
-    Body: CreateUserControllerRequest;
-  }>,
+type CreateUserBody = z.infer<typeof createUserBodySchema>;
+
+export async function createUserController(
+  request: FastifyRequest<{ Body: CreateUserBody }>,
   reply: FastifyReply
-) {
-  const createUserBodySchema = z.object({
-    id: z.string().optional(),
-    email: z.string().email(),
-    passwordHash: z.string(),
-    fullName: z.string(),
-    profileImageUrl: z.string(),
-  });
-
+): Promise<void> {
   try {
     const { id, email, passwordHash, fullName, profileImageUrl } = createUserBodySchema.parse(
       request.body
@@ -56,11 +42,12 @@ export async function CreateUserController(
     }
 
     if (error instanceof z.ZodError) {
-      return reply.status(422).send({ message: 'Validation error', issues: error.format() });
+      return reply.status(422).send({
+        message: 'Validation error',
+        issues: error.format(),
+      });
     }
 
-    //TODO: should return better info about what data are missing or invalid
-
-    throw error;
+    throw error; // Re-throw to be handled by global error handler
   }
 }

@@ -1,9 +1,12 @@
-import { env } from '@/env/config';
-import { supabase } from '@/lib/supabase';
 import { FastifyInstance } from 'fastify';
 import request from 'supertest';
 
-export async function getSupabaseAccessToken(app: FastifyInstance) {
+import { env } from '@/env/config';
+import { supabase } from '@/lib/supabase';
+
+export async function getSupabaseAccessToken(
+  app: FastifyInstance
+): Promise<{ token: string; userId: string }> {
   const {
     data: { session },
     error,
@@ -31,15 +34,23 @@ export async function getSupabaseAccessToken(app: FastifyInstance) {
       profileImageUrl: 'https://example.com/profile.jpg',
     });
 
+  const body = response.body as {
+    user: {
+      id: string;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  };
+
   const returnData: {
     token: string;
     userId: string;
-  } = { token: session.access_token, userId: response.body.user.id };
+  } = { token: session.access_token, userId: body.user.id };
 
   return returnData;
 }
 
-export function generateMockJWT(payload = {}) {
+export function generateMockJWT(payload = {}): string {
   const defaultPayload = {
     sub: '123456789',
     role: 'authenticated',

@@ -1,41 +1,33 @@
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { z } from 'zod';
+
 import { AuthorizationError } from '@/global/errors/AuthorizationError';
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InvalidScoreError } from '@/useCases/predictions/error/InvalidScoreError';
 import { MatchStatusError } from '@/useCases/predictions/error/MatchStatusError';
 import { PredictionError } from '@/useCases/predictions/error/PredictionError';
 import { makeUpdatePredictionUseCase } from '@/useCases/predictions/factories/makeUpdatePredictionUseCase';
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { z } from 'zod';
+
+const updatePredictionParamsSchema = z.object({
+  predictionId: z.coerce.number(),
+});
+
+const updatePredictionBodySchema = z.object({
+  predictedHomeScore: z.number().min(0),
+  predictedAwayScore: z.number().min(0),
+  predictedHasExtraTime: z.boolean().default(false),
+  predictedHasPenalties: z.boolean().default(false),
+  predictedPenaltyHomeScore: z.number().positive().optional(),
+  predictedPenaltyAwayScore: z.number().positive().optional(),
+});
+
+type UpdatePredictionParams = z.infer<typeof updatePredictionParamsSchema>;
+type UpdatePredictionBody = z.infer<typeof updatePredictionBodySchema>;
 
 export async function updatePredictionController(
-  request: FastifyRequest<{
-    Params: {
-      predictionId: string;
-    };
-    Body: {
-      predictedHomeScore: number;
-      predictedAwayScore: number;
-      predictedHasExtraTime?: boolean;
-      predictedHasPenalties?: boolean;
-      predictedPenaltyHomeScore?: number;
-      predictedPenaltyAwayScore?: number;
-    };
-  }>,
+  request: FastifyRequest<{ Params: UpdatePredictionParams; Body: UpdatePredictionBody }>,
   reply: FastifyReply
-) {
-  const updatePredictionParamsSchema = z.object({
-    predictionId: z.coerce.number(),
-  });
-
-  const updatePredictionBodySchema = z.object({
-    predictedHomeScore: z.number().min(0),
-    predictedAwayScore: z.number().min(0),
-    predictedHasExtraTime: z.boolean().default(false),
-    predictedHasPenalties: z.boolean().default(false),
-    predictedPenaltyHomeScore: z.number().positive().optional(),
-    predictedPenaltyAwayScore: z.number().positive().optional(),
-  });
-
+): Promise<void> {
   try {
     const { predictionId } = updatePredictionParamsSchema.parse(request.params);
 
@@ -88,10 +80,12 @@ export async function updatePredictionController(
     }
 
     if (error instanceof z.ZodError) {
-      return reply.status(422).send({ message: 'Validation error.', issues: error.format() });
+      return reply.status(422).send({
+        message: 'Validation error',
+        issues: error.format(),
+      });
     }
 
-    console.error(error);
-    return reply.status(500).send({ message: 'Internal server error.' });
+    throw error; // Re-throw to be handled by global error handler
   }
 }

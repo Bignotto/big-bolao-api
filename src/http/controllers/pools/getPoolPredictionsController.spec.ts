@@ -1,3 +1,7 @@
+import { Match, Pool, Prediction } from '@prisma/client';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { createServer } from '@/app';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
@@ -18,9 +22,16 @@ import { createPrediction } from '@/test/mocks/predictions';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import { Match, Pool, Prediction } from '@prisma/client';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type GetPoolPredictionsResponse = {
+  predictions: Prediction[];
+};
+
+type ErrorResponse = {
+  code: string;
+  error: string;
+  message?: string;
+};
 
 describe('Get Pool Predictions Controller (e2e)', async () => {
   const app = await createServer();
@@ -28,8 +39,6 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
   let token: string;
   let tournamentId: number;
   let pool: Pool;
-
-  let predictions: Prediction[];
 
   let usersRepository: IUsersRepository;
   let poolsRepository: IPoolsRepository;
@@ -76,15 +85,13 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
       awayTeam
     );
 
-    const prediction = await createPrediction(predictionsRepository, {
+    await createPrediction(predictionsRepository, {
       userId,
       poolId: pool.id,
       matchId: match.id,
       predictedHomeScore: 2,
       predictedAwayScore: 1,
     });
-
-    predictions = [prediction];
   });
 
   afterAll(async () => {
@@ -99,15 +106,19 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('predictions');
-    expect(Array.isArray(response.body.predictions)).toBe(true);
-    expect(response.body.predictions.length).toBeGreaterThan(0);
-    expect(response.body.predictions[0]).toHaveProperty('id');
-    expect(response.body.predictions[0]).toHaveProperty('poolId', pool.id);
-    expect(response.body.predictions[0]).toHaveProperty('userId', userId);
+
+    const body = response.body as GetPoolPredictionsResponse;
+    expect(Array.isArray(body.predictions)).toBe(true);
+    expect(body.predictions.length).toBeGreaterThan(0);
+    expect(body.predictions[0]).toHaveProperty('id');
+    expect(body.predictions[0]).toHaveProperty('poolId', pool.id);
+    expect(body.predictions[0]).toHaveProperty('userId', userId);
+    expect(body.predictions[0]).toHaveProperty('matchId', match.id);
+    expect(body.predictions[0]).toHaveProperty('predictedHomeScore', 2);
+    expect(body.predictions[0]).toHaveProperty('predictedAwayScore', 1);
   });
 
   it('should get pool predictions for pool participant', async () => {
-    //Create other user to be the pool creater and the original user a participant
     const otherUser = await createUser(usersRepository, {});
 
     const otherPool = await createPool(poolsRepository, {
@@ -133,7 +144,9 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('predictions');
-    expect(Array.isArray(response.body.predictions)).toBe(true);
+
+    const body = response.body as GetPoolPredictionsResponse;
+    expect(Array.isArray(body.predictions)).toBe(true);
   });
 
   it('should return 403 when user is not a participant or creator', async () => {
@@ -152,8 +165,10 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(403);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain(
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain(
       'Not participant: User is not a participant or the creator of the pool'
     );
   });
@@ -167,8 +182,10 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('not found');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('not found');
   });
 
   it('should require authentication', async () => {
@@ -183,7 +200,10 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message', 'Validation error.');
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('code', 'FST_ERR_VALIDATION');
+    expect(body).toHaveProperty('error', 'Bad Request');
   });
 });

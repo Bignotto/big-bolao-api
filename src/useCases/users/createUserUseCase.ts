@@ -1,5 +1,6 @@
-import { AccountProvider } from '@prisma/client';
+import { AccountProvider, User } from '@prisma/client';
 import { hash } from 'bcryptjs';
+
 import { EmailInUseError } from '../../global/errors/EmailInUseError';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
 
@@ -22,7 +23,7 @@ export class CreateUserUseCase {
     fullName,
     profileImageUrl = '',
     accountProvider = 'EMAIL',
-  }: ICreateUserRequest) {
+  }: ICreateUserRequest): Promise<User> {
     const userExists = await this.usersRepository.findByEmail(email);
 
     if (userExists) {
