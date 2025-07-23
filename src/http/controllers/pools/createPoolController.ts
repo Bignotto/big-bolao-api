@@ -62,8 +62,6 @@ export async function createPoolController(
       return reply.status(422).send({ message: 'Validation error', issues: error.format() });
     }
 
-    console.error(error);
-    //return reply.status(500).send({ message: 'Internal server error.' });
     throw error; // Re-throw to be handled by global error handler
   }
 }

@@ -132,7 +132,6 @@ describe('Update User Controller (e2e)', async () => {
       });
 
     expect(response.statusCode).toEqual(422);
-    console.log(JSON.stringify(response, null, 2));
 
     const body = response.body as ErrorResponse;
     expect(body).toHaveProperty('message', 'Validation error');

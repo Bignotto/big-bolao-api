@@ -1,18 +1,23 @@
-import { NotParticipantError } from '@/global/errors/NotParticipantError';
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { makeGetUserPredictionsUseCase } from '@/useCases/users/factory/makeGetUserPredictionsUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function getUserPredictionsController(request: FastifyRequest, reply: FastifyReply) {
+import { NotParticipantError } from '@/global/errors/NotParticipantError';
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { makeGetUserPredictionsUseCase } from '@/useCases/users/factory/makeGetUserPredictionsUseCase';
+
+const getUserPredictionsQuerySchema = z.object({
+  poolId: z.coerce.number().positive().optional(),
+});
+
+type GetUserPredictionsQuery = z.infer<typeof getUserPredictionsQuerySchema>;
+
+export async function getUserPredictionsController(
+  request: FastifyRequest<{ Querystring: GetUserPredictionsQuery }>,
+  reply: FastifyReply
+): Promise<void> {
   try {
-    const querySchema = z.object({
-      poolId: z.coerce.number().positive().optional(),
-    });
+    const { poolId } = getUserPredictionsQuerySchema.parse(request.query);
 
-    const { poolId } = querySchema.parse(request.query);
-
-    // Get userId from authenticated user
     const userId = request.user.sub;
 
     const getUserPredictionsUseCase = makeGetUserPredictionsUseCase();
@@ -37,7 +42,6 @@ export async function getUserPredictionsController(request: FastifyRequest, repl
       return reply.status(422).send({ message: 'Validation error.', issues: error.format() });
     }
 
-    console.error(error);
-    return reply.status(500).send({ message: 'Internal server error.' });
+    throw error;
   }
 }
