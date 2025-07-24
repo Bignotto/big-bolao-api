@@ -14,7 +14,7 @@ type CreatePoolResponse = {
 
 type ErrorResponse = {
   message: string;
-  issues?: any;
+  issues?: unknown[];
 };
 
 describe('Create Pool Controller (e2e)', async () => {
@@ -171,7 +171,6 @@ describe('Create Pool Controller (e2e)', async () => {
       .send({
         // Missing name and tournamentId
       });
-    console.log(JSON.stringify(response.body, null, 2), 'from createPoolController.spec.ts');
 
     expect(response.statusCode).toBe(400);
 

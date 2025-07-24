@@ -1,6 +1,7 @@
+import { Match, MatchStage, MatchStatus, Team } from '@prisma/client';
+
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
-import { Match, MatchStage, MatchStatus, Team } from '@prisma/client';
 
 export async function createMatch(
   repository: IMatchesRepository,

@@ -3,7 +3,7 @@
     "id": 1,
     "description": "Corrigir retorno de status HTTP 422 nos erros de validação",
     "created": 1752485054301,
-    "status": "pending",
+    "status": "done",
     "priority": "high"
   },
   {
