@@ -1,15 +1,17 @@
+import { Match, MatchStage, MatchStatus } from '@prisma/client';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
-import { Match, MatchStage, MatchStatus } from '@prisma/client';
+
 import { MatchUpdateError } from './errors/MatchUpdateError';
 
 interface UpdateMatchUseCaseRequest {
   matchId: number;
   homeTeam?: number;
   awayTeam?: number;
-  homeScore?: number;
-  awayScore?: number;
+  homeTeamScore?: number;
+  awayTeamScore?: number;
   matchDate?: Date;
   matchStatus?: MatchStatus;
   matchStage?: MatchStage;
@@ -30,8 +32,8 @@ export class UpdateMatchUseCase {
     matchId,
     homeTeam,
     awayTeam,
-    homeScore,
-    awayScore,
+    homeTeamScore,
+    awayTeamScore,
     matchDate,
     matchStatus,
     matchStage,
@@ -52,7 +54,12 @@ export class UpdateMatchUseCase {
     }
 
     if (matchStatus === MatchStatus.SCHEDULED) {
-      if (homeScore !== undefined || awayScore !== undefined || hasExtraTime || hasPenalties) {
+      if (
+        homeTeamScore !== undefined ||
+        awayTeamScore !== undefined ||
+        hasExtraTime ||
+        hasPenalties
+      ) {
         throw new MatchUpdateError(
           'Cannot set score, extra time, or penalties for a scheduled match'
         );
@@ -60,18 +67,23 @@ export class UpdateMatchUseCase {
     }
 
     if (!matchStatus && match.matchStatus === MatchStatus.SCHEDULED) {
-      if (homeScore !== undefined || awayScore !== undefined || hasExtraTime || hasPenalties) {
+      if (
+        homeTeamScore !== undefined ||
+        awayTeamScore !== undefined ||
+        hasExtraTime ||
+        hasPenalties
+      ) {
         throw new MatchUpdateError(
           'Cannot set score, extra time, or penalties for a scheduled match'
         );
       }
     }
 
-    if (homeScore !== undefined && homeScore < 0) {
+    if (homeTeamScore !== undefined && homeTeamScore < 0) {
       throw new MatchUpdateError('Home score cannot be negative');
     }
 
-    if (awayScore !== undefined && awayScore < 0) {
+    if (awayTeamScore !== undefined && awayTeamScore < 0) {
       throw new MatchUpdateError('Away score cannot be negative');
     }
 
@@ -97,11 +109,11 @@ export class UpdateMatchUseCase {
         throw new MatchUpdateError('Group stage matches cannot have penalties');
       }
 
-      if (homeScore === undefined || awayScore === undefined) {
+      if (homeTeamScore === undefined || awayTeamScore === undefined) {
         throw new MatchUpdateError('Match scores must be provided when penalties are set');
       }
 
-      if (homeScore !== awayScore) {
+      if (homeTeamScore !== awayTeamScore) {
         throw new MatchUpdateError(
           'Penalties can only occur when scores are tied after regular/extra time'
         );
@@ -127,8 +139,8 @@ export class UpdateMatchUseCase {
     const updatedMatch = await this.matchesRepository.update(matchId, {
       homeTeam: homeTeam ? { connect: { id: homeTeam } } : undefined,
       awayTeam: awayTeam ? { connect: { id: awayTeam } } : undefined,
-      homeTeamScore: homeScore,
-      awayTeamScore: awayScore,
+      homeTeamScore,
+      awayTeamScore,
       matchDatetime: matchDate,
       matchStatus: matchStatus,
       stage: matchStage,

@@ -1,11 +1,13 @@
+import { Match, MatchStage, MatchStatus, Tournament } from '@prisma/client';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryTeamsRepository } from '@/repositories/teams/InMemoryTeamsRepository';
 import { InMemoryTournamentsRepository } from '@/repositories/tournaments/InMemoryTournamentsRepository';
 import { createMatch } from '@/test/mocks/match';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
-import { Match, MatchStage, MatchStatus, Tournament } from '@prisma/client';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { UpdateMatchUseCase } from './updateMatchUseCase';
 
 describe('Update Match Use Case', () => {
@@ -50,8 +52,8 @@ describe('Update Match Use Case', () => {
     const updatedMatch = await sut.execute({
       matchId: match.id,
       homeTeam: otherTeam.id,
-      homeScore: 2,
-      awayScore: 1,
+      homeTeamScore: 2,
+      awayTeamScore: 1,
       matchStatus: MatchStatus.COMPLETED,
     });
 
@@ -68,7 +70,7 @@ describe('Update Match Use Case', () => {
       sut.execute({
         matchId: 999,
         homeTeam: 1,
-        homeScore: 2,
+        homeTeamScore: 2,
       })
     ).rejects.toThrow('Match not found');
   });
@@ -87,8 +89,8 @@ describe('Update Match Use Case', () => {
     await expect(
       sut.execute({
         matchId: matchWithInvalidTournament.id,
-        homeScore: 2,
-        awayScore: 1,
+        homeTeamScore: 2,
+        awayTeamScore: 1,
       })
     ).rejects.toThrow('Tournament not found');
   });
@@ -98,8 +100,8 @@ describe('Update Match Use Case', () => {
     await expect(
       sut.execute({
         matchId: match.id,
-        homeScore: -1,
-        awayScore: 2,
+        homeTeamScore: -1,
+        awayTeamScore: 2,
         matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Home score cannot be negative');
@@ -108,8 +110,8 @@ describe('Update Match Use Case', () => {
     await expect(
       sut.execute({
         matchId: match.id,
-        homeScore: 2,
-        awayScore: -1,
+        homeTeamScore: 2,
+        awayTeamScore: -1,
         matchStatus: MatchStatus.COMPLETED,
       })
     ).rejects.toThrow('Away score cannot be negative');
@@ -130,8 +132,8 @@ describe('Update Match Use Case', () => {
       sut.execute({
         matchId: match.id,
         hasPenalties: true,
-        homeScore: 1,
-        awayScore: 1,
+        homeTeamScore: 1,
+        awayTeamScore: 1,
         penaltyAwayScore: 3,
         penaltyHomeScore: 2,
         matchStatus: MatchStatus.COMPLETED,
@@ -144,8 +146,8 @@ describe('Update Match Use Case', () => {
       sut.execute({
         matchId: knockoutMatch.id,
         hasExtraTime: true,
-        homeScore: 2,
-        awayScore: 1,
+        homeTeamScore: 2,
+        awayTeamScore: 1,
         hasPenalties: true,
         matchStatus: MatchStatus.COMPLETED,
       })
@@ -156,8 +158,8 @@ describe('Update Match Use Case', () => {
     await expect(
       sut.execute({
         matchId: knockoutMatch.id,
-        homeScore: 1,
-        awayScore: 1,
+        homeTeamScore: 1,
+        awayTeamScore: 1,
         hasExtraTime: true,
         hasPenalties: true,
         // Missing penalty scores
@@ -170,8 +172,8 @@ describe('Update Match Use Case', () => {
     await expect(
       sut.execute({
         matchId: knockoutMatch.id,
-        homeScore: 1,
-        awayScore: 1,
+        homeTeamScore: 1,
+        awayTeamScore: 1,
         hasExtraTime: true,
         hasPenalties: true,
         penaltyHomeScore: -1,
@@ -183,8 +185,8 @@ describe('Update Match Use Case', () => {
     await expect(
       sut.execute({
         matchId: knockoutMatch.id,
-        homeScore: 1,
-        awayScore: 1,
+        homeTeamScore: 1,
+        awayTeamScore: 1,
         hasExtraTime: true,
         hasPenalties: true,
         penaltyHomeScore: 5,
@@ -198,8 +200,8 @@ describe('Update Match Use Case', () => {
     await expect(
       sut.execute({
         matchId: knockoutMatch.id,
-        homeScore: 1,
-        awayScore: 1,
+        homeTeamScore: 1,
+        awayTeamScore: 1,
         hasExtraTime: true,
         hasPenalties: true,
         penaltyHomeScore: 5,
@@ -213,8 +215,8 @@ describe('Update Match Use Case', () => {
     // Update the match with penalties
     const updatedMatch = await sut.execute({
       matchId: knockoutMatch.id,
-      homeScore: 1,
-      awayScore: 1,
+      homeTeamScore: 1,
+      awayTeamScore: 1,
       hasExtraTime: true,
       hasPenalties: true,
       penaltyHomeScore: 5,
@@ -265,8 +267,8 @@ describe('Update Match Use Case', () => {
     await expect(
       sut.execute({
         matchId: knockoutMatch.id,
-        homeScore: 2,
-        awayScore: 2,
+        homeTeamScore: 2,
+        awayTeamScore: 2,
         hasExtraTime: true,
         hasPenalties: true,
         penaltyHomeScore: 5,
