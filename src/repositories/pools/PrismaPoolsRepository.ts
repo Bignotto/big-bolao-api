@@ -1,5 +1,6 @@
 import { Pool, Prisma, ScoringRule } from '@prisma/client';
 
+import { PoolParticipant } from '@/global/types/poolParticipant';
 import { PoolStandings } from '@/global/types/poolStandings';
 
 import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
@@ -14,13 +15,49 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return scoringRules;
   }
 
-  async getPoolParticipants(poolId: number): Promise<{ userId: string }[]> {
-    const participants = await prisma.poolParticipant.findMany({
-      where: { poolId },
-      select: { userId: true },
+  async getPoolParticipants(poolId: number): Promise<PoolParticipant[]> {
+    const users = await prisma.user.findMany({
+      where: {
+        pools: {
+          some: {
+            poolId: poolId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        profileImageUrl: true,
+        createdAt: true,
+        lastLogin: true,
+        accountProvider: true,
+        role: true,
+        // Inclui o relacionamento para pegar o joinedAt
+        pools: {
+          where: {
+            poolId: poolId,
+          },
+          select: {
+            joinedAt: true,
+          },
+        },
+      },
     });
 
-    return participants;
+    // Transforma para incluir joinedAt no nível do usuário
+    return users.map((user) => ({
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      profileImageUrl: user.profileImageUrl,
+      createdAt: user.createdAt,
+      lastLogin: user.lastLogin,
+      accountProvider: user.accountProvider,
+      role: user.role,
+      joinedAt: user.pools[0].joinedAt, // Sempre terá pelo menos 1 item devido ao filtro
+      isOwner: user.pools[0].joinedAt !== null, // Se joinedAt for null, não é dono
+    }));
   }
 
   async getPool(id: number): Promise<PoolCompleteInfo | null> {

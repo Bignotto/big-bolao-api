@@ -221,10 +221,12 @@ export const poolSchemas = {
     properties: {
       id: { type: 'string', description: 'User unique identifier' },
       fullName: { type: 'string', description: 'User full name' },
-      profileImageUrl: { type: 'string', description: 'User profile image URL' },
+      profileImageUrl: { type: 'string', nullable: true, description: 'User profile image URL' },
       joinedAt: { type: 'string', format: 'date-time', description: 'When user joined the pool' },
       isOwner: { type: 'boolean', description: 'Whether user is the pool owner' },
+      email: { type: 'string', format: 'email', description: 'User email address' },
     },
+    required: ['id', 'fullName', 'joinedAt', 'isOwner'],
   },
 
   // Get Pool Users Response
@@ -237,6 +239,7 @@ export const poolSchemas = {
       },
       count: { type: 'number', description: 'Total number of users in the pool' },
     },
+    required: ['users', 'count'],
   },
 
   // Update Pool Request Body
