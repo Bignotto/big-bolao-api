@@ -3,38 +3,24 @@ import { z } from 'zod';
 
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { UnauthorizedError } from '@/useCases/pools/errors/UnauthorizedError';
-import { makeJoinPoolUseCase } from '@/useCases/pools/factory/makeJoinPoolUseCase';
+import { makeJoinPoolByIdUseCase } from '@/useCases/pools/factory/makeJoinPoolByIdUseCase';
 
-const joinPoolParamsSchema = z.object({
-  poolId: z.number(),
+const joinPoolByIdParamsSchema = z.object({
+  poolId: z.coerce.number(),
 });
 
-const joinPoolBodySchema = z.object({
-  inviteCode: z.string(),
-});
-
-export async function joinPoolController(
+export async function joinPoolByIdController(
   request: FastifyRequest,
   reply: FastifyReply
 ): Promise<void> {
   try {
     const userId = request.user.sub;
-    const joinPoolUseCase = makeJoinPoolUseCase();
+    const { poolId } = joinPoolByIdParamsSchema.parse(request.params);
 
-    let poolId: number | undefined;
-    let inviteCode: string | undefined;
+    const joinPoolByIdUseCase = makeJoinPoolByIdUseCase();
 
-    if (request.params) {
-      const params = joinPoolParamsSchema.parse(request.params);
-      poolId = params.poolId;
-    } else {
-      const body = joinPoolBodySchema.parse(request.body);
-      inviteCode = body.inviteCode;
-    }
-
-    const pool = await joinPoolUseCase.execute({
+    const pool = await joinPoolByIdUseCase.execute({
       poolId,
-      inviteCode,
       userId,
     });
 

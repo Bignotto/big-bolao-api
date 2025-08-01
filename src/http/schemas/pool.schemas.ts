@@ -155,7 +155,19 @@ export const poolSchemas = {
   },
 
   // Join Pool Request Body
-  JoinPoolRequest: {
+  JoinPoolByIdRequest: {
+    type: 'object',
+    properties: {
+      poolId: {
+        type: 'number',
+        description: 'Pool unique identifier',
+      },
+    },
+    required: ['poolId'],
+    additionalProperties: false,
+  },
+
+  JoinPoolByInviteCodeRequest: {
     type: 'object',
     properties: {
       inviteCode: {

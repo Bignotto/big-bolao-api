@@ -105,14 +105,16 @@ export class PrismaPoolsRepository implements IPoolsRepository {
   async findById(id: number) {
     const pool = await prisma.pool.findUnique({
       where: { id },
+      include: { tournament: true },
     });
 
     return pool;
   }
 
-  async findByInviteCode(inviteCode: string, poolId: number) {
+  async findByInviteCode(inviteCode: string) {
     const pool = await prisma.pool.findUnique({
-      where: { id: poolId, inviteCode },
+      where: { inviteCode },
+      include: { tournament: true },
     });
 
     return pool;

@@ -76,13 +76,51 @@ export function PoolRoutes(app: FastifyInstance): void {
   );
 
   app.post(
-    '/pools/join',
+    '/pools/:poolId/join',
     {
       schema: {
         tags: ['Pools'],
         summary: 'Join a pool',
         description: 'Join an existing pool using its invitation code',
-        body: poolSchemas.JoinPoolRequest,
+        body: poolSchemas.JoinPoolByIdRequest,
+        response: {
+          200: {
+            description: 'Successfully joined the pool',
+            type: 'object',
+            properties: {
+              pool: poolSchemas.Pool,
+            },
+          },
+          400: {
+            description: 'Invalid pool code',
+            ...poolSchemas.InvalidPoolCodeError,
+          },
+          409: {
+            description: 'User already joined this pool',
+            ...poolSchemas.AlreadyJoinedError,
+          },
+          422: {
+            description: 'Validation error',
+            ...poolSchemas.ValidationError,
+          },
+          500: {
+            description: 'Internal server error',
+            ...poolSchemas.InternalServerError,
+          },
+        },
+      },
+    },
+    joinPoolController
+  );
+
+  app.post(
+    '/pools/invite/:inviteCode',
+    {
+      schema: {
+        tags: ['Pools'],
+        summary: 'Join a pool',
+        description: 'Join an existing pool using its invitation code',
+        body: poolSchemas.JoinPoolByInviteCodeRequest,
         response: {
           200: {
             description: 'Successfully joined the pool',

@@ -13,7 +13,7 @@ export interface IPoolsRepository {
   addParticipant(data: { poolId: number; userId: string }): Promise<void>;
   removeParticipant(data: { poolId: number; userId: string }): Promise<void>;
   findById(id: number): Promise<Pool | null>;
-  findByInviteCode(inviteCode: string, poolId: number): Promise<Pool | null>;
+  findByInviteCode(inviteCode: string): Promise<Pool | null>;
   findByCreatorId(creatorId: string): Promise<Pool[]>;
   findByParticipantId(userId: string): Promise<Pool[]>;
   getScoringRules(poolId: number): Promise<ScoringRule[]>;

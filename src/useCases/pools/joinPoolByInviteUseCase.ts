@@ -1,48 +1,37 @@
-import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
-import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
-import { IUsersRepository } from '../../repositories/users/IUsersRepository';
+import { Pool } from '@prisma/client';
+
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
+import { IUsersRepository } from '@/repositories/users/IUsersRepository';
+
 import { UnauthorizedError } from './errors/UnauthorizedError';
 
-interface IJoinPoolRequest {
-  poolId?: number;
-  inviteCode?: string;
+interface IJoinPoolByInviteRequest {
+  inviteCode: string;
   userId: string;
 }
 
-export class JoinPoolUseCase {
+export class JoinPoolByInviteUseCase {
   constructor(
     private poolsRepository: IPoolsRepository,
     private usersRepository: IUsersRepository
   ) {}
 
-  async execute({ poolId, inviteCode, userId }: IJoinPoolRequest) {
+  async execute({ inviteCode, userId }: IJoinPoolByInviteRequest): Promise<Pool> {
     // Verify user exists
     const user = await this.usersRepository.findById(userId);
     if (!user) {
       throw new ResourceNotFoundError('User not found');
     }
 
-    let pool;
-
-    // Find pool by ID or invite code
-    if (poolId) {
-      pool = await this.poolsRepository.findById(poolId);
-    } else if (inviteCode) {
-      pool = await this.poolsRepository.findByInviteCode(inviteCode);
-    } else {
-      throw new ResourceNotFoundError('Either poolId or inviteCode must be provided');
-    }
-
+    // Find pool by invite code
+    const pool = await this.poolsRepository.findByInviteCode(inviteCode);
     if (!pool) {
-      throw new ResourceNotFoundError('Pool not found');
+      throw new ResourceNotFoundError('Pool not found with this invite code');
     }
 
-    // Check if pool is private and user has the correct invite code
-    if (pool.isPrivate && !inviteCode) {
-      throw new UnauthorizedError('This pool is private and requires an invite code');
-    }
-
-    if (pool.isPrivate && inviteCode !== pool.inviteCode) {
+    // Validate invite code (additional security check)
+    if (inviteCode !== pool.inviteCode) {
       throw new UnauthorizedError('Invalid invite code');
     }
 
@@ -61,7 +50,7 @@ export class JoinPoolUseCase {
 
     // Check if user is already a participant
     const participants = await this.poolsRepository.getPoolParticipants(pool.id);
-    const isAlreadyParticipant = participants.some((participant) => participant.userId === userId);
+    const isAlreadyParticipant = participants.some((participant) => participant.id === userId);
 
     if (isAlreadyParticipant) {
       throw new UnauthorizedError('User is already a participant in this pool');
