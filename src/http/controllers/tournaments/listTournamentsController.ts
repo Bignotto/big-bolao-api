@@ -1,12 +1,21 @@
-import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
-import { ListTournamentsUseCase } from '@/useCases/tournaments/listTournamentsUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function listTournamentsController(request: FastifyRequest, reply: FastifyReply) {
-  const tournamentsRepository = new PrismaTournamentsRepository();
-  const listTournamentsUseCase = new ListTournamentsUseCase(tournamentsRepository);
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { makeListTournamentsUseCase } from '@/useCases/tournaments/factories/makeListTournamentsUseCase';
 
-  const { tournaments } = await listTournamentsUseCase.execute();
+export async function listTournamentsController(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> {
+  try {
+    const listTournamentsUseCase = makeListTournamentsUseCase();
+    const { tournaments } = await listTournamentsUseCase.execute();
 
-  return reply.status(200).send({ tournaments });
+    return reply.status(200).send({ tournaments });
+  } catch (error: unknown) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send({ message: error.message });
+    }
+    throw error;
+  }
 }

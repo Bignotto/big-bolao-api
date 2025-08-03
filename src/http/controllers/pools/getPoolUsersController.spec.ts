@@ -1,3 +1,7 @@
+import { User } from '@prisma/client';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { createServer } from '@/app';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
@@ -9,8 +13,17 @@ import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createPool, createPoolWithParticipants } from '@/test/mocks/pools';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type GetPoolUsersResponse = {
+  users: User[];
+};
+
+type ErrorResponse = {
+  code?: string;
+  error?: string;
+  message: string;
+  issues?: unknown[];
+};
 
 describe('Get Pool Users Controller (e2e)', async () => {
   const app = await createServer();
@@ -33,10 +46,10 @@ describe('Get Pool Users Controller (e2e)', async () => {
     await app.close();
   });
 
-  it('should be able to get users from a pool', async () => {
+  it('should get pool users when user is pool creator', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
 
-    const { pool, participants } = await createPoolWithParticipants(
+    const { pool } = await createPoolWithParticipants(
       {
         poolsRepository,
         usersRepository,
@@ -53,11 +66,53 @@ describe('Get Pool Users Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('users');
-    expect(Array.isArray(response.body.users)).toBe(true);
+
+    const body = response.body as GetPoolUsersResponse;
+    expect(body).toHaveProperty('users');
+    expect(Array.isArray(body.users)).toBe(true);
+    expect(body.users.length).toBeGreaterThan(0);
+    expect(body.users[0]).toHaveProperty('id');
+    expect(body.users[0]).toHaveProperty('email');
+    expect(body.users[0]).toHaveProperty('fullName');
   });
 
-  it('should return 404 when trying to get users from a non-existent pool', async () => {
+  it('should get pool users when user is a participant', async () => {
+    const tournament = await createTournament(tournamentsRepository, {});
+    const poolOwner = await createUser(usersRepository, {
+      email: 'pool-owner@example.com',
+    });
+
+    const { pool } = await createPoolWithParticipants(
+      {
+        poolsRepository,
+        usersRepository,
+      },
+      {
+        creatorId: poolOwner.id,
+        tournamentId: tournament.id,
+      }
+    );
+
+    // Add authenticated user as participant
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: userId,
+    });
+
+    const response = await request(app.server)
+      .get(`/pools/${pool.id}/users`)
+      .set('Authorization', `Bearer ${token}`)
+      .send();
+
+    expect(response.statusCode).toEqual(200);
+
+    const body = response.body as GetPoolUsersResponse;
+    expect(body).toHaveProperty('users');
+    expect(Array.isArray(body.users)).toBe(true);
+    expect(body.users.length).toBeGreaterThan(0);
+  });
+
+  it('should return 404 when pool does not exist', async () => {
     const nonExistentPoolId = 9999;
 
     const response = await request(app.server)
@@ -66,7 +121,10 @@ describe('Get Pool Users Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('not found');
   });
 
   it('should validate the pool ID parameter', async () => {
@@ -77,19 +135,17 @@ describe('Get Pool Users Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body).toHaveProperty('issues');
+    expect(response.statusCode).toEqual(400);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('code', 'FST_ERR_VALIDATION');
+    expect(body).toHaveProperty('error', 'Bad Request');
   });
 
   it('should require authentication', async () => {
-    const owner = await createUser(usersRepository, {
-      email: 'owner@example.com',
-    });
     const tournament = await createTournament(tournamentsRepository, {});
-
     const pool = await createPool(poolsRepository, {
-      creatorId: owner.id,
+      creatorId: userId,
       tournamentId: tournament.id,
     });
 
@@ -98,13 +154,13 @@ describe('Get Pool Users Controller (e2e)', async () => {
     expect(response.statusCode).toEqual(401);
   });
 
-  it('should not be able to get users from a pool if you are not a participant', async () => {
+  it('should return 403 when user is not a participant or creator', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
     const otherUser = await createUser(usersRepository, {
       email: 'other@example.com',
     });
 
-    const { pool, participants } = await createPoolWithParticipants(
+    const { pool } = await createPoolWithParticipants(
       {
         poolsRepository,
         usersRepository,
@@ -115,25 +171,15 @@ describe('Get Pool Users Controller (e2e)', async () => {
       }
     );
 
-    // pool should not have logged user as participant
-    // so logged user should not be able to get users from this pool
     const response = await request(app.server)
       .get(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
     expect(response.statusCode).toEqual(403);
-  });
 
-  // it('should handle server errors gracefully', async () => {
-  //   // This test is a bit tricky as we need to force a server error
-  //   // One approach could be to mock the use case to throw an unexpected error
-  //   // For now, we'll skip the implementation details of this test
-  //   // const response = await request(app.server)
-  //   //   .get(`/pools/999999999999999999999/users`) // Very large number to potentially cause an error
-  //   //   .set('Authorization', `Bearer ${token}`)
-  //   //   .send();
-  //   // expect(response.statusCode).toEqual(500);
-  //   // expect(response.body).toHaveProperty('message', 'Internal server error.');
-  // });
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('not a participant');
+  });
 });

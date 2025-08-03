@@ -120,8 +120,6 @@ export const createServer = async (): Promise<FastifyInstance> => {
   });
 
   server.setErrorHandler((error, _, reply) => {
-    console.log(JSON.stringify(error, null, 2));
-
     if (error instanceof ZodError) {
       if (env.NODE_ENV !== 'test') console.log(JSON.stringify(error, null, 2));
 

@@ -167,4 +167,29 @@ export const tournamentSchemas = {
       message: { type: 'string', example: 'Tournament not found' },
     },
   },
+
+  ValidationError: {
+    type: 'object',
+    properties: {
+      message: { type: 'string', example: 'Validation error' },
+      issues: {
+        type: 'object',
+        additionalProperties: true,
+      },
+    },
+  },
+
+  UnauthorizedError: {
+    type: 'object',
+    properties: {
+      message: { type: 'string', example: 'Unauthorized' },
+    },
+  },
+
+  InternalServerError: {
+    type: 'object',
+    properties: {
+      message: { type: 'string', example: 'Internal server error' },
+    },
+  },
 };

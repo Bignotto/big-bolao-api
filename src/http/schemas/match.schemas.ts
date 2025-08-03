@@ -182,4 +182,81 @@ export const matchSchemas = {
       message: { type: 'string', example: 'Insufficient permissions to update match' },
     },
   },
+
+  ValidationError: {
+    type: 'object',
+    properties: {
+      message: { type: 'string', example: 'Validation error' },
+      issues: {
+        type: 'object',
+        additionalProperties: true,
+      },
+    },
+  },
+
+  UnauthorizedError: {
+    type: 'object',
+    properties: {
+      message: { type: 'string', example: 'Unauthorized' },
+    },
+  },
+
+  InternalServerError: {
+    type: 'object',
+    properties: {
+      message: { type: 'string', example: 'Internal server error' },
+    },
+  },
+
+  // Response schemas for matches endpoints
+  GetMatchResponse: {
+    type: 'object',
+    properties: {
+      match: { $ref: 'MatchWithTeams#' },
+    },
+  },
+
+  GetMatchPredictionsResponse: {
+    type: 'object',
+    properties: {
+      predictions: {
+        type: 'array',
+        items: { $ref: 'MatchPrediction#' },
+      },
+      match: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          matchDatetime: { type: 'string', format: 'date-time' },
+          stadium: { type: 'string', nullable: true },
+          stage: { type: 'string' },
+          matchStatus: { type: 'string' },
+          homeTeam: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              name: { type: 'string' },
+              flagUrl: { type: 'string', nullable: true },
+            },
+          },
+          awayTeam: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              name: { type: 'string' },
+              flagUrl: { type: 'string', nullable: true },
+            },
+          },
+        },
+      },
+      totalPredictions: { type: 'number' },
+    },
+  },
+
+  UpdateMatchResponse: {
+    type: 'object',
+    properties: {
+      match: { $ref: 'MatchWithTeams#' },
+    },
+  },
 };

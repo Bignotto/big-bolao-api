@@ -1,19 +1,32 @@
-import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
-import { GetTournamentMatchesUseCase } from '@/useCases/tournaments/getTournamentMatchesUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function getTournamentMatchesController(request: FastifyRequest, reply: FastifyReply) {
-  const getTournamentMatchesParamsSchema = z.object({
-    tournamentId: z.coerce.number(),
-  });
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { makeGetTournamentMatchesUseCase } from '@/useCases/tournaments/factories/makeGetTournamentMatches';
 
-  const { tournamentId } = getTournamentMatchesParamsSchema.parse(request.params);
+const getTournamentMatchesParamsSchema = z.object({
+  tournamentId: z.coerce.number(),
+});
 
-  const matchesRepository = new PrismaMatchesRepository();
-  const getTournamentMatchesUseCase = new GetTournamentMatchesUseCase(matchesRepository);
+type GetTournamentMatchesParams = z.infer<typeof getTournamentMatchesParamsSchema>;
 
-  const { matches } = await getTournamentMatchesUseCase.execute({ tournamentId });
+export async function getTournamentMatchesController(
+  request: FastifyRequest<{
+    Params: GetTournamentMatchesParams;
+  }>,
+  reply: FastifyReply
+): Promise<void> {
+  try {
+    const { tournamentId } = getTournamentMatchesParamsSchema.parse(request.params);
 
-  return reply.status(200).send({ matches });
+    const getTournamentMatchesUseCase = makeGetTournamentMatchesUseCase();
+    const { matches } = await getTournamentMatchesUseCase.execute({ tournamentId });
+
+    return reply.status(200).send({ matches });
+  } catch (error: unknown) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send({ message: error.message });
+    }
+    throw error;
+  }
 }

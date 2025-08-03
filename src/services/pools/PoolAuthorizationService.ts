@@ -19,7 +19,7 @@ export class PoolAuthorizationService {
   ): Promise<IPoolAuthorizationResult> {
     const participants = await this.poolsRepository.getPoolParticipants(poolId);
 
-    const isParticipant = participants.some((participant) => participant.userId === userId);
+    const isParticipant = participants.some((participant) => participant.id === userId);
     const isCreator = creatorId === userId;
     const hasAccess = isParticipant || isCreator;
 
@@ -44,11 +44,7 @@ export class PoolAuthorizationService {
     return result;
   }
 
-  async validatePoolCreatorAccess(
-    poolId: number,
-    userId: string,
-    creatorId: string
-  ): Promise<void> {
+  validatePoolCreatorAccess(poolId: number, userId: string, creatorId: string): void {
     if (creatorId !== userId) {
       throw new NotPoolCreatorError(`User ${userId} is not the creator of pool ${poolId}`);
     }
@@ -56,7 +52,7 @@ export class PoolAuthorizationService {
 
   async validateParticipantAccess(poolId: number, userId: string): Promise<void> {
     const participants = await this.poolsRepository.getPoolParticipants(poolId);
-    const isParticipant = participants.some((participant) => participant.userId === userId);
+    const isParticipant = participants.some((participant) => participant.id === userId);
 
     if (!isParticipant) {
       throw new NotParticipantError('User is not a participant in this pool');

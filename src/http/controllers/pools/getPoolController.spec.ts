@@ -24,7 +24,7 @@ type GetPoolResponse = {
 
 type ErrorResponse = {
   message: string;
-  issues?: any;
+  issues?: unknown[];
 };
 
 describe('Get Pool Controller (e2e)', async () => {

@@ -1,5 +1,6 @@
 import { Match, Pool, Prediction, Prisma, ScoringRule } from '@prisma/client';
 
+import { PoolParticipant } from '@/global/types/poolParticipant';
 import { PoolStandings } from '@/global/types/poolStandings';
 import { PredictionPoints } from '@/global/types/predictionPoints';
 
@@ -192,9 +193,25 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     return Promise.resolve(this.scoringRules.filter((rule) => rule.poolId === poolId));
   }
 
-  async getPoolParticipants(poolId: number): Promise<{ poolId: number; userId: string }[]> {
+  async getPoolParticipants(poolId: number): Promise<PoolParticipant[]> {
+    const thisPool = this.pools.findIndex((p) => p.id === poolId);
     return Promise.resolve(
-      this.participants.filter((participant) => participant.poolId === poolId)
+      this.participants
+        .filter((participant) => participant.poolId === poolId)
+        .map((participant) => {
+          return {
+            id: participant.userId,
+            fullName: 'testing user',
+            email: 'testing@email.com',
+            accountProvider: 'EMAIL',
+            createdAt: new Date(),
+            lastLogin: new Date(),
+            isOwner: participant.userId === this.pools[thisPool].creatorId,
+            role: 'USER',
+            joinedAt: participant.joinedAt,
+            profileImageUrl: 'fake url',
+          };
+        })
     );
   }
 
@@ -276,7 +293,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     return Promise.resolve(pool || null);
   }
 
-  async findByInviteCode(inviteCode: string, _poolId: number): Promise<Pool | null> {
+  async findByInviteCode(inviteCode: string): Promise<Pool | null> {
     const pool = this.pools.find((pool) => pool.inviteCode === inviteCode);
     return Promise.resolve(pool || null);
   }

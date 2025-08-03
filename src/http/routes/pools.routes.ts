@@ -5,7 +5,8 @@ import { getPoolController } from '../controllers/pools/getPoolController';
 import { getPoolPredictionsController } from '../controllers/pools/getPoolPredictionsController';
 import { getPoolStandingsController } from '../controllers/pools/getPoolStandingsController';
 import { getPoolUsersController } from '../controllers/pools/getPoolUsersController';
-import { joinPoolController } from '../controllers/pools/joinPoolController';
+import { joinPoolByIdController } from '../controllers/pools/joinPoolByIdController';
+import { joinPoolByInviteController } from '../controllers/pools/joinPoolByInviteController';
 import { leavePoolController } from '../controllers/pools/leavePoolController';
 import { removeUserFromPoolController } from '../controllers/pools/removeUserFromPoolController';
 import { updatePoolController } from '../controllers/pools/updatePoolController';
@@ -75,14 +76,15 @@ export function PoolRoutes(app: FastifyInstance): void {
     getPoolController
   );
 
+  // Join pool by ID (public pools)
   app.post(
-    '/pools/join',
+    '/pools/:poolId/join',
     {
       schema: {
         tags: ['Pools'],
-        summary: 'Join a pool',
-        description: 'Join an existing pool using its invitation code',
-        body: poolSchemas.JoinPoolRequest,
+        summary: 'Join a public pool by ID',
+        description: 'Join a public pool using its ID. Private pools cannot be joined this way.',
+        params: poolSchemas.PoolIdParam,
         response: {
           200: {
             description: 'Successfully joined the pool',
@@ -91,13 +93,19 @@ export function PoolRoutes(app: FastifyInstance): void {
               pool: poolSchemas.Pool,
             },
           },
-          400: {
-            description: 'Invalid pool code',
-            ...poolSchemas.InvalidPoolCodeError,
+          401: {
+            description: 'Unauthorized - Private pool or invalid access',
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+            },
           },
-          409: {
-            description: 'User already joined this pool',
-            ...poolSchemas.AlreadyJoinedError,
+          404: {
+            description: 'Pool or user not found',
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+            },
           },
           422: {
             description: 'Validation error',
@@ -110,7 +118,62 @@ export function PoolRoutes(app: FastifyInstance): void {
         },
       },
     },
-    joinPoolController
+    joinPoolByIdController
+  );
+
+  // Join pool by invite code (works for both public and private pools)
+  app.post(
+    '/pools/join/:inviteCode',
+    {
+      schema: {
+        tags: ['Pools'],
+        summary: 'Join a pool by invite code',
+        description: 'Join any pool (public or private) using its invitation code',
+        params: {
+          type: 'object',
+          properties: {
+            inviteCode: {
+              type: 'string',
+              minLength: 1,
+              description: 'Pool invitation code',
+            },
+          },
+          required: ['inviteCode'],
+        },
+        response: {
+          200: {
+            description: 'Successfully joined the pool',
+            type: 'object',
+            properties: {
+              pool: poolSchemas.Pool,
+            },
+          },
+          401: {
+            description: 'Unauthorized - Invalid invite code',
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+            },
+          },
+          404: {
+            description: 'Pool not found with this invite code',
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+            },
+          },
+          422: {
+            description: 'Validation error',
+            ...poolSchemas.ValidationError,
+          },
+          500: {
+            description: 'Internal server error',
+            ...poolSchemas.InternalServerError,
+          },
+        },
+      },
+    },
+    joinPoolByInviteController
   );
 
   app.post(

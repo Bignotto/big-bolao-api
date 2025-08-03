@@ -64,11 +64,9 @@ describe('Join Pool Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post('/pools/join')
+      .post(`/pools/${pool.id}/join`)
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        poolId: pool.id,
-      });
+      .send();
 
     expect(response.statusCode).toEqual(200);
 
@@ -99,7 +97,6 @@ describe('Join Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         inviteCode: pool.inviteCode,
-        poolId: pool.id,
       });
 
     expect(response.statusCode).toEqual(200);
@@ -119,11 +116,9 @@ describe('Join Pool Controller (e2e)', async () => {
     const nonExistentPoolId = 9999;
 
     const response = await request(app.server)
-      .post('/pools/join')
+      .post(`/pools/${nonExistentPoolId}/join`)
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        poolId: nonExistentPoolId,
-      });
+      .send();
 
     expect(response.statusCode).toEqual(404);
 
@@ -136,7 +131,7 @@ describe('Join Pool Controller (e2e)', async () => {
       email: 'some-other-guy@example.com',
     });
 
-    const pool = await createPool(poolsRepository, {
+    await createPool(poolsRepository, {
       creatorId: owner.id,
       tournamentId,
       isPrivate: true,
@@ -147,7 +142,6 @@ describe('Join Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         inviteCode: 'invalid-invite-code',
-        poolId: pool.id,
       });
 
     expect(response.statusCode).toEqual(401);
@@ -158,17 +152,14 @@ describe('Join Pool Controller (e2e)', async () => {
 
   it('should return 422 when validation fails', async () => {
     const response = await request(app.server)
-      .post('/pools/join')
+      .post('/pools/not-a-number/join')
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        poolId: 'not-a-number', // Invalid type
-      });
+      .send();
 
     expect(response.statusCode).toEqual(422);
 
     const body = response.body as ErrorResponse;
     expect(body).toHaveProperty('message', 'Validation error');
-    expect(body).toHaveProperty('issues');
   });
 
   it('should return 401 when user is already a participant in the pool', async () => {
@@ -182,19 +173,18 @@ describe('Join Pool Controller (e2e)', async () => {
     });
 
     // Join the pool first time
-    await request(app.server).post('/pools/join').set('Authorization', `Bearer ${token}`).send({
-      poolId: pool.id,
-    });
+    await request(app.server)
+      .post(`/pools/${pool.id}/join`)
+      .set('Authorization', `Bearer ${token}`)
+      .send();
 
     // Try to join again
     const response = await request(app.server)
-      .post('/pools/join')
+      .post(`/pools/${pool.id}/join`)
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        poolId: pool.id,
-      });
+      .send();
 
-    expect(response.statusCode).toEqual(401);
+    expect(response.statusCode).toEqual(409);
 
     const body = response.body as ErrorResponse;
     expect(body).toHaveProperty('message');
@@ -211,9 +201,7 @@ describe('Join Pool Controller (e2e)', async () => {
       tournamentId,
     });
 
-    const response = await request(app.server).post('/pools/join').send({
-      poolId: pool.id,
-    });
+    const response = await request(app.server).post(`/pools/${pool.id}/join`).send();
 
     expect(response.statusCode).toEqual(401);
   });
@@ -223,14 +211,13 @@ describe('Join Pool Controller (e2e)', async () => {
       .post('/pools/join')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        // Missing poolId
+        // Missing inviteCode
       });
 
-    expect(response.statusCode).toEqual(400);
+    expect(response.statusCode).toEqual(422);
 
     const body = response.body as ErrorResponse;
-    expect(body).toHaveProperty('code', 'FST_ERR_VALIDATION');
-    expect(body).toHaveProperty('error', 'Bad Request');
+    expect(body).toHaveProperty('message', 'Validation error');
   });
 
   it('should join a pool with minimal required data', async () => {
@@ -245,11 +232,9 @@ describe('Join Pool Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post('/pools/join')
+      .post(`/pools/${pool.id}/join`)
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        poolId: pool.id,
-      });
+      .send();
 
     expect(response.statusCode).toEqual(200);
 
@@ -272,11 +257,9 @@ describe('Join Pool Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post('/pools/join')
+      .post(`/pools/${pool.id}/join`)
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        poolId: pool.id,
-      });
+      .send();
 
     expect(response.statusCode).toEqual(200);
 

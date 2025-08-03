@@ -1,13 +1,13 @@
 import { FastifyInstance } from 'fastify';
 
 import { verifyJwt } from '@/http/middlewares/verifyJWT';
+import { matchSchemas } from '@/http/schemas/match.schemas';
 
 import { getMatchController } from '../controllers/matches/getMatchController';
 import { getMatchPredictions } from '../controllers/matches/getMatchPredictionsController';
 import { updateMatchController } from '../controllers/matches/updateMatchController';
-import { matchSchemas } from '../schemas/match.schemas';
 
-export async function matchesRoutes(app: FastifyInstance) {
+export function matchesRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
 
   app.get(
@@ -22,10 +22,7 @@ export async function matchesRoutes(app: FastifyInstance) {
         response: {
           200: {
             description: 'Match information retrieved successfully',
-            type: 'object',
-            properties: {
-              match: matchSchemas.MatchWithTeams,
-            },
+            ...matchSchemas.GetMatchResponse,
           },
           404: {
             description: 'Match not found',
@@ -57,40 +54,7 @@ export async function matchesRoutes(app: FastifyInstance) {
         response: {
           200: {
             description: 'Match predictions retrieved successfully',
-            type: 'object',
-            properties: {
-              predictions: {
-                type: 'array',
-                items: matchSchemas.MatchPrediction,
-              },
-              match: {
-                type: 'object',
-                properties: {
-                  id: { type: 'number' },
-                  matchDatetime: { type: 'string', format: 'date-time' },
-                  stadium: { type: 'string', nullable: true },
-                  stage: { type: 'string' },
-                  matchStatus: { type: 'string' },
-                  homeTeam: {
-                    type: 'object',
-                    properties: {
-                      id: { type: 'number' },
-                      name: { type: 'string' },
-                      flagUrl: { type: 'string', nullable: true },
-                    },
-                  },
-                  awayTeam: {
-                    type: 'object',
-                    properties: {
-                      id: { type: 'number' },
-                      name: { type: 'string' },
-                      flagUrl: { type: 'string', nullable: true },
-                    },
-                  },
-                },
-              },
-              totalPredictions: { type: 'number' },
-            },
+            ...matchSchemas.GetMatchPredictionsResponse,
           },
           404: {
             description: 'Match not found',
@@ -123,10 +87,7 @@ export async function matchesRoutes(app: FastifyInstance) {
         response: {
           200: {
             description: 'Match updated successfully',
-            type: 'object',
-            properties: {
-              match: matchSchemas.MatchWithTeams,
-            },
+            ...matchSchemas.UpdateMatchResponse,
           },
           401: {
             description: 'Unauthorized access',

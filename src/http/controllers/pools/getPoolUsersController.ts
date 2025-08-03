@@ -1,15 +1,21 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { NotParticipantError } from '@/useCases/pools/errors/NotParticipantError';
-import { makeGetPoolUsersUseCase } from '@/useCases/pools/factory/makeGetPoolUsersUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function getPoolUsersController(request: FastifyRequest, reply: FastifyReply) {
-  try {
-    const getPoolUsersParamsSchema = z.object({
-      poolId: z.coerce.number(),
-    });
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { NotParticipantError } from '@/useCases/pools/errors/NotParticipantError';
+import { makeGetPoolUsersUseCase } from '@/useCases/pools/factory/makeGetPoolUsersUseCase';
 
+const getPoolUsersParamsSchema = z.object({
+  poolId: z.coerce.number(),
+});
+
+type GetPoolUsersParams = z.infer<typeof getPoolUsersParamsSchema>;
+
+export async function getPoolUsersController(
+  request: FastifyRequest<{ Params: GetPoolUsersParams }>,
+  reply: FastifyReply
+): Promise<void> {
+  try {
     const { poolId } = getPoolUsersParamsSchema.parse(request.params);
 
     const userId = request.user.sub;
@@ -36,7 +42,6 @@ export async function getPoolUsersController(request: FastifyRequest, reply: Fas
       return reply.status(422).send({ message: 'Validation error.', issues: error.format() });
     }
 
-    console.error(error);
-    return reply.status(500).send({ message: 'Internal server error.' });
+    throw error; // Re-throw unexpected errors to be handled by the global error handler
   }
 }
