@@ -4,6 +4,8 @@ import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 
+import { DeadlineError } from './errors/DeadlineError';
+import { MaxParticipantsError } from './errors/MaxParticipantsError';
 import { UnauthorizedError } from './errors/UnauthorizedError';
 
 interface IJoinPoolByIdRequest {
@@ -41,13 +43,13 @@ export class JoinPoolByIdUseCase {
     if (pool.maxParticipants) {
       const participants = await this.poolsRepository.getPoolParticipants(pool.id);
       if (participants.length >= pool.maxParticipants) {
-        throw new Error('Pool has reached maximum number of participants');
+        throw new MaxParticipantsError(`${pool.maxParticipants}`);
       }
     }
 
     // Check if registration deadline has passed
     if (pool.registrationDeadline && new Date() > pool.registrationDeadline) {
-      throw new Error('Registration deadline has passed');
+      throw new DeadlineError(`${pool.registrationDeadline.toDateString()}`);
     }
 
     // Check if user is already a participant

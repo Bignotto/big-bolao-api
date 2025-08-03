@@ -2,6 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { DeadlineError } from '@/useCases/pools/errors/DeadlineError';
+import { MaxParticipantsError } from '@/useCases/pools/errors/MaxParticipantsError';
 import { UnauthorizedError } from '@/useCases/pools/errors/UnauthorizedError';
 import { makeJoinPoolByIdUseCase } from '@/useCases/pools/factory/makeJoinPoolByIdUseCase';
 
@@ -24,13 +26,7 @@ export async function joinPoolByIdController(
       userId,
     });
 
-    return reply.status(200).send({
-      pool: {
-        id: pool.id,
-        name: pool.name,
-        isPrivate: pool.isPrivate,
-      },
-    });
+    return reply.status(200).send({ pool });
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message });
@@ -38,6 +34,14 @@ export async function joinPoolByIdController(
 
     if (error instanceof UnauthorizedError) {
       return reply.status(401).send({ message: error.message });
+    }
+
+    if (error instanceof MaxParticipantsError) {
+      return reply.status(400).send({ message: error.message });
+    }
+
+    if (error instanceof DeadlineError) {
+      return reply.status(400).send({ message: error.message });
     }
 
     if (error instanceof z.ZodError) {
