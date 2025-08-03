@@ -16,6 +16,7 @@ export async function createPool(
     isPrivate?: boolean;
     inviteCode?: string;
     maxParticipants?: number;
+    registrationDeadline?: Date;
   }
 ): Promise<Pool> {
   const randomPoolNumber = Math.floor(Math.random() * 100);
@@ -28,6 +29,7 @@ export async function createPool(
     inviteCode: data.inviteCode ?? `invite-${randomPoolNumber}`,
     isPrivate: data.isPrivate ?? false,
     maxParticipants: data.maxParticipants ?? 100,
+    registrationDeadline: data.registrationDeadline ?? new Date(3025, 5, 24),
   });
 
   await repository.createScoringRules({
