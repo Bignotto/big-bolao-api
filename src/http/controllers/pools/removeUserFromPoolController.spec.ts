@@ -1,3 +1,6 @@
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { createServer } from '@/app';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
@@ -9,8 +12,12 @@ import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createPool } from '@/test/mocks/pools';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type ErrorResponse = {
+  message: string;
+  code?: string;
+  error?: string;
+};
 
 describe('Remove User From Pool Controller (e2e)', async () => {
   const app = await createServer();
@@ -59,7 +66,7 @@ describe('Remove User From Pool Controller (e2e)', async () => {
 
     const participants = await poolsRepository.getPoolParticipants(pool.id);
     const isUserStillParticipant = participants.some(
-      (participant) => participant.userId === userToRemove.id
+      (participant) => participant.id === userToRemove.id
     );
     expect(isUserStillParticipant).toBe(false);
   });
@@ -129,8 +136,10 @@ describe('Remove User From Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(403);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('Unauthorized');
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('Unauthorized');
   });
 
   it('should return 403 when trying to remove a user who is not a participant', async () => {
@@ -154,8 +163,9 @@ describe('Remove User From Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(403);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('not a participant');
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message');
+    expect(body.message).toContain('not a participant');
   });
 
   it('should require authentication', async () => {

@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { RemoveUserFromPoolUseCase } from './removeUserFromPoolUseCase';
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '../../repositories/pools/InMemoryPoolsRepository';
 import { InMemoryTournamentsRepository } from '../../repositories/tournaments/InMemoryTournamentsRepository';
 import { InMemoryUsersRepository } from '../../repositories/users/InMemoryUsersRepository';
-import { RemoveUserFromPoolUseCase } from './removeUserFromPoolUseCase';
 
 let poolsRepository: InMemoryPoolsRepository;
 let usersRepository: InMemoryUsersRepository;
@@ -67,7 +68,7 @@ describe('Remove User From Pool Use Case', () => {
     // Check if participant is in the pool
     let participants = await poolsRepository.getPoolParticipants(pool.id);
     expect(participants).toHaveLength(1);
-    expect(participants[0].userId).toBe(participant.id);
+    expect(participants[0].id).toBe(participant.id);
 
     // Remove the user from the pool
     await sut.execute({
