@@ -70,7 +70,7 @@ describe('Leave Pool Use Case', () => {
     // Check if participant is in the pool
     let participants = await poolsRepository.getPoolParticipants(pool.id);
     expect(participants).toHaveLength(1);
-    expect(participants[0].userId).toBe(participant.id);
+    expect(participants[0].id).toBe(participant.id);
 
     // Leave the pool
     await sut.execute({
