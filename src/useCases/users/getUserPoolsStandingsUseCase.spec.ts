@@ -1,8 +1,10 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { createUser } from '@/test/mocks/users';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { GetUserPoolStandingUseCase } from './getUserPoolsStandingsUseCase';
 
 describe('GetUserPoolStandingUseCase', () => {

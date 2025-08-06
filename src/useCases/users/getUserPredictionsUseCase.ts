@@ -1,9 +1,10 @@
+import { Prediction } from '@prisma/client';
+
 import { NotParticipantError } from '@/global/errors/NotParticipantError';
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { Prediction } from '@prisma/client';
 
 interface GetUserPredictionsUseCaseRequest {
   userId: string;
@@ -41,7 +42,7 @@ export class GetUserPredictionsUseCase {
 
       // Check if user is a participant in the specified pool
       const participants = await this.poolsRepository.getPoolParticipants(poolId);
-      const isParticipant = participants.some((participant) => participant.userId === userId);
+      const isParticipant = participants.some((participant) => participant.id === userId);
       const isCreator = pool.creatorId === userId;
 
       if (!isParticipant && !isCreator) {
