@@ -1,3 +1,6 @@
+import { Match, MatchStage, MatchStatus, Pool, User } from '@prisma/client';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
@@ -8,8 +11,7 @@ import { createMatch, createMatchWithTeams } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
 import { createTeam } from '@/test/mocks/teams';
 import { createUser } from '@/test/mocks/users';
-import { Match, MatchStage, MatchStatus, Pool, User } from '@prisma/client';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { CreatePredictionUseCase } from './createPredictionUseCase';
 import { InvalidScoreError } from './error/InvalidScoreError';
 import { MatchStatusError } from './error/MatchStatusError';
@@ -70,7 +72,7 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should not allow prediction for a match that is not in SCHEDULED status', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: pool.tournamentId,
@@ -91,7 +93,7 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should not allow duplicate predictions for the same match, user and pool', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: pool.tournamentId,
@@ -119,7 +121,7 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should create a prediction with extra time and penalties', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: pool.tournamentId,
@@ -170,7 +172,7 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should validate that penalty scores are provided when penalties are predicted', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: pool.tournamentId,
@@ -194,7 +196,7 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should not allow predictions for matches that have already started', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: pool.tournamentId,
@@ -215,7 +217,7 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should validate that extra time can only be predicted for knockout stage matches', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: pool.tournamentId,
@@ -237,7 +239,7 @@ describe('Create Prediction Use Case', () => {
   });
 
   it('should validate that penalties can only be predicted when scores are tied after extra time', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: pool.tournamentId,
@@ -271,7 +273,7 @@ describe('Create Prediction Use Case', () => {
       createdAt: new Date(),
     };
 
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: tournament2.id,
