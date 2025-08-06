@@ -1,9 +1,11 @@
+import { MatchStage, MatchStatus, Prediction } from '@prisma/client';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { MatchStage, MatchStatus } from '@prisma/client';
+
 import { InvalidScoreError } from './error/InvalidScoreError';
 import { MatchStatusError } from './error/MatchStatusError';
 import { NotParticipantError } from './error/NotParticipantError';
@@ -39,7 +41,7 @@ export class CreatePredictionUseCase {
     predictedHasPenalties = false,
     predictedPenaltyHomeScore,
     predictedPenaltyAwayScore,
-  }: ICreatePredictionRequest) {
+  }: ICreatePredictionRequest): Promise<Prediction> {
     // Check predicted negative values
     if (predictedHomeScore < 0 || predictedAwayScore < 0) {
       throw new InvalidScoreError('Predicted scores cannot be negative');
@@ -59,7 +61,7 @@ export class CreatePredictionUseCase {
 
     // Check if user is a participant in the pool
     const participants = await this.poolsRepository.getPoolParticipants(poolId);
-    const isParticipant = participants.some((participant) => participant.userId === userId);
+    const isParticipant = participants.some((participant) => participant.id === userId);
     if (!isParticipant) {
       throw new NotParticipantError(userId);
     }
