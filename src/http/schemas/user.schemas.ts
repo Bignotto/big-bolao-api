@@ -8,16 +8,21 @@ export const userSchemas = {
       email: { type: 'string', format: 'email', description: 'User email address' },
       profileImageUrl: { type: 'string', nullable: true, description: 'User profile image URL' },
       createdAt: { type: 'string', format: 'date-time', description: 'User creation timestamp' },
-      lastLogin: { type: 'string', format: 'date-time', nullable: true, description: 'Last login timestamp' },
+      lastLogin: {
+        type: 'string',
+        format: 'date-time',
+        nullable: true,
+        description: 'Last login timestamp',
+      },
       accountProvider: {
         type: 'string',
         enum: ['GOOGLE', 'APPLE', 'EMAIL'],
-        description: 'Account provider type'
+        description: 'Account provider type',
       },
       role: {
         type: 'string',
         enum: ['USER', 'ADMIN'],
-        description: 'User role'
+        description: 'User role',
       },
     },
     required: ['id', 'fullName', 'email', 'createdAt'],
@@ -36,7 +41,7 @@ export const userSchemas = {
         type: 'string',
         enum: ['GOOGLE', 'APPLE', 'EMAIL'],
         description: 'Account provider type',
-        default: 'EMAIL'
+        default: 'EMAIL',
       },
     },
     required: ['fullName', 'email', 'passwordHash', 'profileImageUrl'],
@@ -137,11 +142,32 @@ export const userSchemas = {
       predictedAwayScore: { type: 'number', description: 'Predicted away team score' },
       predictedHasExtraTime: { type: 'boolean', description: 'Whether extra time is predicted' },
       predictedHasPenalties: { type: 'boolean', description: 'Whether penalties are predicted' },
-      predictedPenaltyHomeScore: { type: 'number', nullable: true, description: 'Predicted home penalty score' },
-      predictedPenaltyAwayScore: { type: 'number', nullable: true, description: 'Predicted away penalty score' },
-      pointsEarned: { type: 'number', nullable: true, description: 'Points earned from this prediction' },
-      submittedAt: { type: 'string', format: 'date-time', description: 'When the prediction was submitted' },
-      updatedAt: { type: 'string', format: 'date-time', nullable: true, description: 'When the prediction was last updated' },
+      predictedPenaltyHomeScore: {
+        type: 'number',
+        nullable: true,
+        description: 'Predicted home penalty score',
+      },
+      predictedPenaltyAwayScore: {
+        type: 'number',
+        nullable: true,
+        description: 'Predicted away penalty score',
+      },
+      pointsEarned: {
+        type: 'number',
+        nullable: true,
+        description: 'Points earned from this prediction',
+      },
+      submittedAt: {
+        type: 'string',
+        format: 'date-time',
+        description: 'When the prediction was submitted',
+      },
+      updatedAt: {
+        type: 'string',
+        format: 'date-time',
+        nullable: true,
+        description: 'When the prediction was last updated',
+      },
     },
   },
 
@@ -172,15 +198,26 @@ export const userSchemas = {
   Standing: {
     type: 'object',
     properties: {
+      ranking: { type: 'number', description: 'Current position in the pool' },
+      fullName: { type: 'string', description: 'User name' },
+      profileImageUrl: { type: 'string', description: 'User avatar URL' },
       userId: { type: 'string', description: 'User ID' },
       poolId: { type: 'number', description: 'Pool ID' },
-      poolTitle: { type: 'string', description: 'Pool title' },
-      userName: { type: 'string', description: 'User name' },
-      userAvatar: { type: 'string', description: 'User avatar URL' },
+      totalPredictions: { type: 'number', description: 'Total predictions made' },
       totalPoints: { type: 'number', description: 'Total points earned' },
-      position: { type: 'number', description: 'Current position in the pool' },
-      correctPredictions: { type: 'number', description: 'Number of correct predictions' },
-      totalPredictions: { type: 'number', description: 'Total number of predictions made' },
+      exactScoreCount: { type: 'number', description: 'Number of correct predictions' },
+      pointsRatio: {
+        type: 'number',
+        description: `The user's score as a percentage of the total possible score.`,
+      },
+      guessRatio: {
+        type: 'number',
+        description: `The percentage of the user's correct guesses relative to the total number of matches to be predicted.`,
+      },
+      predictionsRatio: {
+        type: 'number',
+        description: `The percentage of predictions the user has submitted out of the total number of matches to be predicted.`,
+      },
     },
   },
 
