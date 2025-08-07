@@ -1,3 +1,4 @@
+import { FastifyInstance } from 'fastify';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -22,13 +23,14 @@ type ErrorResponse = {
   message: string;
 };
 
-describe('Update User Controller (e2e)', async () => {
-  const app = await createTestApp();
+describe('Update User Controller (e2e)', () => {
+  let app: FastifyInstance;
   let token: string;
 
   let usersRepository: IUsersRepository;
 
   beforeAll(async () => {
+    app = await createTestApp();
     ({ token } = await getSupabaseAccessToken(app));
     usersRepository = new PrismaUsersRepository();
   });
