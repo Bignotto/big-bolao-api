@@ -1,4 +1,8 @@
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { createServer } from '@/app';
+import { PoolStandings } from '@/global/types/poolStandings';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -9,16 +13,15 @@ import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
 import { PrismaTeamsRepository } from '@/repositories/teams/PrismaTeamsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
-import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createMatchWithTeams } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
 import { createPrediction } from '@/test/mocks/predictions';
 import { createTournament } from '@/test/mocks/tournament';
-import { createUser } from '@/test/mocks/users';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+type GetUserPoolsStandingsResponse = {
+  standing: PoolStandings[];
+};
 
 describe('Get User Pools Standings Controller (e2e)', async () => {
   const app = await createServer();
@@ -26,7 +29,6 @@ describe('Get User Pools Standings Controller (e2e)', async () => {
   let token: string;
 
   let poolsRepository: IPoolsRepository;
-  let usersRepository: IUsersRepository;
   let tournamentsRepository: ITournamentsRepository;
   let matchesRepository: IMatchesRepository;
   let teamsRepository: ITeamsRepository;
@@ -36,7 +38,6 @@ describe('Get User Pools Standings Controller (e2e)', async () => {
     await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
     poolsRepository = new PrismaPoolsRepository();
-    usersRepository = new PrismaUsersRepository();
     tournamentsRepository = new PrismaTournamentsRepository();
     matchesRepository = new PrismaMatchesRepository();
     teamsRepository = new PrismaTeamsRepository();
@@ -48,9 +49,6 @@ describe('Get User Pools Standings Controller (e2e)', async () => {
   });
 
   it('should be able to get user pools standings', async () => {
-    // Create a test user
-    const user = await createUser(usersRepository, {});
-
     const response = await request(app.server)
       .get('/users/me/pools/standings')
       .set('Authorization', `Bearer ${token}`)
@@ -58,7 +56,9 @@ describe('Get User Pools Standings Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('standing');
-    expect(Array.isArray(response.body.standing) || response.body.standing === null).toBe(true);
+
+    const body = response.body as GetUserPoolsStandingsResponse;
+    expect(Array.isArray(body.standing) || body.standing === null).toBe(true);
   });
 
   it('should return empty standings for user with no pool participations', async () => {
@@ -70,14 +70,15 @@ describe('Get User Pools Standings Controller (e2e)', async () => {
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('standing');
     // Should return null or empty array when user has no pool participations
-    expect(response.body.standing === null || Array.isArray(response.body.standing)).toBe(true);
+    const body = response.body as GetUserPoolsStandingsResponse;
+    expect(body.standing === null || Array.isArray(body.standing)).toBe(true);
   });
 
   it('should return standings data for user participating in multiple pools', async () => {
     // Create test data
     const tournament = await createTournament(tournamentsRepository, {});
 
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       {
         matchesRepository,
         teamsRepository,
@@ -138,20 +139,21 @@ describe('Get User Pools Standings Controller (e2e)', async () => {
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('standing');
 
-    if (response.body.standing) {
-      expect(Array.isArray(response.body.standing)).toBe(true);
+    const body = response.body as GetUserPoolsStandingsResponse;
+    if (body.standing) {
+      expect(Array.isArray(body.standing)).toBe(true);
 
       // Should have standings for both pools
-      const standings = response.body.standing;
+      const standings = body.standing;
       expect(standings.length).toBeGreaterThanOrEqual(2);
 
       // Verify the standings contain the expected pool information
-      const poolIds = standings.map((standing: any) => standing.poolId);
+      const poolIds = standings.map((standing: PoolStandings) => standing.poolId);
       expect(poolIds).toContain(pool1.id);
       expect(poolIds).toContain(pool2.id);
 
       // Verify each standing has the expected structure based on PoolStandings type
-      standings.forEach((standing: any) => {
+      standings.forEach((standing: PoolStandings) => {
         expect(standing).toHaveProperty('poolId');
         expect(standing).toHaveProperty('userId');
         expect(standing).toHaveProperty('totalPoints');
