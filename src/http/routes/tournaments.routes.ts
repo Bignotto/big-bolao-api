@@ -4,7 +4,7 @@ import { verifyJwt } from '@/http/middlewares/verifyJWT';
 
 import { getTournamentMatchesController } from '../controllers/tournaments/getTournamentMatchesController';
 import { listTournamentsController } from '../controllers/tournaments/listTournamentsController';
-import { tournamentSchemas } from '../schemas/tournament.schemas';
+import { matchSchemas } from '../schemas/match.schemas';
 
 export function tournamentsRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
@@ -53,7 +53,7 @@ export function tournamentsRoutes(app: FastifyInstance): void {
             properties: {
               matches: {
                 type: 'array',
-                items: tournamentSchemas.TournamentMatch,
+                items: matchSchemas.Match,
               },
             },
             required: ['matches'],
