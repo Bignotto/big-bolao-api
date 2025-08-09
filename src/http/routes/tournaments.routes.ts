@@ -4,6 +4,7 @@ import { verifyJwt } from '@/http/middlewares/verifyJWT';
 
 import { getTournamentMatchesController } from '../controllers/tournaments/getTournamentMatchesController';
 import { listTournamentsController } from '../controllers/tournaments/listTournamentsController';
+import { tournamentSchemas } from '../schemas/tournament.schemas';
 
 export function tournamentsRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
@@ -22,41 +23,13 @@ export function tournamentsRoutes(app: FastifyInstance): void {
             properties: {
               tournaments: {
                 type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'number' },
-                    name: { type: 'string' },
-                    startDate: { type: 'string', format: 'date-time' },
-                    endDate: { type: 'string', format: 'date-time' },
-                    logoUrl: { type: 'string', nullable: true },
-                    status: { type: 'string', enum: ['UPCOMING', 'ACTIVE', 'COMPLETED'] },
-                    createdAt: { type: 'string', format: 'date-time' },
-                    totalMatches: { type: 'number' },
-                    completedMatches: { type: 'number' },
-                    totalTeams: { type: 'number' },
-                    totalPools: { type: 'number' },
-                  },
-                  required: ['id', 'name', 'startDate', 'endDate', 'status', 'createdAt'],
-                },
+                items: tournamentSchemas.TournamentWithStats,
               },
               total: { type: 'number' },
             },
           },
-          401: {
-            description: 'Unauthorized access',
-            type: 'object',
-            properties: {
-              message: { type: 'string', example: 'Unauthorized' },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            type: 'object',
-            properties: {
-              message: { type: 'string', example: 'Internal server error' },
-            },
-          },
+          401: tournamentSchemas.UnauthorizedError,
+          500: tournamentSchemas.InternalServerError,
         },
       },
     },
@@ -71,31 +44,8 @@ export function tournamentsRoutes(app: FastifyInstance): void {
         summary: 'Get tournament matches',
         description:
           'Retrieves all matches for a specific tournament with optional filtering by stage, status, or group',
-        params: {
-          type: 'object',
-          properties: {
-            tournamentId: { type: 'string', pattern: '^[0-9]+$' },
-          },
-          required: ['tournamentId'],
-          additionalProperties: false,
-        },
-        querystring: {
-          type: 'object',
-          properties: {
-            stage: {
-              type: 'string',
-              enum: ['GROUP', 'ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL', 'THIRD_PLACE', 'LOSERS_MATCH'],
-            },
-            status: {
-              type: 'string',
-              enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'POSTPONED'],
-            },
-            group: { type: 'string' },
-            limit: { type: 'number', minimum: 1, maximum: 100, default: 50 },
-            offset: { type: 'number', minimum: 0, default: 0 },
-          },
-          additionalProperties: false,
-        },
+        params: tournamentSchemas.TournamentIdParam,
+        querystring: tournamentSchemas.TournamentMatchesQuery,
         response: {
           200: {
             description: 'Tournament matches retrieved successfully',
@@ -103,57 +53,14 @@ export function tournamentsRoutes(app: FastifyInstance): void {
             properties: {
               matches: {
                 type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'number' },
-                    tournamentId: { type: 'number' },
-                    homeTeamId: { type: 'number' },
-                    awayTeamId: { type: 'number' },
-                    matchDatetime: { type: 'string', format: 'date-time' },
-                    stadium: { type: 'string', nullable: true },
-                    stage: { type: 'string' },
-                    group: { type: 'string', nullable: true },
-                    homeTeamScore: { type: 'number', nullable: true },
-                    awayTeamScore: { type: 'number', nullable: true },
-                    matchStatus: { type: 'string' },
-                    hasExtraTime: { type: 'boolean' },
-                    hasPenalties: { type: 'boolean' },
-                    penaltyHomeScore: { type: 'number', nullable: true },
-                    penaltyAwayScore: { type: 'number', nullable: true },
-                    createdAt: { type: 'string', format: 'date-time' },
-                    updatedAt: { type: 'string', format: 'date-time', nullable: true },
-                  },
-                },
+                items: tournamentSchemas.TournamentMatch,
               },
             },
             required: ['matches'],
           },
-          404: {
-            description: 'Tournament not found',
-            type: 'object',
-            properties: {
-              message: { type: 'string', example: 'Tournament not found' },
-            },
-          },
-          422: {
-            description: 'Validation error',
-            type: 'object',
-            properties: {
-              message: { type: 'string', example: 'Validation error' },
-              issues: {
-                type: 'object',
-                additionalProperties: true,
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            type: 'object',
-            properties: {
-              message: { type: 'string', example: 'Internal server error' },
-            },
-          },
+          404: tournamentSchemas.TournamentNotFoundError,
+          422: tournamentSchemas.ValidationError,
+          500: tournamentSchemas.InternalServerError,
         },
       },
     },
