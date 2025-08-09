@@ -5,6 +5,7 @@ import { verifyJwt } from '@/http/middlewares/verifyJWT';
 import { getTournamentMatchesController } from '../controllers/tournaments/getTournamentMatchesController';
 import { listTournamentsController } from '../controllers/tournaments/listTournamentsController';
 import { matchSchemas } from '../schemas/match.schemas';
+
 import { tournamentSchemas } from '../schemas/tournament.schemas';
 
 export function tournamentsRoutes(app: FastifyInstance): void {
