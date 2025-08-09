@@ -4,6 +4,7 @@ import { verifyJwt } from '@/http/middlewares/verifyJWT';
 
 import { getTournamentMatchesController } from '../controllers/tournaments/getTournamentMatchesController';
 import { listTournamentsController } from '../controllers/tournaments/listTournamentsController';
+import { matchSchemas } from '../schemas/match.schemas';
 
 export function tournamentsRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
@@ -103,28 +104,7 @@ export function tournamentsRoutes(app: FastifyInstance): void {
             properties: {
               matches: {
                 type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'number' },
-                    tournamentId: { type: 'number' },
-                    homeTeamId: { type: 'number' },
-                    awayTeamId: { type: 'number' },
-                    matchDatetime: { type: 'string', format: 'date-time' },
-                    stadium: { type: 'string', nullable: true },
-                    stage: { type: 'string' },
-                    group: { type: 'string', nullable: true },
-                    homeTeamScore: { type: 'number', nullable: true },
-                    awayTeamScore: { type: 'number', nullable: true },
-                    matchStatus: { type: 'string' },
-                    hasExtraTime: { type: 'boolean' },
-                    hasPenalties: { type: 'boolean' },
-                    penaltyHomeScore: { type: 'number', nullable: true },
-                    penaltyAwayScore: { type: 'number', nullable: true },
-                    createdAt: { type: 'string', format: 'date-time' },
-                    updatedAt: { type: 'string', format: 'date-time', nullable: true },
-                  },
-                },
+                items: matchSchemas.Match,
               },
             },
             required: ['matches'],
