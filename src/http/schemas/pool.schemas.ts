@@ -154,20 +154,21 @@ export const poolSchemas = {
     },
   },
 
-  // Join Pool Request Body
-  JoinPoolByIdRequest: {
+  // Join Pool by ID Path Params
+  JoinPoolByIdParams: {
     type: 'object',
     properties: {
       poolId: {
-        type: 'number',
+        type: 'string',
+        pattern: '^[0-9]+$',
         description: 'Pool unique identifier',
       },
     },
     required: ['poolId'],
-    additionalProperties: false,
   },
 
-  JoinPoolByInviteCodeRequest: {
+  // Join Pool by Invite Code Path Params
+  JoinPoolByInviteParams: {
     type: 'object',
     properties: {
       inviteCode: {
@@ -177,7 +178,6 @@ export const poolSchemas = {
       },
     },
     required: ['inviteCode'],
-    additionalProperties: false,
   },
 
   // Join Pool Response

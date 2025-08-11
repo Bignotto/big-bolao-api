@@ -84,7 +84,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         tags: ['Pools'],
         summary: 'Join a public pool by ID',
         description: 'Join a public pool using its ID. Private pools cannot be joined this way.',
-        params: poolSchemas.PoolIdParam,
+        params: poolSchemas.JoinPoolByIdParams,
         response: {
           200: {
             description: 'Successfully joined the pool',
@@ -129,17 +129,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         tags: ['Pools'],
         summary: 'Join a pool by invite code',
         description: 'Join any pool (public or private) using its invitation code',
-        params: {
-          type: 'object',
-          properties: {
-            inviteCode: {
-              type: 'string',
-              minLength: 1,
-              description: 'Pool invitation code',
-            },
-          },
-          required: ['inviteCode'],
-        },
+        params: poolSchemas.JoinPoolByInviteParams,
         response: {
           200: {
             description: 'Successfully joined the pool',
