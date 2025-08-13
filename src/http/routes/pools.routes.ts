@@ -27,10 +27,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         response: {
           201: {
             description: 'Pool created successfully',
-            type: 'object',
-            properties: {
-              pool: poolSchemas.Pool,
-            },
+            ...poolSchemas.CreatePoolResponse,
           },
           422: {
             description: 'Validation error',
@@ -57,10 +54,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         response: {
           200: {
             description: 'Pool information retrieved successfully',
-            type: 'object',
-            properties: {
-              pool: poolSchemas.Pool,
-            },
+            ...poolSchemas.GetPoolResponse,
           },
           404: {
             description: 'Pool not found',
@@ -88,10 +82,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         response: {
           200: {
             description: 'Successfully joined the pool',
-            type: 'object',
-            properties: {
-              pool: poolSchemas.Pool,
-            },
+            ...poolSchemas.JoinPoolResponse,
           },
           401: {
             description: 'Unauthorized - Private pool or invalid access',
@@ -101,11 +92,8 @@ export function PoolRoutes(app: FastifyInstance): void {
             },
           },
           404: {
-            description: 'Pool or user not found',
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
+            description: 'Pool not found',
+            ...poolSchemas.PoolNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -133,24 +121,15 @@ export function PoolRoutes(app: FastifyInstance): void {
         response: {
           200: {
             description: 'Successfully joined the pool',
-            type: 'object',
-            properties: {
-              pool: poolSchemas.Pool,
-            },
+            ...poolSchemas.JoinPoolResponse,
           },
           401: {
             description: 'Unauthorized - Invalid invite code',
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
+            ...poolSchemas.InvalidPoolCodeError,
           },
           404: {
-            description: 'Pool not found with this invite code',
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
+            description: 'Pool not found',
+            ...poolSchemas.PoolNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -252,14 +231,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         response: {
           200: {
             description: 'Pool users retrieved successfully',
-            type: 'object',
-            properties: {
-              users: {
-                type: 'array',
-                items: poolSchemas.PoolUser,
-              },
-              count: { type: 'number' },
-            },
+            ...poolSchemas.GetPoolUsersResponse,
           },
           403: {
             description: 'User is not a member of this pool',
@@ -291,10 +263,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         response: {
           200: {
             description: 'Pool updated successfully',
-            type: 'object',
-            properties: {
-              pool: poolSchemas.Pool,
-            },
+            ...poolSchemas.UpdatePoolResponse,
           },
           403: {
             description: 'Only pool owner can update the pool',
@@ -329,13 +298,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         response: {
           200: {
             description: 'Pool predictions retrieved successfully',
-            type: 'object',
-            properties: {
-              predictions: {
-                type: 'array',
-                items: poolSchemas.PoolPrediction,
-              },
-            },
+            ...poolSchemas.GetPoolPredictionsResponse,
           },
           403: {
             description: 'User is not a member of this pool',
@@ -370,21 +333,7 @@ export function PoolRoutes(app: FastifyInstance): void {
         response: {
           200: {
             description: 'Pool standings retrieved successfully',
-            type: 'object',
-            properties: {
-              standings: {
-                type: 'array',
-                items: poolSchemas.PoolStanding,
-              },
-              poolInfo: {
-                type: 'object',
-                properties: {
-                  id: { type: 'number' },
-                  title: { type: 'string' },
-                  participantCount: { type: 'number' },
-                },
-              },
-            },
+            ...poolSchemas.GetPoolStandingsResponse,
           },
           403: {
             description: 'User is not a member of this pool',
