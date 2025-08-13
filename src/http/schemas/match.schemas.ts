@@ -183,7 +183,7 @@ export const matchSchemas = {
     },
   },
 
-  ValidationError: {
+  MatchValidationError: {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Validation error' },
@@ -201,7 +201,7 @@ export const matchSchemas = {
     },
   },
 
-  InternalServerError: {
+  MatchInternalServerError: {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Internal server error' },

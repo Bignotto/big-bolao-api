@@ -61,7 +61,7 @@ export const predictionSchemas = {
   },
 
   // Error schemas
-  ValidationError: {
+  PredictionValidationError: {
     type: 'object',
     properties: {
       message: { type: 'string' },
@@ -127,7 +127,7 @@ export const predictionSchemas = {
     }
   },
 
-  InternalServerError: {
+  PredictionInternalServerError: {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Internal server error' }

@@ -437,7 +437,7 @@ export const poolSchemas = {
   },
 
   // Reuse common error schemas
-  ValidationError: {
+  PoolValidationError: {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Validation error' },
@@ -448,7 +448,7 @@ export const poolSchemas = {
     },
   },
 
-  InternalServerError: {
+  PoolInternalServerError: {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Internal server error.' },

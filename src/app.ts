@@ -44,12 +44,21 @@ export const createServer = async (): Promise<FastifyInstance> => {
   // Combine all schemas and remove duplicates
   const allSchemas: Record<string, any> = {};
 
-  // Add schemas, with later ones overriding earlier ones if there are duplicates
-  Object.assign(allSchemas, poolSchemas);
-  Object.assign(allSchemas, userSchemas);
-  Object.assign(allSchemas, matchSchemas);
-  Object.assign(allSchemas, predictionSchemas);
-  Object.assign(allSchemas, tournamentSchemas);
+  const mergeSchemas = (schemas: Record<string, any>) => {
+    Object.entries(schemas).forEach(([key, schema]) => {
+      if (allSchemas[key]) {
+        server.log.warn(`Duplicate schema detected for ${key}, keeping existing definition.`);
+        return;
+      }
+      allSchemas[key] = schema;
+    });
+  };
+
+  mergeSchemas(poolSchemas);
+  mergeSchemas(userSchemas);
+  mergeSchemas(matchSchemas);
+  mergeSchemas(predictionSchemas);
+  mergeSchemas(tournamentSchemas);
 
   if (env.NODE_ENV !== 'test') {
     // Register Swagger with all schemas

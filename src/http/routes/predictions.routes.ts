@@ -42,11 +42,11 @@ export async function PredictionsRoutes(app: FastifyInstance) {
         },
         422: {
           description: 'Validation error',
-          ...predictionSchemas.ValidationError
+          ...predictionSchemas.PredictionValidationError
         },
         500: {
           description: 'Internal server error',
-          ...predictionSchemas.InternalServerError
+          ...predictionSchemas.PredictionInternalServerError
         }
       }
     }
@@ -119,11 +119,11 @@ export async function PredictionsRoutes(app: FastifyInstance) {
         },
         422: {
           description: 'Validation error',
-          ...predictionSchemas.ValidationError
+          ...predictionSchemas.PredictionValidationError
         },
         500: {
           description: 'Internal server error',
-          ...predictionSchemas.InternalServerError
+          ...predictionSchemas.PredictionInternalServerError
         }
       }
     }
@@ -158,11 +158,11 @@ export async function PredictionsRoutes(app: FastifyInstance) {
         },
         422: {
           description: 'Validation error',
-          ...predictionSchemas.ValidationError
+          ...predictionSchemas.PredictionValidationError
         },
         500: {
           description: 'Internal server error',
-          ...predictionSchemas.InternalServerError
+          ...predictionSchemas.PredictionInternalServerError
         }
       }
     }
