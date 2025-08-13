@@ -1,9 +1,9 @@
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it, test } from 'vitest';
+
 import { createServer } from '@/app';
 import { env } from '@/env/config';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
-import { it } from 'node:test';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
 describe('Get User Info (e2e)', async () => {
   const app = await createServer();
@@ -19,7 +19,7 @@ describe('Get User Info (e2e)', async () => {
     await app.close();
   });
 
-  test('should return user info', async () => {
+  it('should return user info', async () => {
     const response = await request(app.server)
       .get(`/users/me`)
       .set('Authorization', `Bearer ${token}`)
