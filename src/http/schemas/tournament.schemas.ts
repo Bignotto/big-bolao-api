@@ -168,7 +168,7 @@ export const tournamentSchemas = {
     },
   },
 
-  ValidationError: {
+  TournamentValidationError: {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Validation error' },
@@ -186,7 +186,7 @@ export const tournamentSchemas = {
     },
   },
 
-  InternalServerError: {
+  TournamentInternalServerError: {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Internal server error' },

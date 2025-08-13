@@ -34,11 +34,11 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...poolSchemas.InternalServerError,
+            ...poolSchemas.PoolInternalServerError,
           },
         },
       },
@@ -68,7 +68,7 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
         },
       },
@@ -109,11 +109,11 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...poolSchemas.InternalServerError,
+            ...poolSchemas.PoolInternalServerError,
           },
         },
       },
@@ -154,11 +154,11 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...poolSchemas.InternalServerError,
+            ...poolSchemas.PoolInternalServerError,
           },
         },
       },
@@ -193,11 +193,11 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...poolSchemas.InternalServerError,
+            ...poolSchemas.PoolInternalServerError,
           },
         },
       },
@@ -229,11 +229,11 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...poolSchemas.InternalServerError,
+            ...poolSchemas.PoolInternalServerError,
           },
         },
       },
@@ -271,7 +271,7 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
         },
       },
@@ -306,11 +306,11 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...poolSchemas.InternalServerError,
+            ...poolSchemas.PoolInternalServerError,
           },
         },
       },
@@ -347,11 +347,11 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...poolSchemas.InternalServerError,
+            ...poolSchemas.PoolInternalServerError,
           },
         },
       },
@@ -396,11 +396,11 @@ export function PoolRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...poolSchemas.ValidationError,
+            ...poolSchemas.PoolValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...poolSchemas.InternalServerError,
+            ...poolSchemas.PoolInternalServerError,
           },
         },
       },

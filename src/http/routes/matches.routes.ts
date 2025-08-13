@@ -30,11 +30,11 @@ export function matchesRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...matchSchemas.ValidationError,
+            ...matchSchemas.MatchValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...matchSchemas.InternalServerError,
+            ...matchSchemas.MatchInternalServerError,
           },
         },
       },
@@ -62,11 +62,11 @@ export function matchesRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...matchSchemas.ValidationError,
+            ...matchSchemas.MatchValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...matchSchemas.InternalServerError,
+            ...matchSchemas.MatchInternalServerError,
           },
         },
       },
@@ -103,11 +103,11 @@ export function matchesRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...matchSchemas.ValidationError,
+            ...matchSchemas.MatchValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...matchSchemas.InternalServerError,
+            ...matchSchemas.MatchInternalServerError,
           },
         },
       },

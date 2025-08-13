@@ -35,7 +35,7 @@ export function UserRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...userSchemas.ValidationError,
+            ...userSchemas.UserValidationError,
           },
         },
       },
@@ -66,7 +66,7 @@ export function UserRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...userSchemas.ValidationError,
+            ...userSchemas.UserValidationError,
           },
         },
       },
@@ -140,7 +140,7 @@ export function UserRoutes(app: FastifyInstance): void {
             properties: {
               pools: {
                 type: 'array',
-                items: userSchemas.Pool,
+                items: userSchemas.UserPool,
               },
             },
           },
@@ -184,11 +184,11 @@ export function UserRoutes(app: FastifyInstance): void {
           },
           422: {
             description: 'Validation error',
-            ...userSchemas.ValidationError,
+            ...userSchemas.UserValidationError,
           },
           500: {
             description: 'Internal server error',
-            ...userSchemas.InternalServerError,
+            ...userSchemas.UserInternalServerError,
           },
         },
       },
@@ -221,7 +221,7 @@ export function UserRoutes(app: FastifyInstance): void {
           },
           500: {
             description: 'Internal server error',
-            ...userSchemas.InternalServerError,
+            ...userSchemas.UserInternalServerError,
           },
         },
       },

@@ -105,8 +105,8 @@ export const userSchemas = {
     required: ['userId'],
   },
 
-  // Pool object for user pools response
-  Pool: {
+  // UserPool object for user pools response
+  UserPool: {
     type: 'object',
     properties: {
       id: { type: 'number', description: 'Pool unique identifier' },
@@ -125,7 +125,7 @@ export const userSchemas = {
     properties: {
       pools: {
         type: 'array',
-        items: { $ref: '#/components/schemas/Pool' },
+        items: { $ref: '#/components/schemas/UserPool' },
       },
     },
   },
@@ -233,7 +233,7 @@ export const userSchemas = {
   },
 
   // Error responses
-  ValidationError: {
+  UserValidationError: {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Validation error' },
@@ -265,7 +265,7 @@ export const userSchemas = {
     },
   },
 
-  InternalServerError: {
+  UserInternalServerError: {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Internal server error.' },
