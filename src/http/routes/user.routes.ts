@@ -11,8 +11,8 @@ import { verifyJwt } from '../middlewares/verifyJWT';
 import { userSchemas } from '../schemas/user.schemas';
 
 export function UserRoutes(app: FastifyInstance): void {
-  app.addHook('onRequest', verifyJwt);
 
+  // Public route for user registration
   app.post(
     '/users',
     {
@@ -46,6 +46,7 @@ export function UserRoutes(app: FastifyInstance): void {
   app.put(
     '/users/:userId',
     {
+      preHandler: verifyJwt,
       schema: {
         tags: ['Users'],
         summary: 'Update user information',
@@ -59,6 +60,10 @@ export function UserRoutes(app: FastifyInstance): void {
             properties: {
               user: userSchemas.User,
             },
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...userSchemas.UnauthorizedError,
           },
           404: {
             description: 'User not found',
@@ -74,6 +79,7 @@ export function UserRoutes(app: FastifyInstance): void {
     updateUserController
   );
 
+  // Public route to fetch user information by ID
   app.get(
     '/users/:userId',
     {
@@ -103,6 +109,7 @@ export function UserRoutes(app: FastifyInstance): void {
   app.get(
     '/users/me',
     {
+      preHandler: verifyJwt,
       schema: {
         tags: ['Users'],
         summary: 'Get logged user information',
@@ -115,6 +122,10 @@ export function UserRoutes(app: FastifyInstance): void {
               user: userSchemas.User,
             },
           },
+          401: {
+            description: 'Unauthorized access',
+            ...userSchemas.UnauthorizedError,
+          },
           404: {
             description: 'User not found',
             ...userSchemas.ResourceNotFoundError,
@@ -125,6 +136,7 @@ export function UserRoutes(app: FastifyInstance): void {
     GetLoggedUserInfoController
   );
 
+  // Public route to list pools for a user
   app.get(
     '/users/:userId/pools',
     {
@@ -157,6 +169,7 @@ export function UserRoutes(app: FastifyInstance): void {
   app.get(
     '/users/me/predictions',
     {
+      preHandler: verifyJwt,
       schema: {
         tags: ['Users'],
         summary: 'Get logged user predictions',
@@ -173,6 +186,10 @@ export function UserRoutes(app: FastifyInstance): void {
                 items: userSchemas.Prediction,
               },
             },
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...userSchemas.UnauthorizedError,
           },
           403: {
             description: 'User is not a participant of the specified pool',
@@ -199,6 +216,7 @@ export function UserRoutes(app: FastifyInstance): void {
   app.get(
     '/users/me/pools/standings',
     {
+      preHandler: verifyJwt,
       schema: {
         tags: ['Users'],
         summary: 'Get logged user pools standings',
@@ -214,6 +232,10 @@ export function UserRoutes(app: FastifyInstance): void {
                 items: userSchemas.Standing,
               },
             },
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...userSchemas.UnauthorizedError,
           },
           404: {
             description: 'User not found',

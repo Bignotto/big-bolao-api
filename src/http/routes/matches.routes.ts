@@ -24,6 +24,10 @@ export function matchesRoutes(app: FastifyInstance): void {
             description: 'Match information retrieved successfully',
             ...matchSchemas.GetMatchResponse,
           },
+          401: {
+            description: 'Unauthorized access',
+            ...matchSchemas.UnauthorizedError,
+          },
           404: {
             description: 'Match not found',
             ...matchSchemas.MatchNotFoundError,
@@ -55,6 +59,10 @@ export function matchesRoutes(app: FastifyInstance): void {
           200: {
             description: 'Match predictions retrieved successfully',
             ...matchSchemas.GetMatchPredictionsResponse,
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...matchSchemas.UnauthorizedError,
           },
           404: {
             description: 'Match not found',
