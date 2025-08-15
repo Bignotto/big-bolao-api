@@ -436,6 +436,13 @@ export const poolSchemas = {
     },
   },
 
+  UnauthorizedError: {
+    type: 'object',
+    properties: {
+      message: { type: 'string', example: 'Unauthorized access' },
+    },
+  },
+
   // Reuse common error schemas
   PoolValidationError: {
     type: 'object',

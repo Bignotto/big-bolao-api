@@ -1,19 +1,26 @@
-import { createServer } from '@/app';
+import { Pool } from '@prisma/client';
+import { FastifyInstance } from 'fastify';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createPool } from '@/test/mocks/pools';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-describe('Get User Pools Controller (e2e)', async () => {
-  const app = await createServer();
+type GetUserPoolsResponse = {
+  pools: Array<Pool>;
+};
+
+describe('Get User Pools Controller (e2e)', () => {
+  let app: FastifyInstance;
   let userId: string;
   let token: string;
 
@@ -22,7 +29,8 @@ describe('Get User Pools Controller (e2e)', async () => {
   let tournamentsRepository: ITournamentsRepository;
 
   beforeAll(async () => {
-    await app.ready();
+    app = await createTestApp();
+
     ({ token, userId } = await getSupabaseAccessToken(app));
     usersRepository = new PrismaUsersRepository();
     poolsRepository = new PrismaPoolsRepository();
@@ -41,8 +49,9 @@ describe('Get User Pools Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('pools');
-    expect(Array.isArray(response.body.pools)).toBe(true);
-    expect(response.body.pools).toHaveLength(0);
+    const body = response.body as GetUserPoolsResponse;
+    expect(Array.isArray(body.pools)).toBe(true);
+    expect(body.pools).toHaveLength(0);
   });
 
   it('should be able to get pools that the user participates in', async () => {
@@ -79,10 +88,12 @@ describe('Get User Pools Controller (e2e)', async () => {
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty('pools');
-    expect(Array.isArray(response.body.pools)).toBe(true);
+
+    const body = response.body as GetUserPoolsResponse;
 
     // Check that both pools are returned
-    const poolIds = response.body.pools.map((pool: any) => pool.id);
+    expect(Array.isArray(body.pools)).toBe(true);
+    const poolIds = body.pools.map((pool: Pool) => pool.id);
     expect(poolIds).toContain(pool1.id);
     expect(poolIds).toContain(pool2.id);
   });

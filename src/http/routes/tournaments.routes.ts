@@ -60,6 +60,7 @@ export function tournamentsRoutes(app: FastifyInstance): void {
             },
             required: ['matches'],
           },
+          401: tournamentSchemas.UnauthorizedError,
           404: tournamentSchemas.TournamentNotFoundError,
           422: tournamentSchemas.TournamentValidationError,
           500: tournamentSchemas.TournamentInternalServerError,

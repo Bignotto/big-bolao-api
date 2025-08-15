@@ -19,37 +19,41 @@ export async function PredictionsRoutes(app: FastifyInstance) {
           description: 'Prediction created successfully',
           type: 'object',
           properties: {
-            prediction: predictionSchemas.Prediction
-          }
+            prediction: predictionSchemas.Prediction,
+          },
+        },
+        401: {
+          description: 'Unauthorized to create prediction',
+          ...predictionSchemas.UnauthorizedError,
         },
         400: {
           description: 'Match has already started or prediction already exists',
           oneOf: [
             predictionSchemas.MatchAlreadyStartedError,
             predictionSchemas.PredictionAlreadyExistsError
-          ]
+          ],
         },
         403: {
           description: 'User is not a member of this pool',
-          ...predictionSchemas.NotPoolMemberError
+          ...predictionSchemas.NotPoolMemberError,
         },
         404: {
           description: 'Pool or match not found',
           oneOf: [
             predictionSchemas.PoolNotFoundError,
-            predictionSchemas.MatchNotFoundError
-          ]
+            predictionSchemas.MatchNotFoundError,
+          ],
         },
         422: {
           description: 'Validation error',
-          ...predictionSchemas.PredictionValidationError
+          ...predictionSchemas.PredictionValidationError,
         },
         500: {
           description: 'Internal server error',
-          ...predictionSchemas.PredictionInternalServerError
-        }
-      }
-    }
+          ...predictionSchemas.PredictionInternalServerError,
+        },
+      },
+    },
   }, createPredictionController);
 
   app.get('/predictions/:predictionId', {

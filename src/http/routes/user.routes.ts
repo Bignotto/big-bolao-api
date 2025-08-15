@@ -13,6 +13,7 @@ import { userSchemas } from '../schemas/user.schemas';
 export function UserRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
 
+  // Public route for user registration
   app.post(
     '/users',
     {
@@ -60,6 +61,10 @@ export function UserRoutes(app: FastifyInstance): void {
               user: userSchemas.User,
             },
           },
+          401: {
+            description: 'Unauthorized access',
+            ...userSchemas.UnauthorizedError,
+          },
           404: {
             description: 'User not found',
             ...userSchemas.ResourceNotFoundError,
@@ -74,6 +79,7 @@ export function UserRoutes(app: FastifyInstance): void {
     updateUserController
   );
 
+  // Public route to fetch user information by ID
   app.get(
     '/users/:userId',
     {
@@ -115,6 +121,10 @@ export function UserRoutes(app: FastifyInstance): void {
               user: userSchemas.User,
             },
           },
+          401: {
+            description: 'Unauthorized access',
+            ...userSchemas.UnauthorizedError,
+          },
           404: {
             description: 'User not found',
             ...userSchemas.ResourceNotFoundError,
@@ -125,6 +135,7 @@ export function UserRoutes(app: FastifyInstance): void {
     GetLoggedUserInfoController
   );
 
+  // Public route to list pools for a user
   app.get(
     '/users/:userId/pools',
     {
@@ -174,6 +185,10 @@ export function UserRoutes(app: FastifyInstance): void {
               },
             },
           },
+          401: {
+            description: 'Unauthorized access',
+            ...userSchemas.UnauthorizedError,
+          },
           403: {
             description: 'User is not a participant of the specified pool',
             ...userSchemas.NotParticipantError,
@@ -214,6 +229,10 @@ export function UserRoutes(app: FastifyInstance): void {
                 items: userSchemas.Standing,
               },
             },
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...userSchemas.UnauthorizedError,
           },
           404: {
             description: 'User not found',

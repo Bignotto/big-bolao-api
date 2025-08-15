@@ -265,6 +265,13 @@ export const userSchemas = {
     },
   },
 
+  UnauthorizedError: {
+    type: 'object',
+    properties: {
+      message: { type: 'string', example: 'Unauthorized access' },
+    },
+  },
+
   UserInternalServerError: {
     type: 'object',
     properties: {

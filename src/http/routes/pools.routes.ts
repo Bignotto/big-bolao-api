@@ -32,6 +32,10 @@ export function PoolRoutes(app: FastifyInstance): void {
               pool: poolSchemas.Pool,
             },
           },
+          401: {
+            description: 'Unauthorized access',
+            ...poolSchemas.UnauthorizedError,
+          },
           422: {
             description: 'Validation error',
             ...poolSchemas.PoolValidationError,
@@ -61,6 +65,10 @@ export function PoolRoutes(app: FastifyInstance): void {
             properties: {
               pool: poolSchemas.Pool,
             },
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...poolSchemas.UnauthorizedError,
           },
           404: {
             description: 'Pool not found',
@@ -94,11 +102,8 @@ export function PoolRoutes(app: FastifyInstance): void {
             },
           },
           401: {
-            description: 'Unauthorized - Private pool or invalid access',
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
+            description: 'Unauthorized to join this pool',
+            ...poolSchemas.UnauthorizedError,
           },
           404: {
             description: 'Pool or user not found',
@@ -139,11 +144,8 @@ export function PoolRoutes(app: FastifyInstance): void {
             },
           },
           401: {
-            description: 'Unauthorized - Invalid invite code',
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
+            description: 'Unauthorized to join this pool',
+            ...poolSchemas.UnauthorizedError,
           },
           404: {
             description: 'Pool not found with this invite code',
@@ -183,6 +185,10 @@ export function PoolRoutes(app: FastifyInstance): void {
             description: 'Pool owner cannot leave their own pool',
             ...poolSchemas.CannotLeaveOwnPoolError,
           },
+          401: {
+            description: 'Unauthorized access',
+            ...poolSchemas.UnauthorizedError,
+          },
           403: {
             description: 'User is not a member of this pool',
             ...poolSchemas.NotPoolMemberError,
@@ -218,6 +224,10 @@ export function PoolRoutes(app: FastifyInstance): void {
           200: {
             description: 'User successfully removed from pool',
             ...poolSchemas.RemoveUserFromPoolResponse,
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...poolSchemas.UnauthorizedError,
           },
           403: {
             description: 'Only pool owner can remove users',
@@ -261,6 +271,10 @@ export function PoolRoutes(app: FastifyInstance): void {
               count: { type: 'number' },
             },
           },
+          401: {
+            description: 'Unauthorized access',
+            ...poolSchemas.UnauthorizedError,
+          },
           403: {
             description: 'User is not a member of this pool',
             ...poolSchemas.NotPoolMemberError,
@@ -295,6 +309,10 @@ export function PoolRoutes(app: FastifyInstance): void {
             properties: {
               pool: poolSchemas.Pool,
             },
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...poolSchemas.UnauthorizedError,
           },
           403: {
             description: 'Only pool owner can update the pool',
@@ -336,6 +354,10 @@ export function PoolRoutes(app: FastifyInstance): void {
                 items: poolSchemas.PoolPrediction,
               },
             },
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...poolSchemas.UnauthorizedError,
           },
           403: {
             description: 'User is not a member of this pool',
@@ -385,6 +407,10 @@ export function PoolRoutes(app: FastifyInstance): void {
                 },
               },
             },
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...poolSchemas.UnauthorizedError,
           },
           403: {
             description: 'User is not a member of this pool',
