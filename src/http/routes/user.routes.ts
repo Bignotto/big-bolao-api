@@ -1,8 +1,8 @@
 import { FastifyInstance } from 'fastify';
 
 import { createUserController } from '../controllers/user/createUserController';
-import { GetLoggedUserInfoController } from '../controllers/user/getLoggedUserInfoController';
-import { GetUserInfoController } from '../controllers/user/getUserInfoController';
+import { getLoggedUserInfoController } from '../controllers/user/getLoggedUserInfoController';
+import { getUserInfoController } from '../controllers/user/getUserInfoController';
 import { getUserPoolsController } from '../controllers/user/getUserPoolsController';
 import { getUserPoolsStandingsController } from '../controllers/user/getUserPoolsStandingsController';
 import { getUserPredictionsController } from '../controllers/user/getUserPredictionsController';
@@ -103,7 +103,7 @@ export function UserRoutes(app: FastifyInstance): void {
         },
       },
     },
-    GetUserInfoController
+    getUserInfoController
   );
 
   app.get(
@@ -132,7 +132,7 @@ export function UserRoutes(app: FastifyInstance): void {
         },
       },
     },
-    GetLoggedUserInfoController
+    getLoggedUserInfoController
   );
 
   // Public route to list pools for a user

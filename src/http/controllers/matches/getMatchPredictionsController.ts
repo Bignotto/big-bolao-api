@@ -9,7 +9,7 @@ interface GetMatchPredictionsParams {
   matchId: number;
 }
 
-export async function getMatchPredictions(
+export async function getMatchPredictionsController(
   request: FastifyRequest<{ Params: GetMatchPredictionsParams }>,
   reply: FastifyReply
 ): Promise<FastifyReply> {

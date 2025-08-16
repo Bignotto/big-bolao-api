@@ -1,8 +1,12 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { makeGetUserInfoUseCase } from '@/useCases/users/factory/makeGetUserInfoUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function GetLoggedUserInfoController(request: FastifyRequest, reply: FastifyReply) {
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { makeGetUserInfoUseCase } from '@/useCases/users/factory/makeGetUserInfoUseCase';
+
+export async function getLoggedUserInfoController(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<FastifyReply> {
   const userId = request.user.sub;
 
   try {
