@@ -1,16 +1,16 @@
 import { FastifyInstance } from 'fastify';
 
-import { createUserController } from '../controllers/user/createUserController';
-import { getLoggedUserInfoController } from '../controllers/user/getLoggedUserInfoController';
-import { getUserInfoController } from '../controllers/user/getUserInfoController';
-import { getUserPoolsController } from '../controllers/user/getUserPoolsController';
-import { getUserPoolsStandingsController } from '../controllers/user/getUserPoolsStandingsController';
-import { getUserPredictionsController } from '../controllers/user/getUserPredictionsController';
-import { updateUserController } from '../controllers/user/updateUserController';
-import { verifyJwt } from '../middlewares/verifyJWT';
-import { userSchemas } from '../schemas/user.schemas';
+import { createUserController } from '@/http/controllers/user/createUserController';
+import { getLoggedUserInfoController } from '@/http/controllers/user/getLoggedUserInfoController';
+import { getUserInfoController } from '@/http/controllers/user/getUserInfoController';
+import { getUserPoolsController } from '@/http/controllers/user/getUserPoolsController';
+import { getUserPoolsStandingsController } from '@/http/controllers/user/getUserPoolsStandingsController';
+import { getUserPredictionsController } from '@/http/controllers/user/getUserPredictionsController';
+import { updateUserController } from '@/http/controllers/user/updateUserController';
+import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { userSchemas } from '@/http/schemas/user.schemas';
 
-export function UserRoutes(app: FastifyInstance): void {
+export function userRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
 
   // Public route for user registration
