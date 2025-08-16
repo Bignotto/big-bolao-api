@@ -4,7 +4,7 @@ import { verifyJwt } from '@/http/middlewares/verifyJWT';
 import { matchSchemas } from '@/http/schemas/match.schemas';
 
 import { getMatchController } from '../controllers/matches/getMatchController';
-import { getMatchPredictions } from '../controllers/matches/getMatchPredictionsController';
+import { getMatchPredictionsController } from '../controllers/matches/getMatchPredictionsController';
 import { updateMatchController } from '../controllers/matches/updateMatchController';
 
 export function matchesRoutes(app: FastifyInstance): void {
@@ -79,7 +79,7 @@ export function matchesRoutes(app: FastifyInstance): void {
         },
       },
     },
-    getMatchPredictions
+    getMatchPredictionsController
   );
 
   app.put(

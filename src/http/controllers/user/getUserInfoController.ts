@@ -1,14 +1,15 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { makeGetUserInfoUseCase } from '@/useCases/users/factory/makeGetUserInfoUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function GetUserInfoController(
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { makeGetUserInfoUseCase } from '@/useCases/users/factory/makeGetUserInfoUseCase';
+
+export async function getUserInfoController(
   request: FastifyRequest<{
     Params: { userId: string };
   }>,
   reply: FastifyReply
-) {
+): Promise<FastifyReply> {
   const getUserParamsSchema = z.object({
     userId: z.string(), //.cuid(),
   });
