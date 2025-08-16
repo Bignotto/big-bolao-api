@@ -1,12 +1,10 @@
 import { FastifyInstance } from 'fastify';
 
-import { verifyJwt } from '@/http/middlewares/verifyJWT';
-
-import { getTournamentMatchesController } from '../controllers/tournaments/getTournamentMatchesController';
-import { listTournamentsController } from '../controllers/tournaments/listTournamentsController';
-import { matchSchemas } from '../schemas/match.schemas';
-
-import { tournamentSchemas } from '../schemas/tournament.schemas';
+import { getTournamentMatchesController } from '@/http/controllers/tournaments/getTournamentMatchesController';
+import { listTournamentsController } from '@/http/controllers/tournaments/listTournamentsController';
+import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { matchSchemas } from '@/http/schemas/match.schemas';
+import { tournamentSchemas } from '@/http/schemas/tournament.schemas';
 
 export function tournamentsRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);

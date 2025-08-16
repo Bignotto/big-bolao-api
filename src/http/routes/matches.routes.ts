@@ -1,11 +1,10 @@
 import { FastifyInstance } from 'fastify';
 
-import { verifyJwt } from '@/http/middlewares/verifyJWT';
+import { getMatchController } from '@/http/controllers/matches/getMatchController';
+import { getMatchPredictionsController } from '@/http/controllers/matches/getMatchPredictionsController';
+import { updateMatchController } from '@/http/controllers/matches/updateMatchController';
+import { verifyJwt } from '@/http/middlewares/verifyJwt';
 import { matchSchemas } from '@/http/schemas/match.schemas';
-
-import { getMatchController } from '../controllers/matches/getMatchController';
-import { getMatchPredictionsController } from '../controllers/matches/getMatchPredictionsController';
-import { updateMatchController } from '../controllers/matches/updateMatchController';
 
 export function matchesRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);

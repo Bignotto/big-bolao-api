@@ -1,19 +1,19 @@
 import { FastifyInstance } from 'fastify';
 
-import { createPoolController } from '../controllers/pools/createPoolController';
-import { getPoolController } from '../controllers/pools/getPoolController';
-import { getPoolPredictionsController } from '../controllers/pools/getPoolPredictionsController';
-import { getPoolStandingsController } from '../controllers/pools/getPoolStandingsController';
-import { getPoolUsersController } from '../controllers/pools/getPoolUsersController';
-import { joinPoolByIdController } from '../controllers/pools/joinPoolByIdController';
-import { joinPoolByInviteController } from '../controllers/pools/joinPoolByInviteController';
-import { leavePoolController } from '../controllers/pools/leavePoolController';
-import { removeUserFromPoolController } from '../controllers/pools/removeUserFromPoolController';
-import { updatePoolController } from '../controllers/pools/updatePoolController';
-import { verifyJwt } from '../middlewares/verifyJWT';
-import { poolSchemas } from '../schemas/pool.schemas';
+import { createPoolController } from '@/http/controllers/pools/createPoolController';
+import { getPoolController } from '@/http/controllers/pools/getPoolController';
+import { getPoolPredictionsController } from '@/http/controllers/pools/getPoolPredictionsController';
+import { getPoolStandingsController } from '@/http/controllers/pools/getPoolStandingsController';
+import { getPoolUsersController } from '@/http/controllers/pools/getPoolUsersController';
+import { joinPoolByIdController } from '@/http/controllers/pools/joinPoolByIdController';
+import { joinPoolByInviteController } from '@/http/controllers/pools/joinPoolByInviteController';
+import { leavePoolController } from '@/http/controllers/pools/leavePoolController';
+import { removeUserFromPoolController } from '@/http/controllers/pools/removeUserFromPoolController';
+import { updatePoolController } from '@/http/controllers/pools/updatePoolController';
+import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { poolSchemas } from '@/http/schemas/pool.schemas';
 
-export function PoolRoutes(app: FastifyInstance): void {
+export function poolRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
 
   app.post(
