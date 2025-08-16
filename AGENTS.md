@@ -25,6 +25,9 @@
 - **Imports**: External libs first, then internal with `@/` prefix, alphabetized with newlines between groups
 - **Functions**: camelCase controllers end with `Controller`, use cases end with `UseCase`
 - **Files**: camelCase for controllers/services, PascalCase for classes/types
+- **Route Functions**: camelCase (e.g., `userRoutes`)
+- **Middleware**: files and imports use camelCase with `@/` aliases
+- **Schemas**: `$ref` uses `#/components/schemas/SchemaName` style and pools reference `name`
 - **Error Handling**: Custom error classes (ResourceNotFoundError, NotParticipantError), Zod validation errors
 - **Testing**: Use `createTestApp()` for e2e, in-memory repositories for unit tests, mock factories in `@/test/mocks/`
 - **Format**: Prettier (semicolons, single quotes, 100 chars), ESLint with TypeScript strict rules
