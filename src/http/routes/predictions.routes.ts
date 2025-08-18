@@ -1,11 +1,12 @@
-import { verifyJwt } from '@/http/middlewares/verifyJWT';
 import { FastifyInstance } from 'fastify';
-import { createPredictionController } from '../controllers/predictions/createPredictionController';
-import { getPredictionController } from '../controllers/predictions/getPredictionController';
-import { updatePredictionController } from '../controllers/predictions/updatePredictionController';
-import { predictionSchemas } from '../schemas/prediction.schemas';
 
-export async function PredictionsRoutes(app: FastifyInstance) {
+import { createPredictionController } from '@/http/controllers/predictions/createPredictionController';
+import { getPredictionController } from '@/http/controllers/predictions/getPredictionController';
+import { updatePredictionController } from '@/http/controllers/predictions/updatePredictionController';
+import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { predictionSchemas } from '@/http/schemas/prediction.schemas';
+
+export async function predictionsRoutes(app: FastifyInstance) {
   app.addHook('onRequest', verifyJwt);
 
   app.post('/predictions', {
