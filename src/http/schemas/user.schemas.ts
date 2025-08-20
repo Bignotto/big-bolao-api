@@ -110,7 +110,7 @@ export const userSchemas = {
     type: 'object',
     properties: {
       id: { type: 'number', description: 'Pool unique identifier' },
-      title: { type: 'string', description: 'Pool title' },
+      name: { type: 'string', description: 'Pool name' },
       code: { type: 'string', description: 'Pool invitation code' },
       ownerId: { type: 'string', description: 'Pool owner user ID' },
       createdAt: { type: 'string', format: 'date-time' },
