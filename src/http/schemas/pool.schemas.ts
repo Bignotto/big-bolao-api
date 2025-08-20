@@ -386,7 +386,7 @@ export const poolSchemas = {
         type: 'object',
         properties: {
           id: { type: 'number' },
-          title: { type: 'string' },
+          name: { type: 'string' },
           participantCount: { type: 'number' },
         },
       },
