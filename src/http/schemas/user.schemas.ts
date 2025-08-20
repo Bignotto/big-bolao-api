@@ -80,7 +80,7 @@ export const userSchemas = {
   UpdateUserResponse: {
     type: 'object',
     properties: {
-      user: { $ref: '#/components/schemas/User' },
+      user: { $ref: 'User#' },
     },
   },
 
@@ -88,7 +88,7 @@ export const userSchemas = {
   GetUserInfoResponse: {
     type: 'object',
     properties: {
-      user: { $ref: '#/components/schemas/User' },
+      user: { $ref: 'User#' },
     },
   },
 
@@ -125,7 +125,7 @@ export const userSchemas = {
     properties: {
       pools: {
         type: 'array',
-        items: { $ref: '#/components/schemas/UserPool' },
+        items: { $ref: 'UserPool#' },
       },
     },
   },
@@ -189,7 +189,7 @@ export const userSchemas = {
     properties: {
       predictions: {
         type: 'array',
-        items: { $ref: '#/components/schemas/Prediction' },
+        items: { $ref: 'Prediction#' },
       },
     },
   },
@@ -227,7 +227,7 @@ export const userSchemas = {
     properties: {
       standing: {
         type: 'array',
-        items: { $ref: '#/components/schemas/Standing' },
+        items: { $ref: 'Standing#' },
       },
     },
   },

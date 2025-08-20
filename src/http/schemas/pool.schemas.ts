@@ -129,7 +129,7 @@ export const poolSchemas = {
   CreatePoolResponse: {
     type: 'object',
     properties: {
-      pool: { $ref: '#/components/schemas/Pool' },
+      pool: { $ref: 'Pool#' },
     },
   },
 
@@ -150,7 +150,7 @@ export const poolSchemas = {
   GetPoolResponse: {
     type: 'object',
     properties: {
-      pool: { $ref: '#/components/schemas/Pool' },
+      pool: { $ref: 'Pool#' },
     },
   },
 
@@ -184,7 +184,7 @@ export const poolSchemas = {
   JoinPoolResponse: {
     type: 'object',
     properties: {
-      pool: { $ref: '#/components/schemas/Pool' },
+      pool: { $ref: 'Pool#' },
     },
   },
 
@@ -247,7 +247,7 @@ export const poolSchemas = {
     properties: {
       users: {
         type: 'array',
-        items: { $ref: '#/components/schemas/PoolUser' },
+        items: { $ref: 'PoolUser#' },
       },
       count: { type: 'number', description: 'Total number of users in the pool' },
     },
@@ -293,7 +293,7 @@ export const poolSchemas = {
   UpdatePoolResponse: {
     type: 'object',
     properties: {
-      pool: { $ref: '#/components/schemas/Pool' },
+      pool: { $ref: 'Pool#' },
     },
   },
 
@@ -354,7 +354,7 @@ export const poolSchemas = {
     properties: {
       predictions: {
         type: 'array',
-        items: { $ref: '#/components/schemas/PoolPrediction' },
+        items: { $ref: 'PoolPrediction#' },
       },
     },
   },
@@ -380,7 +380,7 @@ export const poolSchemas = {
     properties: {
       standings: {
         type: 'array',
-        items: { $ref: '#/components/schemas/PoolStanding' },
+        items: { $ref: 'PoolStanding#' },
       },
       poolInfo: {
         type: 'object',
