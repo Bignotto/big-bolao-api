@@ -1,10 +1,12 @@
+import { MatchStage, MatchStatus, Prediction } from '@prisma/client';
+
 import { AuthorizationError } from '@/global/errors/AuthorizationError';
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { MatchStage, MatchStatus, Prediction } from '@prisma/client';
+
 import { InvalidScoreError } from './error/InvalidScoreError';
 import { MatchStatusError } from './error/MatchStatusError';
 import { PredictionError } from './error/PredictionError';
@@ -65,8 +67,15 @@ export class UpdatePredictionUseCase {
       throw new MatchStatusError('Predictions can only be updated for upcoming matches');
     }
 
-    // Get the pool to check tournament and registration deadline
+    // Get the pool to check tournament linkage
     const pool = await this.poolsRepository.getPool(existingPrediction.poolId);
+    if (!pool) {
+      throw new ResourceNotFoundError('Pool not found');
+    }
+
+    if (match.tournamentId !== pool.tournamentId) {
+      throw new ResourceNotFoundError('Match not found in the pool');
+    }
 
     // Validate extra time and penalties for knockout stage matches
     const isKnockoutStage = match.stage !== MatchStage.GROUP; //!match.stage.toLowerCase().includes('group');

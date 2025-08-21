@@ -1,3 +1,6 @@
+import { Match, MatchStage, MatchStatus, Pool, User } from '@prisma/client';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemoryPredictionsRepository';
@@ -7,8 +10,7 @@ import { createMatch, createMatchWithTeams } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
 import { createTeam } from '@/test/mocks/teams';
 import { createUser } from '@/test/mocks/users';
-import { Match, MatchStage, MatchStatus, Pool, User } from '@prisma/client';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { UpdatePredictionUseCase } from './updatePredictionUseCase';
 
 describe('Update Prediction Use Case', () => {
@@ -129,6 +131,30 @@ describe('Update Prediction Use Case', () => {
         predictedAwayScore: 0,
       })
     ).rejects.toThrow('Predictions can only be updated for upcoming matches');
+  });
+
+  it('should not allow updating a prediction if match is not part of the pool tournament', async () => {
+    const anotherPool = await createPool(poolsRepository, {
+      creatorId: aUser.id,
+      tournamentId: aPool.tournamentId + 1,
+    });
+
+    const prediction = await predictionsRepository.create({
+      pool: { connect: { id: anotherPool.id } },
+      match: { connect: { id: aMatch.id } },
+      user: { connect: { id: aUser.id } },
+      predictedHomeScore: 1,
+      predictedAwayScore: 0,
+    });
+
+    await expect(
+      sut.execute({
+        predictionId: prediction.id,
+        userId: aUser.id,
+        predictedHomeScore: 0,
+        predictedAwayScore: 0,
+      })
+    ).rejects.toThrow('Match not found in the pool');
   });
 
   it('should update a prediction with extra time and penalties for knockout stage matches', async () => {
