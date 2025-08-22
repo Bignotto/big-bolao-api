@@ -41,10 +41,12 @@ describe('Join Pool By ID Use Case', () => {
       tournament: { connect: { id: 1 } },
       creator: { connect: { id: creator.id } },
       isPrivate: false,
+      maxParticipants: 10,
     });
 
-    // Mock addParticipant
+    // Mock repository methods
     const addParticipantSpy = vi.spyOn(poolsRepository, 'addParticipant');
+    const getParticipantsSpy = vi.spyOn(poolsRepository, 'getPoolParticipants');
 
     // Join the pool
     const result = await sut.execute({
@@ -58,6 +60,7 @@ describe('Join Pool By ID Use Case', () => {
       poolId: pool.id,
       userId: joiner.id,
     });
+    expect(getParticipantsSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should not be able to join a pool with non-existing user', async () => {

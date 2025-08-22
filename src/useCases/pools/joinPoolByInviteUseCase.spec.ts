@@ -42,10 +42,12 @@ describe('Join Pool By Invite Use Case', () => {
       creator: { connect: { id: creator.id } },
       isPrivate: true,
       inviteCode: 'SECRET-CODE',
+      maxParticipants: 10,
     });
 
-    // Mock addParticipant
+    // Mock repository methods
     const addParticipantSpy = vi.spyOn(poolsRepository, 'addParticipant');
+    const getParticipantsSpy = vi.spyOn(poolsRepository, 'getPoolParticipants');
 
     // Join the pool using invite code
     const result = await sut.execute({
@@ -59,6 +61,7 @@ describe('Join Pool By Invite Use Case', () => {
       poolId: pool.id,
       userId: joiner.id,
     });
+    expect(getParticipantsSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should be able to join a public pool with invite code', async () => {
