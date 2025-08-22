@@ -16,6 +16,11 @@ export interface IPoolsRepository {
   findByInviteCode(inviteCode: string): Promise<Pool | null>;
   findByCreatorId(creatorId: string): Promise<Pool[]>;
   findByParticipantId(userId: string): Promise<Pool[]>;
+  findPublicPools(params: {
+    page: number;
+    perPage: number;
+    name?: string;
+  }): Promise<Pool[]>;
   getScoringRules(poolId: number): Promise<ScoringRule[]>;
   getPoolParticipants(poolId: number): Promise<PoolParticipant[]>;
   getPool(id: number): Promise<PoolCompleteInfo | null>;

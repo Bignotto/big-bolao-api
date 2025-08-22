@@ -137,6 +137,35 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return poolParticipants.map((participant) => participant.pool);
   }
 
+  async findPublicPools({
+    page,
+    perPage,
+    name,
+  }: {
+    page: number;
+    perPage: number;
+    name?: string;
+  }) {
+    const pools = await prisma.pool.findMany({
+      where: {
+        isPrivate: false,
+        ...(name
+          ? {
+              name: {
+                contains: name,
+                mode: 'insensitive',
+              },
+            }
+          : {}),
+      },
+      skip: (page - 1) * perPage,
+      take: perPage,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return pools;
+  }
+
   async removeParticipant({ poolId, userId }: { poolId: number; userId: string }) {
     await prisma.poolParticipant.delete({
       where: {

@@ -188,6 +188,39 @@ export const poolSchemas = {
     },
   },
 
+  // List Public Pools Query Parameters
+  ListPublicPoolsQuery: {
+    type: 'object',
+    properties: {
+      page: {
+        type: 'number',
+        minimum: 1,
+        description: 'Page number for pagination',
+      },
+      perPage: {
+        type: 'number',
+        minimum: 1,
+        maximum: 50,
+        description: 'Number of pools per page',
+      },
+      name: {
+        type: 'string',
+        description: 'Optional name filter',
+      },
+    },
+  },
+
+  // List Public Pools Response
+  ListPublicPoolsResponse: {
+    type: 'object',
+    properties: {
+      pools: {
+        type: 'array',
+        items: { $ref: 'Pool#' },
+      },
+    },
+  },
+
   // Leave Pool Response
   LeavePoolResponse: {
     type: 'object',
