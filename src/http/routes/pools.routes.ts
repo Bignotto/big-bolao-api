@@ -8,6 +8,7 @@ import { getPoolUsersController } from '@/http/controllers/pools/getPoolUsersCon
 import { joinPoolByIdController } from '@/http/controllers/pools/joinPoolByIdController';
 import { joinPoolByInviteController } from '@/http/controllers/pools/joinPoolByInviteController';
 import { leavePoolController } from '@/http/controllers/pools/leavePoolController';
+import { listPublicPoolsController } from '@/http/controllers/pools/listPublicPoolsController';
 import { removeUserFromPoolController } from '@/http/controllers/pools/removeUserFromPoolController';
 import { updatePoolController } from '@/http/controllers/pools/updatePoolController';
 import { verifyJwt } from '@/http/middlewares/verifyJwt';
@@ -15,6 +16,33 @@ import { poolSchemas } from '@/http/schemas/pool.schemas';
 
 export function poolRoutes(app: FastifyInstance): void {
   app.addHook('onRequest', verifyJwt);
+
+  app.get(
+    '/pools',
+    {
+      schema: {
+        tags: ['Pools'],
+        summary: 'List public pools',
+        description: 'Lists public pools with optional pagination and name filtering',
+        querystring: poolSchemas.ListPublicPoolsQuery,
+        response: {
+          200: {
+            description: 'Public pools listed successfully',
+            ...poolSchemas.ListPublicPoolsResponse,
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...poolSchemas.UnauthorizedError,
+          },
+          422: {
+            description: 'Validation error',
+            ...poolSchemas.PoolValidationError,
+          },
+        },
+      },
+    },
+    listPublicPoolsController
+  );
 
   app.post(
     '/pools',

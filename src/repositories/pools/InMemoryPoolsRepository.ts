@@ -312,6 +312,29 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     );
   }
 
+  async findPublicPools({
+    page,
+    perPage,
+    name,
+  }: {
+    page: number;
+    perPage: number;
+    name?: string;
+  }): Promise<Pool[]> {
+    let pools = this.pools.filter((pool) => pool.isPrivate === false);
+
+    if (name) {
+      pools = pools.filter((pool) =>
+        pool.name.toLowerCase().includes(name.toLowerCase())
+      );
+    }
+
+    const startIndex = (page - 1) * perPage;
+    const endIndex = startIndex + perPage;
+
+    return pools.slice(startIndex, endIndex);
+  }
+
   async removeParticipant({ poolId, userId }: { poolId: number; userId: string }) {
     const participantIndex = this.participants.findIndex(
       (participant) => participant.poolId === poolId && participant.userId === userId
