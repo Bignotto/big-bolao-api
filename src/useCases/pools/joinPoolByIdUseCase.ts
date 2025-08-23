@@ -39,12 +39,11 @@ export class JoinPoolByIdUseCase {
       );
     }
 
+    const participants = await this.poolsRepository.getPoolParticipants(pool.id);
+
     // Check if pool has a maximum number of participants
-    if (pool.maxParticipants) {
-      const participants = await this.poolsRepository.getPoolParticipants(pool.id);
-      if (participants.length >= pool.maxParticipants) {
-        throw new MaxParticipantsError(`${pool.maxParticipants}`);
-      }
+    if (pool.maxParticipants && participants.length >= pool.maxParticipants) {
+      throw new MaxParticipantsError(`${pool.maxParticipants}`);
     }
 
     // Check if registration deadline has passed
@@ -53,7 +52,6 @@ export class JoinPoolByIdUseCase {
     }
 
     // Check if user is already a participant
-    const participants = await this.poolsRepository.getPoolParticipants(pool.id);
     const isAlreadyParticipant = participants.some((participant) => participant.id === userId);
 
     if (isAlreadyParticipant) {
