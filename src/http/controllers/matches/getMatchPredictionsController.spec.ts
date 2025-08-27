@@ -1,7 +1,7 @@
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createServer } from '@/app';
+import { createTestApp } from '@/test/helper-e2e';
 import { predictionSchemas } from '@/http/schemas/prediction.schemas';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
@@ -29,7 +29,7 @@ type GetMatchPredictionsResponse = {
 };
 
 describe('Get Match Predictions Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
 
@@ -41,7 +41,6 @@ describe('Get Match Predictions Controller (e2e)', async () => {
   let usersRepository: IUsersRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
     matchesRepository = new PrismaMatchesRepository();
     teamsRepository = new PrismaTeamsRepository();
@@ -51,9 +50,6 @@ describe('Get Match Predictions Controller (e2e)', async () => {
     usersRepository = new PrismaUsersRepository();
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
 
   it('should be able to get predictions for a match', async () => {
     // Create test data

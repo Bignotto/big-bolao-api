@@ -1,7 +1,7 @@
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createServer } from '@/app';
+import { createTestApp } from '@/test/helper-e2e';
 import { PoolStandings } from '@/global/types/poolStandings';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
@@ -24,7 +24,7 @@ type GetUserPoolsStandingsResponse = {
 };
 
 describe('Get User Pools Standings Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
 
@@ -35,7 +35,6 @@ describe('Get User Pools Standings Controller (e2e)', async () => {
   let predictionsRepository: IPredictionsRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
     poolsRepository = new PrismaPoolsRepository();
     tournamentsRepository = new PrismaTournamentsRepository();
@@ -44,9 +43,6 @@ describe('Get User Pools Standings Controller (e2e)', async () => {
     predictionsRepository = new PrismaPredictionsRepository();
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
 
   it('should be able to get user pools standings', async () => {
     const response = await request(app.server)

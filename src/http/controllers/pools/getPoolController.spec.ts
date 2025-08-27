@@ -1,8 +1,8 @@
 import { Pool, ScoringRule, Tournament } from '@prisma/client';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createServer } from '@/app';
+import { createTestApp } from '@/test/helper-e2e';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
@@ -28,7 +28,7 @@ type ErrorResponse = {
 };
 
 describe('Get Pool Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
 
@@ -37,16 +37,12 @@ describe('Get Pool Controller (e2e)', async () => {
   let tournamentsRepository: ITournamentsRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
     usersRepository = new PrismaUsersRepository();
     poolsRepository = new PrismaPoolsRepository();
     tournamentsRepository = new PrismaTournamentsRepository();
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
 
   it('should be able to get pool details as creator', async () => {
     const tournament = await createTournament(tournamentsRepository, {});

@@ -1,8 +1,8 @@
 import { Tournament, Match } from '@prisma/client';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createServer } from '@/app';
+import { createTestApp } from '@/test/helper-e2e';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
@@ -22,7 +22,7 @@ type TournamentMatchesResponse = {
 };
 
 describe('Tournaments E2E', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let token: string;
   let tournamentId: number;
 
@@ -31,7 +31,6 @@ describe('Tournaments E2E', async () => {
   let teamsRepository: ITeamsRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token } = await getSupabaseAccessToken(app));
     tournamentsRepository = new PrismaTournamentsRepository();
     matchesRepository = new PrismaMatchesRepository();
@@ -47,9 +46,6 @@ describe('Tournaments E2E', async () => {
     }
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
 
   describe('GET /tournaments', () => {
     it('should be able to list all tournaments', async () => {

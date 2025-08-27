@@ -1,22 +1,19 @@
-import { createServer } from '@/app';
+import request from 'supertest';
+import { beforeAll, describe, expect, test } from 'vitest';
+
+import { createTestApp } from '@/test/helper-e2e';
 import { prisma } from '@/lib/prisma';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
-import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
 describe('Get User Info (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
 
   test('should return user info', async () => {
     const user = await prisma.user.create({

@@ -154,15 +154,17 @@ export const closeGracefully = async (signal: string) => {
   process.exit(0);
 };
 
-process.on('SIGINT', () => {
-  closeGracefully('SIGINT').catch((err) => {
-    console.error('Error during graceful shutdown:', err);
-    process.exit(1);
+if (env.NODE_ENV !== 'test') {
+  process.on('SIGINT', () => {
+    closeGracefully('SIGINT').catch((err) => {
+      console.error('Error during graceful shutdown:', err);
+      process.exit(1);
+    });
   });
-});
-process.on('SIGTERM', () => {
-  closeGracefully('SIGTERM').catch((err) => {
-    console.error('Error during graceful shutdown:', err);
-    process.exit(1);
+  process.on('SIGTERM', () => {
+    closeGracefully('SIGTERM').catch((err) => {
+      console.error('Error during graceful shutdown:', err);
+      process.exit(1);
+    });
   });
-});
+}
