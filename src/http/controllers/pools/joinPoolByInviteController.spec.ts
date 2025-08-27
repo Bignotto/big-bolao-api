@@ -1,8 +1,8 @@
 import { Pool } from '@prisma/client';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createServer } from '@/app';
+import { createTestApp } from '@/test/helper-e2e';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
@@ -25,7 +25,7 @@ type ErrorResponse = {
 };
 
 describe('Join Pool By Invite Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
   let tournamentId: number;
@@ -35,7 +35,6 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
   let tournamentsRepository: ITournamentsRepository;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
 
     usersRepository = new PrismaUsersRepository();
@@ -46,9 +45,6 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
     tournamentId = tournament.id;
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
 
   it('should be able to join a private pool with correct invite code', async () => {
     const poolCreator = await createUser(usersRepository, {

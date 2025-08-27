@@ -1,22 +1,18 @@
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createServer } from '@/app';
+import { createTestApp } from '@/test/helper-e2e';
 import { env } from '@/env/config';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 
 describe('Get User Info (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let token: string;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token } = await getSupabaseAccessToken(app));
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
 
   it('should return user info', async () => {
     const response = await request(app.server)

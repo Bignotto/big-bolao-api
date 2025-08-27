@@ -1,8 +1,8 @@
 import { Match, Pool, Prediction } from '@prisma/client';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createServer } from '@/app';
+import { createTestApp } from '@/test/helper-e2e';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -34,7 +34,7 @@ type ErrorResponse = {
 };
 
 describe('Get Pool Predictions Controller (e2e)', async () => {
-  const app = await createServer();
+  const app = await createTestApp();
   let userId: string;
   let token: string;
   let tournamentId: number;
@@ -50,7 +50,6 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
   let match: Match;
 
   beforeAll(async () => {
-    await app.ready();
     ({ token, userId } = await getSupabaseAccessToken(app));
 
     usersRepository = new PrismaUsersRepository();
@@ -94,9 +93,6 @@ describe('Get Pool Predictions Controller (e2e)', async () => {
     });
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
 
   it('should get pool predictions for pool creator', async () => {
     const response = await request(app.server)
