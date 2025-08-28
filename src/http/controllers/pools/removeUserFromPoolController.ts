@@ -26,7 +26,9 @@ export async function removeUserFromPoolController(
       creatorId,
     });
 
-    return reply.status(200).send();
+    return reply
+      .status(200)
+      .send({ message: 'User successfully removed from pool' });
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message });

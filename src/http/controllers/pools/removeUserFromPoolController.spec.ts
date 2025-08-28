@@ -59,6 +59,9 @@ describe('Remove User From Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(200);
+    expect(response.body).toEqual({
+      message: 'User successfully removed from pool',
+    });
 
     const participants = await poolsRepository.getPoolParticipants(pool.id);
     const isUserStillParticipant = participants.some(
