@@ -60,7 +60,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/join/${pool.inviteCode}`)
+      .post(`/pool-invites/${pool.inviteCode}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -95,7 +95,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/join/${pool.inviteCode}`)
+      .post(`/pool-invites/${pool.inviteCode}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -118,7 +118,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
 
   it('should return 404 when invite code does not exist', async () => {
     const response = await request(app.server)
-      .post('/pools/join/NON-EXISTENT-CODE')
+      .post('/pool-invites/NON-EXISTENT-CODE')
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -143,13 +143,13 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
 
     // First join
     await request(app.server)
-      .post(`/pools/join/${pool.inviteCode}`)
+      .post(`/pool-invites/${pool.inviteCode}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
     // Second join attempt
     const response = await request(app.server)
-      .post(`/pools/join/${pool.inviteCode}`)
+      .post(`/pool-invites/${pool.inviteCode}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -183,7 +183,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/join/${pool.inviteCode}`)
+      .post(`/pool-invites/${pool.inviteCode}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -211,7 +211,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/join/${pool.inviteCode}`)
+      .post(`/pool-invites/${pool.inviteCode}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -234,14 +234,14 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
       inviteCode: 'AUTH-CODE',
     });
 
-    const response = await request(app.server).post(`/pools/join/${pool.inviteCode}`).send();
+    const response = await request(app.server).post(`/pool-invites/${pool.inviteCode}`).send();
 
     expect(response.statusCode).toEqual(401);
   });
 
   it('should validate invite code parameter', async () => {
     const response = await request(app.server)
-      .post('/pools/join/')
+      .post('/pool-invites/')
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -250,7 +250,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
 
   it('should handle empty invite code', async () => {
     const response = await request(app.server)
-      .post('/pools/join/ ')
+      .post('/pool-invites/ ')
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -274,7 +274,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/join/${pool.inviteCode}`)
+      .post(`/pool-invites/${pool.inviteCode}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -306,7 +306,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/join/${pool.inviteCode}`)
+      .post(`/pool-invites/${pool.inviteCode}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
