@@ -59,7 +59,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/join`)
+      .post(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -94,7 +94,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/join`)
+      .post(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -115,7 +115,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     const nonExistentPoolId = 9999;
 
     const response = await request(app.server)
-      .post(`/pools/${nonExistentPoolId}/join`)
+      .post(`/pools/${nonExistentPoolId}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -142,7 +142,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
   //   const fakeToken = await getSupabaseAccessToken(app, 'non-existent-user-id');
 
   //   const response = await request(app.server)
-  //     .post(`/pools/${pool.id}/join`)
+  //     .post(`/pools/${pool.id}/users`)
   //     .set('Authorization', `Bearer ${fakeToken.token}`)
   //     .send();
 
@@ -167,13 +167,13 @@ describe('Join Pool By ID Controller (e2e)', async () => {
 
     // First join
     await request(app.server)
-      .post(`/pools/${pool.id}/join`)
+      .post(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
     // Second join attempt
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/join`)
+      .post(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -216,7 +216,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/join`)
+      .post(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -244,7 +244,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/join`)
+      .post(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -267,14 +267,14 @@ describe('Join Pool By ID Controller (e2e)', async () => {
       isPrivate: false,
     });
 
-    const response = await request(app.server).post(`/pools/${pool.id}/join`).send();
+    const response = await request(app.server).post(`/pools/${pool.id}/users`).send();
 
     expect(response.statusCode).toEqual(401);
   });
 
   it('should validate pool ID parameter', async () => {
     const response = await request(app.server)
-      .post('/pools/invalid-id/join')
+      .post('/pools/invalid-id/users')
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -287,7 +287,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
 
   it('should handle negative pool ID', async () => {
     const response = await request(app.server)
-      .post('/pools/-1/join')
+      .post('/pools/-1/users')
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -311,7 +311,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/join`)
+      .post(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -343,7 +343,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/join/${pool.inviteCode}`)
+      .post(`/pool-invites/${pool.inviteCode}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -366,7 +366,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
 
   it('should handle zero as pool ID', async () => {
     const response = await request(app.server)
-      .post('/pools/0/join')
+      .post('/pools/0/users')
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -381,7 +381,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     const veryLargeId = 999999999;
 
     const response = await request(app.server)
-      .post(`/pools/${veryLargeId}/join`)
+      .post(`/pools/${veryLargeId}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -406,7 +406,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/join`)
+      .post(`/pools/${pool.id}/users`)
       .set('Authorization', `Bearer ${token}`)
       .send();
 
@@ -442,7 +442,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
   //   });
 
   //   const response = await request(app.server)
-  //     .post(`/pools/${pool.id}/join`)
+  //     .post(`/pools/${pool.id}/users`)
   //     .set('Authorization', `Bearer ${token}`)
   //     .send();
 

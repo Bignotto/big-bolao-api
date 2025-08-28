@@ -49,7 +49,7 @@ describe('Leave Pool Controller (e2e)', async () => {
 
     // Then leave the pool
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/leave`)
+      .delete(`/pools/${pool.id}/users/me`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(200);
@@ -59,7 +59,7 @@ describe('Leave Pool Controller (e2e)', async () => {
     const nonExistentPoolId = 9999;
 
     const response = await request(app.server)
-      .post(`/pools/${nonExistentPoolId}/leave`)
+      .delete(`/pools/${nonExistentPoolId}/users/me`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(404);
@@ -79,7 +79,7 @@ describe('Leave Pool Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/leave`)
+      .delete(`/pools/${pool.id}/users/me`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(403);
@@ -98,7 +98,7 @@ describe('Leave Pool Controller (e2e)', async () => {
     });
 
     const response = await request(app.server)
-      .post(`/pools/${pool.id}/leave`)
+      .delete(`/pools/${pool.id}/users/me`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(403);
@@ -119,7 +119,7 @@ describe('Leave Pool Controller (e2e)', async () => {
       tournamentId: tournament.id,
     });
 
-    const response = await request(app.server).post(`/pools/${pool.id}/leave`);
+    const response = await request(app.server).delete(`/pools/${pool.id}/users/me`);
 
     expect(response.statusCode).toEqual(401);
   });

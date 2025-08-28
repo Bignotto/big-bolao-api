@@ -114,7 +114,7 @@ export function poolRoutes(app: FastifyInstance): void {
 
   // Join pool by ID (public pools)
   app.post(
-    '/pools/:poolId/join',
+    '/pools/:poolId/users',
     {
       schema: {
         tags: ['Pools'],
@@ -156,7 +156,7 @@ export function poolRoutes(app: FastifyInstance): void {
 
   // Join pool by invite code (works for both public and private pools)
   app.post(
-    '/pools/join/:inviteCode',
+    '/pool-invites/:inviteCode',
     {
       schema: {
         tags: ['Pools'],
@@ -196,13 +196,13 @@ export function poolRoutes(app: FastifyInstance): void {
     joinPoolByInviteController
   );
 
-  app.post(
-    '/pools/:poolId/leave',
+  app.delete(
+    '/pools/:poolId/users/me',
     {
       schema: {
         tags: ['Pools'],
         summary: 'Leave a pool',
-        description: 'Leave a pool that the authenticated user has joined',
+        description: 'Remove the authenticated user from the specified pool',
         params: poolSchemas.PoolIdParam,
         response: {
           200: {
