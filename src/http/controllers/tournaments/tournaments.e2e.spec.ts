@@ -2,14 +2,13 @@ import { Tournament, Match } from '@prisma/client';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createTestApp } from '@/test/helper-e2e';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
 import { PrismaTeamsRepository } from '@/repositories/teams/PrismaTeamsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
-import { getSupabaseAccessToken } from '@/test/mockJwt';
+import { createTestApp } from '@/test/helper-e2e';
 import { createMatchWithTeams } from '@/test/mocks/match';
 import { createTournament } from '@/test/mocks/tournament';
 
@@ -31,7 +30,7 @@ describe('Tournaments E2E', async () => {
   let teamsRepository: ITeamsRepository;
 
   beforeAll(async () => {
-    ({ token } = await getSupabaseAccessToken(app));
+    token = app.jwt.sign({ sub: 'test-user' });
     tournamentsRepository = new PrismaTournamentsRepository();
     matchesRepository = new PrismaMatchesRepository();
     teamsRepository = new PrismaTeamsRepository();
@@ -58,6 +57,21 @@ describe('Tournaments E2E', async () => {
       expect(body.tournaments).toBeInstanceOf(Array);
       expect(body.tournaments.length).toBeGreaterThanOrEqual(1);
     });
+
+    it('should require authentication', async () => {
+      const response = await request(app.server).get('/tournaments');
+
+      expect(response.status).toBe(401);
+    });
+
+    it('should return 422 when query params are invalid', async () => {
+      const response = await request(app.server)
+        .get('/tournaments')
+        .query({ limit: 'invalid' })
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(422);
+    });
   });
 
   describe('GET /tournaments/:tournamentId/matches', () => {
@@ -70,6 +84,31 @@ describe('Tournaments E2E', async () => {
       const body = response.body as TournamentMatchesResponse;
       expect(body.matches).toBeInstanceOf(Array);
       expect(body.matches.length).toBe(3);
+    });
+
+    it('should require authentication', async () => {
+      const response = await request(app.server).get(
+        `/tournaments/${tournamentId}/matches`
+      );
+
+      expect(response.status).toBe(401);
+    });
+
+    it('should return 404 for non-existent tournament', async () => {
+      const response = await request(app.server)
+        .get(`/tournaments/999999/matches`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(404);
+    });
+
+    it('should return 422 when query params are invalid', async () => {
+      const response = await request(app.server)
+        .get(`/tournaments/${tournamentId}/matches`)
+        .query({ limit: 0 })
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(422);
     });
   });
 });
