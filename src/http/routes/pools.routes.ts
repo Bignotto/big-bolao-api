@@ -129,8 +129,8 @@ export function poolRoutes(app: FastifyInstance): void {
               pool: poolSchemas.Pool,
             },
           },
-          401: {
-            description: 'Unauthorized to join this pool',
+          403: {
+            description: 'Forbidden to join this pool',
             ...poolSchemas.UnauthorizedError,
           },
           404: {
@@ -171,8 +171,8 @@ export function poolRoutes(app: FastifyInstance): void {
               pool: poolSchemas.Pool,
             },
           },
-          401: {
-            description: 'Unauthorized to join this pool',
+          403: {
+            description: 'Forbidden to join this pool',
             ...poolSchemas.UnauthorizedError,
           },
           404: {
