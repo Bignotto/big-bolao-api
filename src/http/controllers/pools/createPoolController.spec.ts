@@ -172,10 +172,10 @@ describe('Create Pool Controller (e2e)', async () => {
         // Missing name and tournamentId
       });
 
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(422);
 
     const body = response.body as ErrorResponse;
-    expect(body).toHaveProperty('code', 'FST_ERR_VALIDATION');
-    expect(body).toHaveProperty('error', 'Bad Request');
+    expect(body).toHaveProperty('message', 'Validation error');
+    expect(body).toHaveProperty('issues');
   });
 });

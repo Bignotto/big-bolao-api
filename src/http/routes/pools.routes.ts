@@ -51,7 +51,6 @@ export function poolRoutes(app: FastifyInstance): void {
         tags: ['Pools'],
         summary: 'Create a new pool',
         description: 'Creates a new prediction pool with a unique invitation code',
-        body: poolSchemas.CreatePoolRequest,
         response: {
           201: {
             description: 'Pool created successfully',
