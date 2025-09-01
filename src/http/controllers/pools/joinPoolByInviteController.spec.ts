@@ -129,7 +129,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
     expect(body.message).toContain('Pool not found with this invite code');
   });
 
-  it('should return 401 when user is already a participant', async () => {
+  it('should return 403 when user is already a participant', async () => {
     const poolCreator = await createUser(usersRepository, {
       email: 'creator-duplicate@example.com',
     });
@@ -153,7 +153,7 @@ describe('Join Pool By Invite Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(401);
+    expect(response.statusCode).toEqual(403);
 
     const body = response.body as ErrorResponse;
     expect(body).toHaveProperty('message');

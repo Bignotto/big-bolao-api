@@ -80,7 +80,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
     expect(participants.some((p) => p.id === userId)).toBe(true);
   });
 
-  it('should return 401 when trying to join a private pool by ID', async () => {
+  it('should return 403 when trying to join a private pool by ID', async () => {
     const poolCreator = await createUser(usersRepository, {
       email: 'private-creator@example.com',
     });
@@ -98,7 +98,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(401);
+    expect(response.statusCode).toEqual(403);
 
     const body = response.body as ErrorResponse;
     expect(body).toHaveProperty('message');
@@ -153,7 +153,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
   //   expect(body.message).toContain('User not found');
   // });
 
-  it('should return 401 when user is already a participant', async () => {
+  it('should return 403 when user is already a participant', async () => {
     const poolCreator = await createUser(usersRepository, {
       email: 'creator-duplicate@example.com',
     });
@@ -177,7 +177,7 @@ describe('Join Pool By ID Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(401);
+    expect(response.statusCode).toEqual(403);
 
     const body = response.body as ErrorResponse;
     expect(body).toHaveProperty('message');

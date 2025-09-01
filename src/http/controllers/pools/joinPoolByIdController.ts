@@ -33,7 +33,7 @@ export async function joinPoolByIdController(
     }
 
     if (error instanceof UnauthorizedError) {
-      return reply.status(401).send({ message: error.message });
+      return reply.status(403).send({ message: error.message });
     }
 
     if (error instanceof MaxParticipantsError) {
