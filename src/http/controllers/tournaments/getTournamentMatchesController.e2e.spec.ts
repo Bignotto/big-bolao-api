@@ -9,6 +9,7 @@ import { PrismaTeamsRepository } from '@/repositories/teams/PrismaTeamsRepositor
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { createTestApp } from '@/test/helper-e2e';
+import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createMatchWithTeams } from '@/test/mocks/match';
 import { createTournament } from '@/test/mocks/tournament';
 
@@ -26,7 +27,7 @@ describe('GET /tournaments/:tournamentId/matches', async () => {
   let teamsRepository: ITeamsRepository;
 
   beforeAll(async () => {
-    token = app.jwt.sign({ sub: 'test-user' });
+    ({ token } = await getSupabaseAccessToken(app));
     tournamentsRepository = new PrismaTournamentsRepository();
     matchesRepository = new PrismaMatchesRepository();
     teamsRepository = new PrismaTeamsRepository();
@@ -51,9 +52,7 @@ describe('GET /tournaments/:tournamentId/matches', async () => {
   });
 
   it('should require authentication', async () => {
-    const response = await request(app.server).get(
-      `/tournaments/${tournamentId}/matches`
-    );
+    const response = await request(app.server).get(`/tournaments/${tournamentId}/matches`);
 
     expect(response.status).toBe(401);
   });
@@ -66,13 +65,11 @@ describe('GET /tournaments/:tournamentId/matches', async () => {
     expect(response.status).toBe(404);
   });
 
-  it('should return 422 when query params are invalid', async () => {
+  it('should return 400 when tournamentId is invalid', async () => {
     const response = await request(app.server)
-      .get(`/tournaments/${tournamentId}/matches`)
-      .query({ limit: 0 })
+      .get(`/tournaments/abc/matches`)
       .set('Authorization', `Bearer ${token}`);
 
-    expect(response.status).toBe(422);
+    expect(response.status).toBe(400);
   });
 });
-

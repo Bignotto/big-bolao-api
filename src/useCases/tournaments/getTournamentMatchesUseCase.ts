@@ -18,7 +18,9 @@ export class GetTournamentMatchesUseCase {
     private tournamentsRepository: ITournamentsRepository
   ) {}
 
-  async execute({ tournamentId }: GetTournamentMatchesUseCaseRequest): Promise<GetTournamentMatchesUseCaseResponse> {
+  async execute({
+    tournamentId,
+  }: GetTournamentMatchesUseCaseRequest): Promise<GetTournamentMatchesUseCaseResponse> {
     const tournament = await this.tournamentsRepository.findById(tournamentId);
 
     if (!tournament) {
