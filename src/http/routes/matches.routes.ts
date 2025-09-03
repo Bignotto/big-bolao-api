@@ -4,6 +4,7 @@ import { getMatchController } from '@/http/controllers/matches/getMatchControlle
 import { getMatchPredictionsController } from '@/http/controllers/matches/getMatchPredictionsController';
 import { updateMatchController } from '@/http/controllers/matches/updateMatchController';
 import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { commonSchemas } from '@/http/schemas/common.schemas';
 import { matchSchemas } from '@/http/schemas/match.schemas';
 
 export function matchesRoutes(app: FastifyInstance): void {
@@ -25,11 +26,11 @@ export function matchesRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...matchSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           404: {
             description: 'Match not found',
-            ...matchSchemas.MatchNotFoundError,
+            ...commonSchemas.MatchNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -61,11 +62,11 @@ export function matchesRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...matchSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           404: {
             description: 'Match not found',
-            ...matchSchemas.MatchNotFoundError,
+            ...commonSchemas.MatchNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -98,7 +99,7 @@ export function matchesRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...matchSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           403: {
             description: 'Insufficient permissions to update match',
@@ -106,7 +107,7 @@ export function matchesRoutes(app: FastifyInstance): void {
           },
           404: {
             description: 'Match not found',
-            ...matchSchemas.MatchNotFoundError,
+            ...commonSchemas.MatchNotFoundError,
           },
           422: {
             description: 'Validation error',

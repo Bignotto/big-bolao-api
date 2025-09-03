@@ -12,6 +12,7 @@ import { listPublicPoolsController } from '@/http/controllers/pools/listPublicPo
 import { removeUserFromPoolController } from '@/http/controllers/pools/removeUserFromPoolController';
 import { updatePoolController } from '@/http/controllers/pools/updatePoolController';
 import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { commonSchemas } from '@/http/schemas/common.schemas';
 import { poolSchemas } from '@/http/schemas/pool.schemas';
 
 export function poolRoutes(app: FastifyInstance): void {
@@ -32,7 +33,7 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           422: {
             description: 'Validation error',
@@ -62,7 +63,7 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           422: {
             description: 'Validation error',
@@ -96,11 +97,11 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           404: {
             description: 'Pool not found',
-            ...poolSchemas.PoolNotFoundError,
+            ...commonSchemas.PoolNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -131,7 +132,7 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           403: {
             description: 'Forbidden to join this pool',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           404: {
             description: 'Pool or user not found',
@@ -173,7 +174,7 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           403: {
             description: 'Forbidden to join this pool',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           404: {
             description: 'Pool not found with this invite code',
@@ -215,15 +216,15 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           403: {
             description: 'User is not a member of this pool',
-            ...poolSchemas.NotPoolMemberError,
+            ...commonSchemas.NotPoolMemberError,
           },
           404: {
             description: 'Pool not found',
-            ...poolSchemas.PoolNotFoundError,
+            ...commonSchemas.PoolNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -255,7 +256,7 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           403: {
             description: 'Only pool owner can remove users',
@@ -263,7 +264,7 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           404: {
             description: 'Pool or user not found',
-            ...poolSchemas.PoolNotFoundError,
+            ...commonSchemas.PoolNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -301,15 +302,15 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           403: {
             description: 'User is not a member of this pool',
-            ...poolSchemas.NotPoolMemberError,
+            ...commonSchemas.NotPoolMemberError,
           },
           404: {
             description: 'Pool not found',
-            ...poolSchemas.PoolNotFoundError,
+            ...commonSchemas.PoolNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -340,7 +341,7 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           403: {
             description: 'Only pool owner can update the pool',
@@ -348,7 +349,7 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           404: {
             description: 'Pool not found',
-            ...poolSchemas.PoolNotFoundError,
+            ...commonSchemas.PoolNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -385,15 +386,15 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           403: {
             description: 'User is not a member of this pool',
-            ...poolSchemas.NotPoolMemberError,
+            ...commonSchemas.NotPoolMemberError,
           },
           404: {
             description: 'Pool not found',
-            ...poolSchemas.PoolNotFoundError,
+            ...commonSchemas.PoolNotFoundError,
           },
           422: {
             description: 'Validation error',
@@ -438,15 +439,15 @@ export function poolRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...poolSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           403: {
             description: 'User is not a member of this pool',
-            ...poolSchemas.NotPoolMemberError,
+            ...commonSchemas.NotPoolMemberError,
           },
           404: {
             description: 'Pool not found',
-            ...poolSchemas.PoolNotFoundError,
+            ...commonSchemas.PoolNotFoundError,
           },
           422: {
             description: 'Validation error',

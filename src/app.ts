@@ -35,6 +35,7 @@ export const createServer = async (): Promise<FastifyInstance> => {
   });
 
   // Import schemas first
+  const { commonSchemas } = await import('./http/schemas/common.schemas');
   const { poolSchemas } = await import('./http/schemas/pool.schemas');
   const { userSchemas } = await import('./http/schemas/user.schemas');
   const { matchSchemas } = await import('./http/schemas/match.schemas');
@@ -54,6 +55,7 @@ export const createServer = async (): Promise<FastifyInstance> => {
     });
   };
 
+  mergeSchemas(commonSchemas);
   mergeSchemas(poolSchemas);
   mergeSchemas(userSchemas);
   mergeSchemas(matchSchemas);

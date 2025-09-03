@@ -85,27 +85,6 @@ export const predictionSchemas = {
     }
   },
 
-  MatchNotFoundError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Match not found' }
-    }
-  },
-
-  PoolNotFoundError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Pool not found' }
-    }
-  },
-
-  NotPoolMemberError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'User is not a member of this pool' }
-    }
-  },
-
   PredictionAlreadyExistsError: {
     type: 'object',
     properties: {
@@ -119,14 +98,6 @@ export const predictionSchemas = {
       message: { type: 'string', example: 'Cannot create/update prediction for a match that has already started' }
     }
   },
-
-  UnauthorizedError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Unauthorized to access this prediction' }
-    }
-  },
-
   PredictionInternalServerError: {
     type: 'object',
     properties: {
