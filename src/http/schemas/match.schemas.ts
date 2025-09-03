@@ -168,14 +168,6 @@ export const matchSchemas = {
     additionalProperties: false,
   },
 
-  // Error schemas - Remove duplicates, keep only unique ones
-  MatchNotFoundError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Match not found' },
-    },
-  },
-
   ForbiddenError: {
     type: 'object',
     properties: {
@@ -191,13 +183,6 @@ export const matchSchemas = {
         type: 'object',
         additionalProperties: true,
       },
-    },
-  },
-
-  UnauthorizedError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Unauthorized' },
     },
   },
 

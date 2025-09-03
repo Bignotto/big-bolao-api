@@ -8,6 +8,7 @@ import { getUserPoolsStandingsController } from '@/http/controllers/user/getUser
 import { getUserPredictionsController } from '@/http/controllers/user/getUserPredictionsController';
 import { updateUserController } from '@/http/controllers/user/updateUserController';
 import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { commonSchemas } from '@/http/schemas/common.schemas';
 import { userSchemas } from '@/http/schemas/user.schemas';
 
 export function userRoutes(app: FastifyInstance): void {
@@ -63,7 +64,7 @@ export function userRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...userSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           404: {
             description: 'User not found',
@@ -123,7 +124,7 @@ export function userRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...userSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           404: {
             description: 'User not found',
@@ -187,7 +188,7 @@ export function userRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...userSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           403: {
             description: 'User is not a participant of the specified pool',
@@ -232,7 +233,7 @@ export function userRoutes(app: FastifyInstance): void {
           },
           401: {
             description: 'Unauthorized access',
-            ...userSchemas.UnauthorizedError,
+            ...commonSchemas.UnauthorizedError,
           },
           404: {
             description: 'User not found',

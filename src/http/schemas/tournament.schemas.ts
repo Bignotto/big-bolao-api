@@ -179,13 +179,6 @@ export const tournamentSchemas = {
     },
   },
 
-  UnauthorizedError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Unauthorized' },
-    },
-  },
-
   TournamentInternalServerError: {
     type: 'object',
     properties: {

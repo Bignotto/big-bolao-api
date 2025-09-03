@@ -4,6 +4,7 @@ import { createPredictionController } from '@/http/controllers/predictions/creat
 import { getPredictionController } from '@/http/controllers/predictions/getPredictionController';
 import { updatePredictionController } from '@/http/controllers/predictions/updatePredictionController';
 import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { commonSchemas } from '@/http/schemas/common.schemas';
 import { predictionSchemas } from '@/http/schemas/prediction.schemas';
 
 export async function predictionsRoutes(app: FastifyInstance) {
@@ -25,7 +26,7 @@ export async function predictionsRoutes(app: FastifyInstance) {
         },
         401: {
           description: 'Unauthorized to create prediction',
-          ...predictionSchemas.UnauthorizedError,
+          ...commonSchemas.UnauthorizedError,
         },
         400: {
           description: 'Match has already started or prediction already exists',
@@ -36,13 +37,13 @@ export async function predictionsRoutes(app: FastifyInstance) {
         },
         403: {
           description: 'User is not a member of this pool',
-          ...predictionSchemas.NotPoolMemberError,
+          ...commonSchemas.NotPoolMemberError,
         },
         404: {
           description: 'Pool or match not found',
           oneOf: [
-            predictionSchemas.PoolNotFoundError,
-            predictionSchemas.MatchNotFoundError,
+            commonSchemas.PoolNotFoundError,
+            commonSchemas.MatchNotFoundError,
           ],
         },
         422: {
@@ -116,7 +117,7 @@ export async function predictionsRoutes(app: FastifyInstance) {
         },
         401: {
           description: 'Unauthorized to access this prediction',
-          ...predictionSchemas.UnauthorizedError
+          ...commonSchemas.UnauthorizedError
         },
         404: {
           description: 'Prediction not found',
@@ -155,7 +156,7 @@ export async function predictionsRoutes(app: FastifyInstance) {
         },
         401: {
           description: 'Unauthorized to update this prediction',
-          ...predictionSchemas.UnauthorizedError
+          ...commonSchemas.UnauthorizedError
         },
         404: {
           description: 'Prediction not found',

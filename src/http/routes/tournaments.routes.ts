@@ -4,6 +4,7 @@ import { getTournamentMatchesController } from '@/http/controllers/tournaments/g
 import { listTournamentsController } from '@/http/controllers/tournaments/listTournamentsController';
 import { verifyJwt } from '@/http/middlewares/verifyJwt';
 import { matchSchemas } from '@/http/schemas/match.schemas';
+import { commonSchemas } from '@/http/schemas/common.schemas';
 import { tournamentSchemas } from '@/http/schemas/tournament.schemas';
 
 export function tournamentsRoutes(app: FastifyInstance): void {
@@ -28,7 +29,7 @@ export function tournamentsRoutes(app: FastifyInstance): void {
               total: { type: 'number' },
             },
           },
-          401: tournamentSchemas.UnauthorizedError,
+          401: commonSchemas.UnauthorizedError,
           500: tournamentSchemas.TournamentInternalServerError,
         },
       },
@@ -58,7 +59,7 @@ export function tournamentsRoutes(app: FastifyInstance): void {
             },
             required: ['matches'],
           },
-          401: tournamentSchemas.UnauthorizedError,
+          401: commonSchemas.UnauthorizedError,
           404: tournamentSchemas.TournamentNotFoundError,
           422: tournamentSchemas.TournamentValidationError,
           500: tournamentSchemas.TournamentInternalServerError,

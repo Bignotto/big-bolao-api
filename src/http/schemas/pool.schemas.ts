@@ -427,13 +427,6 @@ export const poolSchemas = {
   },
 
   // Error responses specific to pools
-  PoolNotFoundError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Pool not found' },
-    },
-  },
-
   InvalidPoolCodeError: {
     type: 'object',
     properties: {
@@ -448,13 +441,6 @@ export const poolSchemas = {
     },
   },
 
-  NotPoolMemberError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'User is not a member of this pool' },
-    },
-  },
-
   NotPoolOwnerError: {
     type: 'object',
     properties: {
@@ -466,13 +452,6 @@ export const poolSchemas = {
     type: 'object',
     properties: {
       message: { type: 'string', example: 'Pool owner cannot leave their own pool' },
-    },
-  },
-
-  UnauthorizedError: {
-    type: 'object',
-    properties: {
-      message: { type: 'string', example: 'Unauthorized access' },
     },
   },
 
