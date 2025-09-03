@@ -130,47 +130,6 @@ export const userSchemas = {
     },
   },
 
-  // Prediction object
-  Prediction: {
-    type: 'object',
-    properties: {
-      id: { type: 'string', description: 'Prediction unique identifier' },
-      userId: { type: 'string', description: 'User ID who made the prediction' },
-      matchId: { type: 'number', description: 'Match ID' },
-      poolId: { type: 'number', description: 'Pool ID' },
-      predictedHomeScore: { type: 'number', description: 'Predicted home team score' },
-      predictedAwayScore: { type: 'number', description: 'Predicted away team score' },
-      predictedHasExtraTime: { type: 'boolean', description: 'Whether extra time is predicted' },
-      predictedHasPenalties: { type: 'boolean', description: 'Whether penalties are predicted' },
-      predictedPenaltyHomeScore: {
-        type: 'number',
-        nullable: true,
-        description: 'Predicted home penalty score',
-      },
-      predictedPenaltyAwayScore: {
-        type: 'number',
-        nullable: true,
-        description: 'Predicted away penalty score',
-      },
-      pointsEarned: {
-        type: 'number',
-        nullable: true,
-        description: 'Points earned from this prediction',
-      },
-      submittedAt: {
-        type: 'string',
-        format: 'date-time',
-        description: 'When the prediction was submitted',
-      },
-      updatedAt: {
-        type: 'string',
-        format: 'date-time',
-        nullable: true,
-        description: 'When the prediction was last updated',
-      },
-    },
-  },
-
   // Get User Predictions Query Parameters
   GetUserPredictionsQuery: {
     type: 'object',
