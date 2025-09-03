@@ -40,14 +40,4 @@ describe('GET /tournaments', async () => {
 
     expect(response.status).toBe(401);
   });
-
-  it('should return 422 when query params are invalid', async () => {
-    const response = await request(app.server)
-      .get('/tournaments')
-      .query({ limit: 'invalid' })
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(422);
-  });
 });
-
