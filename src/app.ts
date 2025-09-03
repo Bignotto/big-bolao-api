@@ -108,8 +108,6 @@ export const createServer = async (): Promise<FastifyInstance> => {
           next();
         },
       },
-      staticCSP: true,
-      transformStaticCSP: (header) => header,
       transformSpecification: (swaggerObject, _request, _reply) => {
         return swaggerObject;
       },
