@@ -1,5 +1,9 @@
 # Big Bolão API - Agent Guide
 
+## Setup
+
+- Copy `.env.example` to `.env` and fill in all required values.
+
 ## Commands
 
 - **Dev**: `npm run dev` (watch mode with tsx)
