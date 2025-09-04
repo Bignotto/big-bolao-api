@@ -18,6 +18,7 @@
 - **Database**: Prisma ORM + PostgreSQL
 - **Testing**: Vitest (unit/e2e), Supertest for HTTP tests
 - **Auth**: JWT with Fastify JWT plugin
+- The API validates Supabase-issued tokens and relies on Supabase for user authentication
 - **Structure**: Clean Architecture (useCases, repositories, controllers)
 - **Paths**: `@/*` alias maps to `src/*`
 
@@ -25,6 +26,16 @@
 
 - **Read-only**: teams, tournaments, and matches are immutable for regular users
 - **Admin**: only admin routes may update match records
+
+## Authentication
+
+- All user authentication is delegated to Supabase
+- This API only validates Supabase tokens and does not manage user credentials
+
+## Scope
+
+- Targets only the upcoming FIFA World Cup
+- No generic CRUD endpoints for tournaments, teams, or matches
 
 ## Code Conventions
 
