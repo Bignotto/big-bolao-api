@@ -1,7 +1,5 @@
-version: '3'
-
 services:
-  tod-api-pg:
+  bolao-api-pg:
     image: bitnami/postgresql
     ports:
       - 5432:5432
@@ -9,3 +7,17 @@ services:
       - POSTGRESQL_USERNAME=docker
       - POSTGRESQL_PASSWORD=docker
       - POSTGRESQL_DATABASE=bolao
+    volumes:
+      - bolao-pg-data:/bitnami/postgresql
+  api:
+    build: .
+    ports:
+      - '3333:3333'
+    depends_on:
+      - bolao-api-pg
+    environment:
+      - DATABASE_URL=postgresql://docker:docker@bolao-api-pg:5432/bolao
+
+volumes:
+  bolao-pg-data:
+    driver: local
