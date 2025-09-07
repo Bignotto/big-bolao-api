@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { createTestApp } from '@/test/helper-e2e';
+import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createTournament } from '@/test/mocks/tournament';
 
 type TournamentResponse = {
@@ -18,7 +19,7 @@ describe('GET /tournaments', async () => {
   let tournamentsRepository: ITournamentsRepository;
 
   beforeAll(async () => {
-    token = app.jwt.sign({ sub: 'test-user' });
+    ({ token } = await getSupabaseAccessToken(app));
     tournamentsRepository = new PrismaTournamentsRepository();
 
     await createTournament(tournamentsRepository, {});
