@@ -3,12 +3,12 @@ import { FastifyInstance } from 'fastify';
 import { getMatchController } from '@/http/controllers/matches/getMatchController';
 import { getMatchPredictionsController } from '@/http/controllers/matches/getMatchPredictionsController';
 import { updateMatchController } from '@/http/controllers/matches/updateMatchController';
-import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { matchSchemas } from '@/http/schemas/match.schemas';
 
 export function matchesRoutes(app: FastifyInstance): void {
-  app.addHook('onRequest', verifyJwt);
+  app.addHook('onRequest', verifySupabaseToken);
 
   app.get(
     '/matches/:matchId',
