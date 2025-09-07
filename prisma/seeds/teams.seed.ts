@@ -49,3 +49,4 @@ export async function seedTeams() {
 
   return teams;
 }
+

@@ -2,6 +2,11 @@ import { PrismaClient } from '@prisma/client';
 import { parse } from 'csv-parse/sync';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM-safe file path resolution
+const resolveLocalPath = (relativePath: string) =>
+  fileURLToPath(new URL(relativePath, import.meta.url));
 
 const prisma = new PrismaClient();
 
@@ -86,7 +91,7 @@ export async function seedPredictions() {
     console.log('Starting prediction seed process...');
 
     // Read the teams CSV file
-    const teamsFilePath = path.resolve(__dirname, './teams.csv');
+    const teamsFilePath = resolveLocalPath('../data/teams.csv');
     const teamsContent = fs.readFileSync(teamsFilePath, { encoding: 'utf-8' });
 
     // Parse the teams CSV content
@@ -104,7 +109,7 @@ export async function seedPredictions() {
     });
 
     // Read the guesses CSV file
-    const guessesFilePath = path.resolve(__dirname, './subsolo2_guesses.csv');
+    const guessesFilePath = resolveLocalPath('../data/subsolo2_guesses.csv');
     const guessesContent = fs.readFileSync(guessesFilePath, { encoding: 'utf-8' });
 
     // Parse the guesses CSV content
@@ -264,9 +269,6 @@ async function createPrediction(poolId: number, matchId: number, guess: GuessRow
   }
 }
 
-seedPredictions()
-  .then(() => console.log('Prediction seeding completed successfully.'))
-  .catch((e) => {
-    console.error('Prediction seeding failed:', e);
-    process.exit(1);
-  });
+// Intentionally do not auto-run here; the root seed.ts coordinates order
+// and invokes seedPredictions() after users, teams and matches are seeded.
+

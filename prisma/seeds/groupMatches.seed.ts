@@ -262,6 +262,7 @@ export async function createGroupMatches(tournamentId: number, teamMap: { [key: 
       homeScore: 1,
       awayScore: 0,
     },
+
     // Group E
     {
       homeTeam: 'Germany',
@@ -319,7 +320,7 @@ export async function createGroupMatches(tournamentId: number, teamMap: { [key: 
       datetime: '2022-12-01T19:00:00Z',
       stage: 'Group E',
       group: 'E',
-      stadium: 'Al Bayt Stadium',
+      stadium: 'Al Thumama Stadium',
       homeScore: 2,
       awayScore: 4,
     },
@@ -447,6 +448,7 @@ export async function createGroupMatches(tournamentId: number, teamMap: { [key: 
       homeScore: 2,
       awayScore: 3,
     },
+
     // Group H
     {
       homeTeam: 'Uruguay',
@@ -510,7 +512,6 @@ export async function createGroupMatches(tournamentId: number, teamMap: { [key: 
     },
   ];
 
-  // Create all group matches
   for (const match of groupMatches) {
     await prisma.match.create({
       data: {
@@ -520,12 +521,12 @@ export async function createGroupMatches(tournamentId: number, teamMap: { [key: 
         matchDatetime: new Date(match.datetime),
         stadium: match.stadium,
         stage: MatchStage.GROUP,
-        group: match.group,
         homeTeamScore: match.homeScore,
         awayTeamScore: match.awayScore,
         matchStatus: MatchStatus.COMPLETED,
+        group: match.group,
       },
     });
-    console.log(`Created match: ${match.homeTeam} vs ${match.awayTeam}`);
+    console.log(`Created group match: ${match.homeTeam} vs ${match.awayTeam}`);
   }
 }

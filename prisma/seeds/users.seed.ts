@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { parse } from 'csv-parse/sync';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import { seedScoringRules } from './scoringRules.seed';
 
 interface StandingsRow {
@@ -21,16 +22,20 @@ function generatePasswordHash(): string {
 }
 
 function cleanName(name: string): string {
-  return name.replace(/^"/, '').replace(/"$/, '').trim();
+  return name.replace(/^\"/, '').replace(/\"$/, '').trim();
 }
 
 const prisma = new PrismaClient();
+
+// ESM-safe file path resolution
+const resolveLocalPath = (relativePath: string) =>
+  fileURLToPath(new URL(relativePath, import.meta.url));
 
 export async function seedUsers() {
   try {
     console.log('Starting seed process...');
 
-    const csvFilePath = path.resolve(__dirname, './subsolo2_final_standings.csv');
+    const csvFilePath = resolveLocalPath('../data/subsolo2_final_standings.csv');
     const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
 
     const rows = parse(fileContent, {
@@ -137,3 +142,4 @@ export async function seedUsers() {
     await prisma.$disconnect();
   }
 }
+

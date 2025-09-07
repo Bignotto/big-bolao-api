@@ -217,3 +217,4 @@ export async function createKnockoutMatches(
     console.log(`Created knockout match: ${match.homeTeam} vs ${match.awayTeam}`);
   }
 }
+

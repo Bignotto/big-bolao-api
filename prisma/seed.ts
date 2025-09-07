@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import { createGroupMatches } from './groupMatches.seed';
-import { createKnockoutMatches } from './knockoutMatches.seed';
-import { seedPredictions } from './predictions.seed';
-import { seedTeams } from './teams.seed';
-import { assignTeamsToTournament, seedTournament } from './tournament.seed';
-import { seedUsers } from './users.seed';
+import { createGroupMatches } from './seeds/groupMatches.seed';
+import { createKnockoutMatches } from './seeds/knockoutMatches.seed';
+import { seedPredictions } from './seeds/predictions.seed';
+import { seedTeams } from './seeds/teams.seed';
+import { assignTeamsToTournament, seedTournament } from './seeds/tournament.seed';
+import { seedUsers } from './seeds/users.seed';
 
 const prisma = new PrismaClient();
 

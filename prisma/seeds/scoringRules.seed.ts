@@ -34,3 +34,4 @@ export async function seedScoringRules(poolId: number) {
     throw error;
   }
 }
+
