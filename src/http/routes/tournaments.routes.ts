@@ -2,13 +2,13 @@ import { FastifyInstance } from 'fastify';
 
 import { getTournamentMatchesController } from '@/http/controllers/tournaments/getTournamentMatchesController';
 import { listTournamentsController } from '@/http/controllers/tournaments/listTournamentsController';
-import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { matchSchemas } from '@/http/schemas/match.schemas';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { tournamentSchemas } from '@/http/schemas/tournament.schemas';
 
 export function tournamentsRoutes(app: FastifyInstance): void {
-  app.addHook('onRequest', verifyJwt);
+  app.addHook('onRequest', verifySupabaseToken);
 
   app.get(
     '/tournaments',

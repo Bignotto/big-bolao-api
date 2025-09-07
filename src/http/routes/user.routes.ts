@@ -7,12 +7,12 @@ import { getUserPoolsController } from '@/http/controllers/user/getUserPoolsCont
 import { getUserPoolsStandingsController } from '@/http/controllers/user/getUserPoolsStandingsController';
 import { getUserPredictionsController } from '@/http/controllers/user/getUserPredictionsController';
 import { updateUserController } from '@/http/controllers/user/updateUserController';
-import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { userSchemas } from '@/http/schemas/user.schemas';
 
 export function userRoutes(app: FastifyInstance): void {
-  app.addHook('onRequest', verifyJwt);
+  app.addHook('onRequest', verifySupabaseToken);
 
   // Public route for user registration
   app.post(

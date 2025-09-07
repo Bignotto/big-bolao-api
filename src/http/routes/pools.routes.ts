@@ -11,12 +11,12 @@ import { leavePoolController } from '@/http/controllers/pools/leavePoolControlle
 import { listPublicPoolsController } from '@/http/controllers/pools/listPublicPoolsController';
 import { removeUserFromPoolController } from '@/http/controllers/pools/removeUserFromPoolController';
 import { updatePoolController } from '@/http/controllers/pools/updatePoolController';
-import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { poolSchemas } from '@/http/schemas/pool.schemas';
 
 export function poolRoutes(app: FastifyInstance): void {
-  app.addHook('onRequest', verifyJwt);
+  app.addHook('onRequest', verifySupabaseToken);
 
   app.get(
     '/pools',

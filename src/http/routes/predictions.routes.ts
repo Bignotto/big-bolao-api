@@ -3,12 +3,12 @@ import { FastifyInstance } from 'fastify';
 import { createPredictionController } from '@/http/controllers/predictions/createPredictionController';
 import { getPredictionController } from '@/http/controllers/predictions/getPredictionController';
 import { updatePredictionController } from '@/http/controllers/predictions/updatePredictionController';
-import { verifyJwt } from '@/http/middlewares/verifyJwt';
+import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { predictionSchemas } from '@/http/schemas/prediction.schemas';
 
 export async function predictionsRoutes(app: FastifyInstance) {
-  app.addHook('onRequest', verifyJwt);
+  app.addHook('onRequest', verifySupabaseToken);
 
   app.post('/predictions', {
     schema: {
