@@ -16,6 +16,14 @@
 - **Lint**: `npm run lint` / `npm run lint:fix`
 - **Coverage**: `npm run test:coverage` / `npm run test:e2e:coverage`
 
+### Seeding
+- Entry: `prisma/seed.ts` orchestrates seeding.
+- Seeds live in `prisma/seeds/`; CSV data in `prisma/data/`.
+- Use ESM-safe file paths in seeds (no `__dirname`):
+  - `import { fileURLToPath } from 'url'`
+  - `const resolveLocalPath = (p: string) => fileURLToPath(new URL(p, import.meta.url))`
+  - Example: `const csv = resolveLocalPath('../data/teams.csv')`
+
 ## Architecture
 
 - **Framework**: Fastify + TypeScript (ES modules)
@@ -56,4 +64,3 @@
 ## Contributing
 
 - **Commits**: use [Conventional Commits](https://www.conventionalcommits.org/) (`type: short description`)
-
