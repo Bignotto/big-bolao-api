@@ -1,3 +1,4 @@
+import { InviteCodeInUseError } from '@/global/errors/InviteCodeInUseError';
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -76,11 +77,43 @@ describe('Create Pool Use Case', () => {
       tournamentId: tournament.id,
       creatorId: user.id,
       isPrivate: true,
+      inviteCode: 'INVITE123',
     });
 
     expect(pool.isPrivate).toEqual(true);
-    // Note: We can't test the exact invite code value since the InMemoryPoolsRepository
-    // doesn't use the randomUUID but has a hardcoded value
+    expect(pool.inviteCode).toEqual('INVITE123');
+  });
+
+  it('should not allow duplicate invite codes', async () => {
+    const user = await usersRepository.create({
+      email: 'user@email.com',
+      fullName: 'John Doe',
+      accountProvider: 'EMAIL',
+    });
+
+    const tournament = await tournamentsRepository.create({
+      name: 'World Cup 2022',
+      startDate: new Date(),
+      endDate: new Date(),
+    });
+
+    await sut.execute({
+      name: 'Pool One',
+      tournamentId: tournament.id,
+      creatorId: user.id,
+      isPrivate: true,
+      inviteCode: 'DUPLICATE',
+    });
+
+    await expect(() =>
+      sut.execute({
+        name: 'Pool Two',
+        tournamentId: tournament.id,
+        creatorId: user.id,
+        isPrivate: true,
+        inviteCode: 'DUPLICATE',
+      })
+    ).rejects.toBeInstanceOf(InviteCodeInUseError);
   });
 
   it('should not be able to create a pool with non-existing user', async () => {

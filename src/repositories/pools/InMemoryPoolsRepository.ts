@@ -1,5 +1,6 @@
 import { Match, Pool, Prediction, Prisma, ScoringRule } from '@prisma/client';
 
+import { InviteCodeInUseError } from '@/global/errors/InviteCodeInUseError';
 import { PoolParticipant } from '@/global/types/poolParticipant';
 import { PoolStandings } from '@/global/types/poolStandings';
 import { PredictionPoints } from '@/global/types/predictionPoints';
@@ -170,6 +171,13 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
   }
 
   async create(data: Prisma.PoolCreateInput): Promise<Pool> {
+    if (data.inviteCode) {
+      const exists = this.pools.some((pool) => pool.inviteCode === data.inviteCode);
+      if (exists) {
+        throw new InviteCodeInUseError(data.inviteCode);
+      }
+    }
+
     const newId = this.pools.length + 1;
 
     const pool: Pool = {
