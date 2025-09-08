@@ -164,6 +164,22 @@ describe('Create Pool Controller (e2e)', async () => {
     expect(body.pool).toHaveProperty('inviteCode', 'TEST123');
   });
 
+  it('should return 422 when creating a private pool without an invite code', async () => {
+    const response = await request(app.server)
+      .post('/pools')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Private Pool No Code',
+        tournamentId,
+        isPrivate: true,
+      });
+
+    expect(response.statusCode).toBe(422);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'Validation error');
+  });
+
   it('should handle all required fields', async () => {
     const response = await request(app.server)
       .post('/pools')
