@@ -46,7 +46,7 @@ describe('Create Pool Controller (e2e)', async () => {
         name: 'Test Pool',
         description: 'This is a test pool',
         tournamentId,
-        isPrivate: true,
+        isPrivate: false,
         maxParticipants: 10,
         //registrationDeadline: new Date(Date.now() + 1000 * 60 * 60 * 24), // Tomorrow
       });
@@ -60,7 +60,7 @@ describe('Create Pool Controller (e2e)', async () => {
     expect(body.pool.description).toBe('This is a test pool');
     expect(body.pool.tournamentId).toBe(tournamentId);
     expect(body.pool.creatorId).toBe(userId);
-    expect(body.pool.isPrivate).toBe(true);
+    expect(body.pool.isPrivate).toBe(false);
     expect(body.pool.maxParticipants).toBe(10);
   });
 
@@ -162,6 +162,22 @@ describe('Create Pool Controller (e2e)', async () => {
     const body = response.body as CreatePoolResponse;
     expect(body.pool).toHaveProperty('isPrivate', true);
     expect(body.pool).toHaveProperty('inviteCode', 'TEST123');
+  });
+
+  it('should return 422 when creating a private pool without an invite code', async () => {
+    const response = await request(app.server)
+      .post('/pools')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Private Pool No Code',
+        tournamentId,
+        isPrivate: true,
+      });
+
+    expect(response.statusCode).toBe(422);
+
+    const body = response.body as ErrorResponse;
+    expect(body).toHaveProperty('message', 'Validation error');
   });
 
   it('should handle all required fields', async () => {
