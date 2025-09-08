@@ -46,7 +46,7 @@ describe('Create Pool Controller (e2e)', async () => {
         name: 'Test Pool',
         description: 'This is a test pool',
         tournamentId,
-        isPrivate: true,
+        isPrivate: false,
         maxParticipants: 10,
         //registrationDeadline: new Date(Date.now() + 1000 * 60 * 60 * 24), // Tomorrow
       });
@@ -60,7 +60,7 @@ describe('Create Pool Controller (e2e)', async () => {
     expect(body.pool.description).toBe('This is a test pool');
     expect(body.pool.tournamentId).toBe(tournamentId);
     expect(body.pool.creatorId).toBe(userId);
-    expect(body.pool.isPrivate).toBe(true);
+    expect(body.pool.isPrivate).toBe(false);
     expect(body.pool.maxParticipants).toBe(10);
   });
 
