@@ -1,5 +1,6 @@
 import { Pool, Prisma, ScoringRule } from '@prisma/client';
 
+import { InviteCodeInUseError } from '@/global/errors/InviteCodeInUseError';
 import { PoolParticipant } from '@/global/types/poolParticipant';
 import { PoolStandings } from '@/global/types/poolStandings';
 
@@ -78,11 +79,23 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return pool;
   }
   async create(data: Prisma.PoolCreateInput): Promise<Pool> {
-    const pool = await prisma.pool.create({
-      data,
-    });
+    try {
+      const pool = await prisma.pool.create({
+        data,
+      });
 
-    return pool;
+      return pool;
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002' &&
+        (error.meta?.target as string[]).includes('inviteCode')
+      ) {
+        throw new InviteCodeInUseError(data.inviteCode as string);
+      }
+
+      throw error;
+    }
   }
 
   async createScoringRules(data: Prisma.ScoringRuleCreateInput): Promise<ScoringRule> {

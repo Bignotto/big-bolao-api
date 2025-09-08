@@ -164,6 +164,34 @@ describe('Create Pool Controller (e2e)', async () => {
     expect(body.pool).toHaveProperty('inviteCode', 'TEST123');
   });
 
+  it('should return 409 when invite code is already in use', async () => {
+    const inviteCode = 'DUPLICATE123';
+    await request(app.server)
+      .post('/pools')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        inviteCode,
+        name: 'First Pool',
+        tournamentId,
+        isPrivate: true,
+      });
+
+    const response = await request(app.server)
+      .post('/pools')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        inviteCode,
+        name: 'Second Pool',
+        tournamentId,
+        isPrivate: true,
+      });
+
+    expect(response.statusCode).toBe(409);
+
+    const body = response.body as ErrorResponse;
+    expect(body.message).toContain('Invite code already in use');
+  });
+
   it('should return 422 when creating a private pool without an invite code', async () => {
     const response = await request(app.server)
       .post('/pools')

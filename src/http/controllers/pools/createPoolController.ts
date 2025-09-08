@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { InviteCodeInUseError } from '@/global/errors/InviteCodeInUseError';
 import { InviteCodeRequiredError } from '@/useCases/pools/errors/InviteCodeRequiredError';
 import { PoolNameInUseError } from '@/useCases/pools/errors/PoolNameInUseError';
 import { makeCreatePoolUseCase } from '@/useCases/pools/factory/makeCreatePoolUseCase';
@@ -64,6 +65,9 @@ export async function createPoolController(
       return reply.status(404).send({ message: error.message });
     }
     if (error instanceof PoolNameInUseError) {
+      return reply.status(409).send({ message: error.message });
+    }
+    if (error instanceof InviteCodeInUseError) {
       return reply.status(409).send({ message: error.message });
     }
     if (error instanceof InviteCodeRequiredError) {

@@ -19,14 +19,15 @@ export async function createPool(
     registrationDeadline?: Date;
   }
 ): Promise<Pool> {
-  const randomPoolNumber = Math.floor(Math.random() * 100);
+  const randomPoolNumber = Math.floor(Math.random() * 1000000);
+  const generatedInviteCode = `invite-${faker.string.uuid()}`;
 
   const pool = await repository.create({
     name: data.name ?? `Pool ${randomPoolNumber}`,
     description: data.description ?? `Test pool description ${randomPoolNumber}`,
     tournament: { connect: { id: data.tournamentId ?? randomPoolNumber } },
     creator: { connect: { id: data.creatorId ?? `faker-${randomPoolNumber}` } },
-    inviteCode: data.inviteCode ?? `invite-${randomPoolNumber}`,
+    inviteCode: data.inviteCode ?? generatedInviteCode,
     isPrivate: data.isPrivate ?? false,
     maxParticipants: data.maxParticipants ?? 100,
     registrationDeadline: data.registrationDeadline ?? new Date(3025, 5, 24),
