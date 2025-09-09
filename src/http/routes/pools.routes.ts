@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 
 import { createPoolController } from '@/http/controllers/pools/createPoolController';
+import { getPoolByInviteController } from '@/http/controllers/pools/getPoolByInviteController';
 import { getPoolController } from '@/http/controllers/pools/getPoolController';
 import { getPoolPredictionsController } from '@/http/controllers/pools/getPoolPredictionsController';
 import { getPoolStandingsController } from '@/http/controllers/pools/getPoolStandingsController';
@@ -153,6 +154,37 @@ export function poolRoutes(app: FastifyInstance): void {
       },
     },
     joinPoolByIdController
+  );
+
+  // Get pool by invite code (metadata only)
+  app.get(
+    '/pool-invites/:inviteCode',
+    {
+      schema: {
+        tags: ['Pools'],
+        summary: 'Get pool by invite code',
+        description: 'Retrieve pool information using its invitation code without joining',
+        params: poolSchemas.GetPoolByInviteParams,
+        response: {
+          200: {
+            description: 'Pool information retrieved successfully',
+            type: 'object',
+            properties: {
+              pool: poolSchemas.Pool,
+            },
+          },
+          404: {
+            description: 'Pool not found with this invite code',
+            ...commonSchemas.PoolNotFoundError,
+          },
+          422: {
+            description: 'Validation error',
+            ...poolSchemas.PoolValidationError,
+          },
+        },
+      },
+    },
+    getPoolByInviteController
   );
 
   // Join pool by invite code (works for both public and private pools)

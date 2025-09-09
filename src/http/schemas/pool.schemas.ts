@@ -180,6 +180,18 @@ export const poolSchemas = {
     required: ['inviteCode'],
   },
 
+  GetPoolByInviteParams: {
+    type: 'object',
+    properties: {
+      inviteCode: {
+        type: 'string',
+        minLength: 1,
+        description: 'Pool invitation code',
+      },
+    },
+    required: ['inviteCode'],
+  },
+
   // Join Pool Response
   JoinPoolResponse: {
     type: 'object',
