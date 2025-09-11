@@ -1,13 +1,13 @@
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createTestApp } from '@/test/helper-e2e';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createPool } from '@/test/mocks/pools';
 import { createTournament } from '@/test/mocks/tournament';
@@ -63,7 +63,8 @@ describe('Leave Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(404);
-    expect(response.body).toHaveProperty('message');
+    const body = response.body as unknown as { message: string };
+    expect(body).toHaveProperty('message');
   });
 
   it('should return 403 when trying to leave a pool that user is not a participant of', async () => {
@@ -83,8 +84,9 @@ describe('Leave Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(403);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain('not a participant');
+    const body2 = response.body as unknown as { message: string };
+    expect(body2).toHaveProperty('message');
+    expect(body2.message).toContain('not a participant');
   });
 
   it('should return 403 when trying to leave a pool as the owner', async () => {
@@ -102,8 +104,9 @@ describe('Leave Pool Controller (e2e)', async () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toEqual(403);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toContain(
+    const body3 = response.body as unknown as { message: string };
+    expect(body3).toHaveProperty('message');
+    expect(body3.message).toContain(
       'Unauthorized: Pool creator cannot leave their own pool'
     );
   });

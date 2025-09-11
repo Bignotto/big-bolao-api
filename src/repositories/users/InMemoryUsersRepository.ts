@@ -1,15 +1,16 @@
 import { Prisma, User } from '@prisma/client';
+
 import { IUsersRepository } from './IUsersRepository';
 
 export class InMemoryUsersRepository implements IUsersRepository {
   private users: User[] = [];
 
-  async findByEmail(email: string): Promise<User | null> {
+  findByEmail(email: string): Promise<User | null> {
     const user = this.users.find((user) => user.email === email);
-    return user || null;
+    return Promise.resolve(user || null);
   }
 
-  async create(data: Prisma.UserCreateInput): Promise<User> {
+  create(data: Prisma.UserCreateInput): Promise<User> {
     const user: User = {
       id: `${this.users.length + 1}`,
       email: data.email,
@@ -23,35 +24,59 @@ export class InMemoryUsersRepository implements IUsersRepository {
     };
 
     this.users.push(user);
-    return user;
+    return Promise.resolve(user);
   }
 
-  async findById(id: string): Promise<User | null> {
+  findById(id: string): Promise<User | null> {
     const user = this.users.find((user) => user.id === id);
-    return user || null;
+    return Promise.resolve(user || null);
   }
 
-  async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
+  update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
     const userIndex = this.users.findIndex((user) => user.id === id);
 
     if (userIndex === -1) {
       throw new Error('User not found');
     }
 
+    const current = this.users[userIndex];
+
+    const resolveStringField = (
+      value: string | Prisma.StringFieldUpdateOperationsInput | undefined,
+      fallback: string
+    ): string => {
+      if (typeof value === 'string') return value;
+      if (typeof value === 'object' && value !== null && typeof value.set === 'string') {
+        return value.set;
+      }
+      return fallback;
+    };
+
+    const resolveNullableStringField = (value: unknown, fallback: string): string => {
+      if (typeof value === 'string') return value;
+      if (value === null || value === undefined) return fallback;
+      if (typeof value === 'object' && value !== null && 'set' in value) {
+        const v = (value as { set?: string | null }).set;
+        if (typeof v === 'string') return v;
+        return fallback;
+      }
+      return fallback;
+    };
+
     const user: User = {
-      id: this.users[userIndex].id,
-      email: `${data.email ?? this.users[userIndex].email}`,
-      passwordHash: this.users[userIndex].passwordHash,
-      fullName: `${data.fullName ?? this.users[userIndex].fullName}`,
-      profileImageUrl: `${data.profileImageUrl ?? this.users[userIndex].profileImageUrl}`,
-      createdAt: this.users[userIndex].createdAt,
+      id: current.id,
+      email: resolveStringField(data.email, current.email),
+      passwordHash: current.passwordHash,
+      fullName: resolveStringField(data.fullName, current.fullName),
+      profileImageUrl: resolveNullableStringField(data.profileImageUrl, current.profileImageUrl ?? ''),
+      createdAt: current.createdAt,
       lastLogin: new Date(),
-      accountId: `${this.users[userIndex].accountId}`,
-      accountProvider: this.users[userIndex].accountProvider,
+      accountId: `${current.accountId}`,
+      accountProvider: current.accountProvider,
     };
 
     this.users[userIndex] = user;
 
-    return user;
+    return Promise.resolve(user);
   }
 }

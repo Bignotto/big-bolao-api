@@ -7,7 +7,7 @@ import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { predictionSchemas } from '@/http/schemas/prediction.schemas';
 
-export async function predictionsRoutes(app: FastifyInstance) {
+export function predictionsRoutes(app: FastifyInstance) {
   app.addHook('onRequest', verifySupabaseToken);
 
   app.post('/predictions', {

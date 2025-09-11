@@ -1,5 +1,7 @@
-import { InMemoryTeamsRepository } from '@/repositories/teams/InMemoryTeamsRepository';
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { InMemoryTeamsRepository } from '@/repositories/teams/InMemoryTeamsRepository';
+
 import { CreateTeamUseCase } from './createTeamUseCase';
 
 let teamsRepository: InMemoryTeamsRepository;

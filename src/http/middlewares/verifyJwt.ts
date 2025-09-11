@@ -11,7 +11,7 @@ export async function verifyJwt(request: FastifyRequest, reply: FastifyReply) {
     request.user = {
       sub: (payload as { sub: string }).sub,
     };
-  } catch (error) {
+  } catch {
     return reply.status(401).send({ message: 'Unauthorized.' });
   }
 }

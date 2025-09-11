@@ -1,6 +1,7 @@
-import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { fakerPT_BR as faker } from '@faker-js/faker';
 import { AccountProvider, AccountRole, User } from '@prisma/client';
+
+import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 
 export async function createUser(
   repository: IUsersRepository,

@@ -1,4 +1,5 @@
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
+
 import { GetMatchUseCase } from '../getMatchUseCase';
 
 export function makeGetMatchUseCase() {

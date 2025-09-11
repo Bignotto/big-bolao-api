@@ -2,6 +2,7 @@ import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
+
 import { InviteCodeRequiredError } from './errors/InviteCodeRequiredError';
 import { PoolNameInUseError } from './errors/PoolNameInUseError';
 

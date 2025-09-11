@@ -1,6 +1,8 @@
+import { Prediction } from '@prisma/client';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
-import { Prediction } from '@prisma/client';
+
 import { NotParticipantError } from './error/NotParticipantError';
 
 interface GetPredictionUseCaseRequest {

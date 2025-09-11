@@ -1,6 +1,7 @@
 import { Match, MatchStatus, Prisma } from '@prisma/client';
-import { prisma } from '../../lib/prisma';
+
 import { IMatchesRepository } from './IMatchesRepository';
+import { prisma } from '../../lib/prisma';
 
 export class PrismaMatchesRepository implements IMatchesRepository {
   async create(data: Prisma.MatchCreateInput): Promise<Match> {

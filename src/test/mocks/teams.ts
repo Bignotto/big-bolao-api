@@ -1,6 +1,7 @@
-import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
 import { fakerPT_BR as faker } from '@faker-js/faker';
 import { Team } from '@prisma/client';
+
+import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
 
 export async function createTeam(
   repository: ITeamsRepository,

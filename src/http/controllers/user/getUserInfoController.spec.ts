@@ -1,17 +1,16 @@
 import request from 'supertest';
 import { beforeAll, describe, expect, test } from 'vitest';
 
-import { createTestApp } from '@/test/helper-e2e';
 import { prisma } from '@/lib/prisma';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 
 describe('Get User Info (e2e)', async () => {
   const app = await createTestApp();
-  let userId: string;
   let token: string;
 
   beforeAll(async () => {
-    ({ token, userId } = await getSupabaseAccessToken(app));
+    ({ token } = await getSupabaseAccessToken(app));
   });
 
 
@@ -31,7 +30,10 @@ describe('Get User Info (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body.user).toEqual(
+    const body = response.body as unknown as {
+      user: { email: string; fullName: string; accountProvider: string };
+    };
+    expect(body.user).toEqual(
       expect.objectContaining({
         email: 'test@example.com',
         fullName: 'Test User',
@@ -47,8 +49,7 @@ describe('Get User Info (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toBe(404);
-    expect(response.body).toEqual({
-      message: expect.stringContaining('Resource not found'),
-    });
+    const body404 = response.body as unknown as { message: string };
+    expect(body404.message).toContain('Resource not found');
   });
 });

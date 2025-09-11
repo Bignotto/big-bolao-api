@@ -1,16 +1,17 @@
 import { Prisma, Tournament } from '@prisma/client';
+
 import { ITournamentsRepository } from './ITournamentsRepository';
 
 export class InMemoryTournamentsRepository implements ITournamentsRepository {
   public tournaments: Tournament[] = [];
-  async findById(id: number): Promise<Tournament | null> {
+  findById(id: number): Promise<Tournament | null> {
     const tournament = this.tournaments.find((t) => t.id === id);
     if (!tournament) {
-      return null;
+      return Promise.resolve(null);
     }
-    return tournament;
+    return Promise.resolve(tournament);
   }
-  async create(data: Prisma.TournamentCreateInput): Promise<Tournament> {
+  create(data: Prisma.TournamentCreateInput): Promise<Tournament> {
     const newId = this.tournaments.length + 1;
     const tournament: Tournament = {
       id: newId,
@@ -22,10 +23,10 @@ export class InMemoryTournamentsRepository implements ITournamentsRepository {
       logoUrl: data.logoUrl ?? '',
     };
     this.tournaments.push(tournament);
-    return tournament;
+    return Promise.resolve(tournament);
   }
 
-  async list(): Promise<Tournament[]> {
-    return this.tournaments;
+  list(): Promise<Tournament[]> {
+    return Promise.resolve(this.tournaments);
   }
 }

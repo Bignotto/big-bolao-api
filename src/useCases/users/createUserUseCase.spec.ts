@@ -1,7 +1,9 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { EmailInUseError } from '@/global/errors/EmailInUseError';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { CreateUserUseCase } from './createUserUseCase';
 
 let usersRepository: IUsersRepository;

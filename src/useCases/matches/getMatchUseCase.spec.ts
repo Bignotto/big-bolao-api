@@ -1,3 +1,6 @@
+import { Match, MatchStage, MatchStatus, Team, Tournament } from '@prisma/client';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryTeamsRepository } from '@/repositories/teams/InMemoryTeamsRepository';
@@ -5,8 +8,7 @@ import { InMemoryTournamentsRepository } from '@/repositories/tournaments/InMemo
 import { createMatch } from '@/test/mocks/match';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
-import { Match, MatchStage, MatchStatus, Team, Tournament } from '@prisma/client';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { GetMatchUseCase } from './getMatchUseCase';
 
 // Define an extended Match type that includes the related entities

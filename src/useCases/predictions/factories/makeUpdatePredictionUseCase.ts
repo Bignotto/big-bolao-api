@@ -2,6 +2,7 @@ import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRep
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { PrismaPredictionsRepository } from '@/repositories/predictions/PrismaPredictionsRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+
 import { UpdatePredictionUseCase } from '../updatePredictionUseCase';
 
 export function makeUpdatePredictionUseCase() {

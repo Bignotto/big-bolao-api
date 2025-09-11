@@ -1,4 +1,5 @@
 import { Match, MatchStage, MatchStatus, Prisma, Team, Tournament } from '@prisma/client';
+
 import { IMatchesRepository } from './IMatchesRepository';
 
 export class InMemoryMatchesRepository implements IMatchesRepository {
@@ -6,7 +7,7 @@ export class InMemoryMatchesRepository implements IMatchesRepository {
   public teams: Team[] = [];
   public tournaments: Tournament[] = [];
 
-  async create(data: Prisma.MatchCreateInput): Promise<Match> {
+  create(data: Prisma.MatchCreateInput): Promise<Match> {
     const newId = this.matches.length + 1;
 
     const match: Match = {
@@ -29,23 +30,23 @@ export class InMemoryMatchesRepository implements IMatchesRepository {
     };
 
     this.matches.push(match);
-    return match;
+    return Promise.resolve(match);
   }
 
-  async findById(id: number): Promise<Match | null> {
+  findById(id: number): Promise<Match | null> {
     const match = this.matches.find((match) => match.id === id);
-    return match || null;
+    return Promise.resolve(match || null);
   }
 
-  async findByTournamentId(tournamentId: number): Promise<Match[]> {
+  findByTournamentId(tournamentId: number): Promise<Match[]> {
     const matches = this.matches
       .filter((match) => match.tournamentId === tournamentId)
       .sort((a, b) => a.matchDatetime.getTime() - b.matchDatetime.getTime());
 
-    return matches;
+    return Promise.resolve(matches);
   }
 
-  async findUpcomingMatches(tournamentId: number): Promise<Match[]> {
+  findUpcomingMatches(tournamentId: number): Promise<Match[]> {
     const matches = this.matches
       .filter(
         (match) =>
@@ -53,10 +54,10 @@ export class InMemoryMatchesRepository implements IMatchesRepository {
       )
       .sort((a, b) => a.matchDatetime.getTime() - b.matchDatetime.getTime());
 
-    return matches;
+    return Promise.resolve(matches);
   }
 
-  async findCompletedMatches(tournamentId: number): Promise<Match[]> {
+  findCompletedMatches(tournamentId: number): Promise<Match[]> {
     const matches = this.matches
       .filter(
         (match) =>
@@ -64,10 +65,10 @@ export class InMemoryMatchesRepository implements IMatchesRepository {
       )
       .sort((a, b) => b.matchDatetime.getTime() - a.matchDatetime.getTime());
 
-    return matches;
+    return Promise.resolve(matches);
   }
 
-  async update(id: number, data: Prisma.MatchUpdateInput): Promise<Match> {
+  update(id: number, data: Prisma.MatchUpdateInput): Promise<Match> {
     const matchIndex = this.matches.findIndex((match) => match.id === id);
 
     if (matchIndex === -1) {
@@ -106,10 +107,10 @@ export class InMemoryMatchesRepository implements IMatchesRepository {
     };
 
     this.matches[matchIndex] = updatedMatch;
-    return updatedMatch;
+    return Promise.resolve(updatedMatch);
   }
 
-  async getMatchWithTeams(id: number): Promise<Match | null> {
+  getMatchWithTeams(id: number): Promise<Match | null> {
     const match = this.matches.find((match) => match.id === id);
 
     if (!match) {
@@ -124,11 +125,11 @@ export class InMemoryMatchesRepository implements IMatchesRepository {
     const tournament = this.tournaments.find((tournament) => tournament.id === match.tournamentId);
 
     // Create a new object that includes the match and its related entities
-    return {
+    return Promise.resolve({
       ...match,
       homeTeam,
       awayTeam,
       tournament,
-    } as unknown as Match;
+    } as unknown as Match);
   }
 }

@@ -1,6 +1,8 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { GetUserInfoUseCase } from './getUserInfoUseCase';
 
 describe('Get User Info Use Case', () => {

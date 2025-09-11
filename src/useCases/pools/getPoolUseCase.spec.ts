@@ -1,3 +1,5 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -6,7 +8,7 @@ import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsR
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { GetPoolUseCase } from './getPoolUseCase';
 
 let poolsRepository: IPoolsRepository;
@@ -81,7 +83,7 @@ describe('Get Pool Use Case', () => {
     });
 
     // Create scoring rules for the pool
-    const scoringRules = await poolsRepository.createScoringRules({
+    await poolsRepository.createScoringRules({
       pool: { connect: { id: pool.id } },
       exactScorePoints: 3,
       correctWinnerGoalDiffPoints: 2,
@@ -103,10 +105,8 @@ describe('Get Pool Use Case', () => {
     expect(result.id).toBe(pool.id);
     expect(result.name).toBe('Test Pool');
     expect(result.scoringRules).toBeDefined();
-    expect(result.scoringRules!.exactScorePoints).toBe(scoringRules.exactScorePoints);
-    expect(result.scoringRules!.correctWinnerGoalDiffPoints).toBe(
-      scoringRules.correctWinnerGoalDiffPoints
-    );
+    expect(result.scoringRules.exactScorePoints).toBe(3);
+    expect(result.scoringRules.correctWinnerGoalDiffPoints).toBe(2);
     expect(result.participants).toHaveLength(3);
   });
 
@@ -197,7 +197,7 @@ describe('Get Pool Use Case', () => {
     });
 
     // Create scoring rules
-    const scoringRules = await poolsRepository.createScoringRules({
+    await poolsRepository.createScoringRules({
       pool: { connect: { id: pool.id } },
       exactScorePoints: 3,
       correctWinnerGoalDiffPoints: 2,

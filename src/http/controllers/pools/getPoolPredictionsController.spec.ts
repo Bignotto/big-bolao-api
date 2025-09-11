@@ -2,7 +2,6 @@ import { Match, Pool, Prediction } from '@prisma/client';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createTestApp } from '@/test/helper-e2e';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
@@ -15,6 +14,7 @@ import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsR
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createMatch } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';

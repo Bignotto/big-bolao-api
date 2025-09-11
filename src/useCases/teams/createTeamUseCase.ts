@@ -1,5 +1,6 @@
-import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
 import { Team } from '@prisma/client';
+
+import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
 
 interface ICreateTeamRequest {
   name: string;

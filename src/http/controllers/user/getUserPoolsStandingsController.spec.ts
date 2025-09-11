@@ -1,7 +1,6 @@
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createTestApp } from '@/test/helper-e2e';
 import { PoolStandings } from '@/global/types/poolStandings';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
@@ -13,6 +12,7 @@ import { ITeamsRepository } from '@/repositories/teams/ITeamsRepository';
 import { PrismaTeamsRepository } from '@/repositories/teams/PrismaTeamsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createMatchWithTeams } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';

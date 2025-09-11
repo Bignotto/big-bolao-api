@@ -1,7 +1,9 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
+import { IUsersRepository } from '@/repositories/users/IUsersRepository';
+
 import { UpdateUserUseCase } from './updateUserUseCase';
 
 let usersRepository: IUsersRepository;

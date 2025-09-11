@@ -43,9 +43,9 @@ export const createServer = async (): Promise<FastifyInstance> => {
   const { tournamentSchemas } = await import('./http/schemas/tournament.schemas');
 
   // Combine all schemas and remove duplicates
-  const allSchemas: Record<string, any> = {};
+  const allSchemas: Record<string, unknown> = {};
 
-  const mergeSchemas = (schemas: Record<string, any>) => {
+  const mergeSchemas = (schemas: Record<string, unknown>) => {
     Object.entries(schemas).forEach(([key, schema]) => {
       if (allSchemas[key]) {
         server.log.warn(`Duplicate schema detected for ${key}, keeping existing definition.`);

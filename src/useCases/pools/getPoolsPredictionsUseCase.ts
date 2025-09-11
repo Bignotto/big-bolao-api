@@ -1,8 +1,9 @@
+import { Prediction } from '@prisma/client';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
-import { Prediction } from '@prisma/client';
 
 interface GetPoolPredictionsUseCaseRequest {
   poolId: number;

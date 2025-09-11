@@ -1,5 +1,6 @@
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { PrismaPredictionsRepository } from '@/repositories/predictions/PrismaPredictionsRepository';
+
 import { GetMatchPredictionsUseCase } from '../getMatchPredictionsUseCase';
 
 export function makeGetMatchPredictionsUseCase() {

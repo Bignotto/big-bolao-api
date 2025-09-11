@@ -1,3 +1,6 @@
+import { Match, Pool, User } from '@prisma/client';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemoryPredictionsRepository';
@@ -7,8 +10,7 @@ import { createMatch, createMatchWithTeams } from '@/test/mocks/match';
 import { createPool } from '@/test/mocks/pools';
 import { createTeam } from '@/test/mocks/teams';
 import { createUser } from '@/test/mocks/users';
-import { Match, Pool, User } from '@prisma/client';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { GetMatchPredictionsUseCase } from './getMatchPredictionsUseCase';
 
 describe('Get Match Predictions Use Case', () => {

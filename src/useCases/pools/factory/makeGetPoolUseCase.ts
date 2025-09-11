@@ -2,6 +2,7 @@ import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepositor
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
+
 import { GetPoolUseCase } from '../getPoolUseCase';
 
 export function makeGetPoolUseCase() {

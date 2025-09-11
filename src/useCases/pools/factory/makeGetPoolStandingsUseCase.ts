@@ -1,5 +1,6 @@
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
+
 import { GetPoolStandingsUseCase } from '../getPoolStandingsUseCase';
 
 export function makeGetPoolStandingsUseCase() {

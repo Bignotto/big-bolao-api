@@ -1,3 +1,5 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { InviteCodeInUseError } from '@/global/errors/InviteCodeInUseError';
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
@@ -6,7 +8,7 @@ import { InMemoryTournamentsRepository } from '@/repositories/tournaments/InMemo
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { CreatePoolUseCase } from './createPoolUseCase';
 
 let poolsRepository: IPoolsRepository;
