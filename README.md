@@ -3,7 +3,7 @@
 ## Setup
 
 1. Copy `.env.example` to `.env`.
-2. Provide values for Supabase keys, database credentials, and other variables before running the app.
+2. Provide values for Supabase keys, database credentials, and other variables before running the app. `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` are only needed when `NODE_ENV` is `test`.
 
 ## Development
 
