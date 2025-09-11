@@ -19,8 +19,25 @@ const envSchema = z.object({
   LOG_LEVEL: z.string().default('info'),
   SUPABASE_URL: z.string(),
   SUPABASE_ANON_KEY: z.string(),
-  TEST_USER_PASSWORD: z.string(),
-  TEST_USER_EMAIL: z.string(),
+  TEST_USER_PASSWORD: z.string().optional(),
+  TEST_USER_EMAIL: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.NODE_ENV === 'test') {
+    if (!data.TEST_USER_EMAIL) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'TEST_USER_EMAIL is required when NODE_ENV is test',
+        path: ['TEST_USER_EMAIL'],
+      });
+    }
+    if (!data.TEST_USER_PASSWORD) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'TEST_USER_PASSWORD is required when NODE_ENV is test',
+        path: ['TEST_USER_PASSWORD'],
+      });
+    }
+  }
 });
 
 const _env = envSchema.safeParse(process.env);
