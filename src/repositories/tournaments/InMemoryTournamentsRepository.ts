@@ -29,4 +29,17 @@ export class InMemoryTournamentsRepository implements ITournamentsRepository {
   list(): Promise<Tournament[]> {
     return Promise.resolve(this.tournaments);
   }
+
+  async getDetails(id: number) {
+    const tournament = await this.findById(id);
+    if (!tournament) return null;
+    // In-memory repo doesn't track relations; return zeros for counts
+    return {
+      ...tournament,
+      totalMatches: 0,
+      completedMatches: 0,
+      totalTeams: 0,
+      totalPools: 0,
+    };
+  }
 }

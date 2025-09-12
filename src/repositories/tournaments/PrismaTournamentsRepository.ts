@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { MatchStatus, Prisma } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 
@@ -22,5 +22,40 @@ export class PrismaTournamentsRepository implements ITournamentsRepository {
   async list() {
     const tournaments = await prisma.tournament.findMany();
     return tournaments;
+  }
+
+  async getDetails(id: number) {
+    const tournament = await prisma.tournament.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            matches: true,
+            teams: true, // counts TournamentTeam entries
+            pools: true,
+          },
+        },
+      },
+    });
+
+    if (!tournament) return null;
+
+    const completedMatches = await prisma.match.count({
+      where: { tournamentId: id, matchStatus: MatchStatus.COMPLETED },
+    });
+
+    return {
+      id: tournament.id,
+      name: tournament.name,
+      startDate: tournament.startDate,
+      endDate: tournament.endDate,
+      logoUrl: tournament.logoUrl,
+      status: tournament.status,
+      createdAt: tournament.createdAt,
+      totalMatches: tournament._count.matches,
+      completedMatches,
+      totalTeams: tournament._count.teams,
+      totalPools: tournament._count.pools,
+    };
   }
 }
