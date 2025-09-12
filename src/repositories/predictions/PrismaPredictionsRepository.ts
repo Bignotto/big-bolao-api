@@ -1,6 +1,7 @@
 import { Prediction, Prisma } from '@prisma/client';
-import { prisma } from '../../lib/prisma';
+
 import { IPredictionsRepository } from './IPredictionsRepository';
+import { prisma } from '../../lib/prisma';
 
 export class PrismaPredictionsRepository implements IPredictionsRepository {
   async create(data: Prisma.PredictionCreateInput): Promise<Prediction> {

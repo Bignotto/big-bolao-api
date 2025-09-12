@@ -1,10 +1,11 @@
 import { Prediction, Prisma } from '@prisma/client';
+
 import { IPredictionsRepository } from './IPredictionsRepository';
 
 export class InMemoryPredictionsRepository implements IPredictionsRepository {
   public predictions: Prediction[] = [];
 
-  async create(data: Prisma.PredictionCreateInput): Promise<Prediction> {
+  create(data: Prisma.PredictionCreateInput): Promise<Prediction> {
     const newId = this.predictions.length + 1;
 
     const prediction: Prediction = {
@@ -12,8 +13,8 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
       poolId: data.pool.connect?.id as number,
       matchId: data.match.connect?.id as number,
       userId: data.user.connect?.id as string,
-      predictedHomeScore: data.predictedHomeScore as number,
-      predictedAwayScore: data.predictedAwayScore as number,
+      predictedHomeScore: data.predictedHomeScore,
+      predictedAwayScore: data.predictedAwayScore,
       predictedHasExtraTime: (data.predictedHasExtraTime as boolean) || false,
       predictedHasPenalties: (data.predictedHasPenalties as boolean) || false,
       predictedPenaltyHomeScore: data.predictedPenaltyHomeScore as number | null,
@@ -24,15 +25,15 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
     };
 
     this.predictions.push(prediction);
-    return prediction;
+    return Promise.resolve(prediction);
   }
 
-  async findById(id: number): Promise<Prediction | null> {
+  findById(id: number): Promise<Prediction | null> {
     const prediction = this.predictions.find((prediction) => prediction.id === id);
-    return prediction || null;
+    return Promise.resolve(prediction || null);
   }
 
-  async findByUserMatchAndPool(
+  findByUserMatchAndPool(
     userId: string,
     matchId: number,
     poolId: number
@@ -44,10 +45,10 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
         prediction.poolId === poolId
     );
 
-    return prediction || null;
+    return Promise.resolve(prediction || null);
   }
 
-  async update(id: number, data: Prisma.PredictionUpdateInput): Promise<Prediction> {
+  update(id: number, data: Prisma.PredictionUpdateInput): Promise<Prediction> {
     const predictionIndex = this.predictions.findIndex((prediction) => prediction.id === id);
 
     if (predictionIndex === -1) {
@@ -90,33 +91,34 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
     };
 
     this.predictions[predictionIndex] = updatedPrediction;
-    return updatedPrediction;
+    return Promise.resolve(updatedPrediction);
   }
 
-  async delete(id: number): Promise<void> {
+  delete(id: number): Promise<void> {
     const predictionIndex = this.predictions.findIndex((prediction) => prediction.id === id);
 
     if (predictionIndex !== -1) {
       this.predictions.splice(predictionIndex, 1);
     }
+    return Promise.resolve();
   }
 
-  async findByMatchId(matchId: number): Promise<Prediction[]> {
+  findByMatchId(matchId: number): Promise<Prediction[]> {
     const predictions = this.predictions.filter((item) => item.matchId === matchId);
-    return predictions;
+    return Promise.resolve(predictions);
   }
 
-  async findByUserId(userId: string, poolId?: number): Promise<Prediction[]> {
+  findByUserId(userId: string, poolId?: number): Promise<Prediction[]> {
     let predictions = this.predictions.filter((prediction) => prediction.userId === userId);
 
     if (poolId) {
       predictions = predictions.filter((prediction) => prediction.poolId === poolId);
     }
 
-    return predictions;
+    return Promise.resolve(predictions);
   }
 
-  async findByPoolId(poolId: number): Promise<Prediction[]> {
-    return this.predictions.filter((prediction) => prediction.poolId === poolId);
+  findByPoolId(poolId: number): Promise<Prediction[]> {
+    return Promise.resolve(this.predictions.filter((prediction) => prediction.poolId === poolId));
   }
 }

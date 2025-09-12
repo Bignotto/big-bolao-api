@@ -105,7 +105,7 @@ describe('Update Prediction Use Case', () => {
   });
 
   it('should not allow updating a prediction for a match that has already started', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: aPool.tournamentId,
@@ -158,7 +158,7 @@ describe('Update Prediction Use Case', () => {
   });
 
   it('should update a prediction with extra time and penalties for knockout stage matches', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: aPool.tournamentId,
@@ -196,7 +196,7 @@ describe('Update Prediction Use Case', () => {
   });
 
   it('should not allow updating a prediction with penalties if scores are not tied', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: aPool.tournamentId,
@@ -229,7 +229,7 @@ describe('Update Prediction Use Case', () => {
   });
 
   it('should validate that penalty scores must be provided when hasPenalties is true during update', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: aPool.tournamentId,
@@ -262,7 +262,7 @@ describe('Update Prediction Use Case', () => {
   });
 
   it('should validate that extra time and penalties can only be true if scores are tied during update', async () => {
-    const { match, homeTeam, awayTeam } = await createMatchWithTeams(
+    const { match } = await createMatchWithTeams(
       { matchesRepository, teamsRepository },
       {
         tournamentId: aPool.tournamentId,

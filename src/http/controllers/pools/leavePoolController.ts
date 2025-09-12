@@ -1,9 +1,10 @@
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { z } from 'zod';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { NotParticipantError } from '@/useCases/pools/errors/NotParticipantError';
 import { UnauthorizedError } from '@/useCases/pools/errors/UnauthorizedError';
 import { makeLeavePoolUseCase } from '@/useCases/pools/factory/makeLeavePoolUseCase';
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { z } from 'zod';
 
 export async function leavePoolController(request: FastifyRequest, reply: FastifyReply) {
   const leavePoolParamsSchema = z.object({

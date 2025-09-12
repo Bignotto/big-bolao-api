@@ -1,6 +1,7 @@
-import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { fakerPT_BR as faker } from '@faker-js/faker';
 import { Tournament, TournamentStatus } from '@prisma/client';
+
+import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 
 export async function createTournament(
   repository: ITournamentsRepository,

@@ -1,7 +1,8 @@
+import { Prediction } from '@prisma/client';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
 import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
-import { Prediction } from '@prisma/client';
 
 interface GetMatchPredictionsRequest {
   matchId: number;

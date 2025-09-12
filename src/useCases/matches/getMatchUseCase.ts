@@ -1,6 +1,7 @@
+import { Match } from '@prisma/client';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
-import { Match } from '@prisma/client';
 
 interface GetMatchRequest {
   matchId: number;

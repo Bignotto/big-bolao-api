@@ -1,3 +1,6 @@
+import { Pool, Prediction, Tournament, User } from '@prisma/client';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
@@ -11,8 +14,7 @@ import { createPool, createPoolWithParticipants } from '@/test/mocks/pools';
 import { createPrediction } from '@/test/mocks/predictions';
 import { createTournament } from '@/test/mocks/tournament';
 import { createUser } from '@/test/mocks/users';
-import { Pool, Prediction, Tournament, User } from '@prisma/client';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { NotParticipantError } from './errors/NotParticipantError';
 import { GetPoolPredictionsUseCase } from './getPoolsPredictionsUseCase';
 

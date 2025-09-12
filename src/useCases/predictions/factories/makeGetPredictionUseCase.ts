@@ -1,4 +1,5 @@
 import { PrismaPredictionsRepository } from '@/repositories/predictions/PrismaPredictionsRepository';
+
 import { GetPredictionUseCase } from '../getPredictionUseCase';
 
 export function makeGetPredictionUseCase() {

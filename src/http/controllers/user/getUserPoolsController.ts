@@ -1,7 +1,8 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { makeGetUserPoolsUseCase } from '@/useCases/pools/factory/makeGetUserPoolsUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
+
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { makeGetUserPoolsUseCase } from '@/useCases/pools/factory/makeGetUserPoolsUseCase';
 
 export async function getUserPoolsController(
   request: FastifyRequest<{ Params: { userId: string } }>,

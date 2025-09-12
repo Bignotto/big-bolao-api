@@ -1,5 +1,6 @@
-import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { Tournament } from '@prisma/client';
+
+import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 
 interface ListTournamentsUseCaseResponse {
   tournaments: Tournament[];

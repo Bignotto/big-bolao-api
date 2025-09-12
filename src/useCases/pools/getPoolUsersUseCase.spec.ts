@@ -1,10 +1,12 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
 import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { NotParticipantError } from './errors/NotParticipantError';
 import { GetPoolUsersUseCase } from './getPoolUsersUseCase';
 

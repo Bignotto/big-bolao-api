@@ -1,5 +1,7 @@
-import { prisma } from '@/lib/prisma';
 import { Prisma, Team } from '@prisma/client';
+
+import { prisma } from '@/lib/prisma';
+
 import { ITeamsRepository } from './ITeamsRepository';
 
 export class PrismaTeamsRepository implements ITeamsRepository {

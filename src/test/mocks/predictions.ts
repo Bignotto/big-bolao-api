@@ -1,5 +1,6 @@
-import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
 import { Prediction } from '@prisma/client';
+
+import { IPredictionsRepository } from '@/repositories/predictions/IPredictionsRepository';
 
 export async function createPrediction(
   repository: IPredictionsRepository,
@@ -16,8 +17,6 @@ export async function createPrediction(
   }
 ): Promise<Prediction> {
   const randomPredictionNumber = Math.floor(Math.random() * 100);
-  const homeRandomNumber = Math.floor(Math.random() * 10);
-  const awayRandomNumber = Math.floor(Math.random() * 10);
 
   const prediction = await repository.create({
     match: {

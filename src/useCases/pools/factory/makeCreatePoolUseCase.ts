@@ -1,6 +1,7 @@
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+
 import { CreatePoolUseCase } from '../createPoolUseCase';
 
 export function makeCreatePoolUseCase() {

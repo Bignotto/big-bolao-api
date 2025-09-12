@@ -1,3 +1,6 @@
+import { Match, MatchStage, MatchStatus, Pool, User } from '@prisma/client';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryMatchesRepository } from '@/repositories/matches/InMemoryMatchesRepository';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
@@ -10,8 +13,7 @@ import { createPool } from '@/test/mocks/pools';
 import { createPrediction } from '@/test/mocks/predictions';
 import { createTeam } from '@/test/mocks/teams';
 import { createUser } from '@/test/mocks/users';
-import { Match, MatchStage, MatchStatus, Pool, User } from '@prisma/client';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { GetPoolStandingsUseCase } from './getPoolStandingsUseCase';
 
 describe('GetPoolStandingsUseCase', () => {
@@ -26,7 +28,7 @@ describe('GetPoolStandingsUseCase', () => {
   let creator: User;
   let regularUser: User;
   let pool: Pool;
-  let matches: Match[] = [];
+  const matches: Match[] = [];
 
   beforeEach(async () => {
     poolsRepository = new InMemoryPoolsRepository();

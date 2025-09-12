@@ -1,7 +1,9 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '@/repositories/pools/InMemoryPoolsRepository';
 import { InMemoryUsersRepository } from '@/repositories/users/InMemoryUsersRepository';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { GetUserPoolsUseCase } from './getUserPoolsUseCase';
 
 let poolsRepository: InMemoryPoolsRepository;
@@ -84,7 +86,7 @@ describe('Get User Pools Use Case', () => {
       passwordHash: 'passwordHash123',
     });
 
-    const otherUser = await usersRepository.create({
+    await usersRepository.create({
       email: 'jane@example.com',
       fullName: 'Jane Doe',
       passwordHash: 'passwordHash123',
@@ -121,7 +123,7 @@ describe('Get User Pools Use Case', () => {
       passwordHash: 'passwordHash123',
     });
 
-    const otherUser = await usersRepository.create({
+    await usersRepository.create({
       email: 'jane@example.com',
       fullName: 'Jane Doe',
       passwordHash: 'passwordHash123',

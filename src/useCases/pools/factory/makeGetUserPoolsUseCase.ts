@@ -1,5 +1,6 @@
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+
 import { GetUserPoolsUseCase } from '../getUserPoolsUseCase';
 
 export function makeGetUserPoolsUseCase() {

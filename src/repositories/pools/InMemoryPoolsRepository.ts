@@ -340,7 +340,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     const startIndex = (page - 1) * perPage;
     const endIndex = startIndex + perPage;
 
-    return pools.slice(startIndex, endIndex);
+    return Promise.resolve(pools.slice(startIndex, endIndex));
   }
 
   async removeParticipant({ poolId, userId }: { poolId: number; userId: string }) {

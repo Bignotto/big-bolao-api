@@ -14,10 +14,9 @@ import { createMatch, createMatchWithTeams } from '@/test/mocks/match';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 
-describe('Get Match Controller (e2e)', async () => {
+describe('Get Match Controller (e2e)', () => {
   let app: FastifyInstance;
 
-  let userId: string;
   let token: string;
 
   let matchesRepository: IMatchesRepository;
@@ -26,7 +25,7 @@ describe('Get Match Controller (e2e)', async () => {
 
   beforeAll(async () => {
     app = await createTestApp();
-    ({ token, userId } = await getSupabaseAccessToken(app));
+    ({ token } = await getSupabaseAccessToken(app));
     matchesRepository = new PrismaMatchesRepository();
     teamsRepository = new PrismaTeamsRepository();
     tournamentsRepository = new PrismaTournamentsRepository();
@@ -61,13 +60,22 @@ describe('Get Match Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('match');
-    expect(response.body.match).toHaveProperty('id', match.id);
-    expect(response.body.match).toHaveProperty('homeTeam');
-    expect(response.body.match).toHaveProperty('awayTeam');
-    expect(response.body.match).toHaveProperty('tournament');
-    expect(response.body.match.homeTeam.id).toEqual(homeTeam.id);
-    expect(response.body.match.awayTeam.id).toEqual(awayTeam.id);
+    type MatchResponse = {
+      match: {
+        id: number;
+        homeTeam: { id: number };
+        awayTeam: { id: number };
+        tournament?: unknown;
+      };
+    };
+    const body = response.body as unknown as MatchResponse;
+    expect(body).toHaveProperty('match');
+    expect(body.match).toHaveProperty('id', match.id);
+    expect(body.match).toHaveProperty('homeTeam');
+    expect(body.match).toHaveProperty('awayTeam');
+    expect(body.match).toHaveProperty('tournament');
+    expect(body.match.homeTeam.id).toEqual(homeTeam.id);
+    expect(body.match.awayTeam.id).toEqual(awayTeam.id);
   });
 
   it('should be able to get a match with teams in a single call', async () => {
@@ -94,12 +102,20 @@ describe('Get Match Controller (e2e)', async () => {
       .send();
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('match');
-    expect(response.body.match).toHaveProperty('id', match.id);
-    expect(response.body.match).toHaveProperty('homeTeam');
-    expect(response.body.match).toHaveProperty('awayTeam');
-    expect(response.body.match.homeTeam.id).toEqual(homeTeam.id);
-    expect(response.body.match.awayTeam.id).toEqual(awayTeam.id);
+    type MatchResponse2 = {
+      match: {
+        id: number;
+        homeTeam: { id: number };
+        awayTeam: { id: number };
+      };
+    };
+    const body2 = response.body as unknown as MatchResponse2;
+    expect(body2).toHaveProperty('match');
+    expect(body2.match).toHaveProperty('id', match.id);
+    expect(body2.match).toHaveProperty('homeTeam');
+    expect(body2.match).toHaveProperty('awayTeam');
+    expect(body2.match.homeTeam.id).toEqual(homeTeam.id);
+    expect(body2.match.awayTeam.id).toEqual(awayTeam.id);
   });
 
   it('should return 404 when match does not exist', async () => {

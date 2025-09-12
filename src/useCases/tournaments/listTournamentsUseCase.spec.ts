@@ -1,6 +1,8 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { InMemoryTournamentsRepository } from '@/repositories/tournaments/InMemoryTournamentsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ListTournamentsUseCase } from './listTournamentsUseCase';
 
 let tournamentsRepository: ITournamentsRepository;

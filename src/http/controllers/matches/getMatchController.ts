@@ -1,7 +1,8 @@
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { makeGetMatchUseCase } from '@/useCases/matches/factories/makeGetMatchUseCase';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
+
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
+import { makeGetMatchUseCase } from '@/useCases/matches/factories/makeGetMatchUseCase';
 
 export async function getMatchController(
   request: FastifyRequest<{

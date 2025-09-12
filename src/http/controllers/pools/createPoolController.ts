@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InviteCodeInUseError } from '@/global/errors/InviteCodeInUseError';
+import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InviteCodeRequiredError } from '@/useCases/pools/errors/InviteCodeRequiredError';
 import { PoolNameInUseError } from '@/useCases/pools/errors/PoolNameInUseError';
 import { makeCreatePoolUseCase } from '@/useCases/pools/factory/makeCreatePoolUseCase';

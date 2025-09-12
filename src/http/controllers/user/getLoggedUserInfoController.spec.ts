@@ -1,8 +1,8 @@
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createTestApp } from '@/test/helper-e2e';
 import { env } from '@/env/config';
+import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 
 describe('Get User Info (e2e)', async () => {

@@ -1,6 +1,7 @@
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
+
 import { UpdatePoolUseCase } from '../updatePoolUseCase';
 
 export function makeUpdatePoolUseCase() {

@@ -1,8 +1,10 @@
+import { Prediction } from '@prisma/client';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { InMemoryPredictionsRepository } from '@/repositories/predictions/InMemoryPredictionsRepository';
 import { createPrediction } from '@/test/mocks/predictions';
-import { Prediction } from '@prisma/client';
-import { beforeEach, describe, expect, it } from 'vitest';
+
 import { NotParticipantError } from './error/NotParticipantError';
 import { GetPredictionUseCase } from './getPredictionUseCase';
 

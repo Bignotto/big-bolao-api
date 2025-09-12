@@ -1,10 +1,12 @@
-import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
+
+import { LeavePoolUseCase } from './leavePoolUseCase';
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { InMemoryPoolsRepository } from '../../repositories/pools/InMemoryPoolsRepository';
 import { InMemoryTournamentsRepository } from '../../repositories/tournaments/InMemoryTournamentsRepository';
 import { InMemoryUsersRepository } from '../../repositories/users/InMemoryUsersRepository';
-import { LeavePoolUseCase } from './leavePoolUseCase';
 
 let poolsRepository: InMemoryPoolsRepository;
 let usersRepository: InMemoryUsersRepository;

@@ -9,6 +9,7 @@ import { getUserPredictionsController } from '@/http/controllers/user/getUserPre
 import { updateUserController } from '@/http/controllers/user/updateUserController';
 import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
+import { predictionSchemas } from '@/http/schemas/prediction.schemas';
 import { userSchemas } from '@/http/schemas/user.schemas';
 
 export function userRoutes(app: FastifyInstance): void {
@@ -182,7 +183,7 @@ export function userRoutes(app: FastifyInstance): void {
             properties: {
               predictions: {
                 type: 'array',
-                items: userSchemas.Prediction,
+                items: predictionSchemas.Prediction,
               },
             },
           },

@@ -1,4 +1,5 @@
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
+
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';

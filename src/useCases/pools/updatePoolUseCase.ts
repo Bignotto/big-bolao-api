@@ -1,4 +1,5 @@
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
+
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '../../repositories/pools/IPoolsRepository';
 import { IUsersRepository } from '../../repositories/users/IUsersRepository';
@@ -40,7 +41,7 @@ export class UpdatePoolUseCase {
     }
 
     // Validate user is the pool creator
-    await this.poolAuthorizationService.validatePoolCreatorAccess(poolId, userId, pool.creatorId);
+    this.poolAuthorizationService.validatePoolCreatorAccess(poolId, userId, pool.creatorId);
 
     const updatedPool = await this.poolsRepository.update(poolId, {
       name,
