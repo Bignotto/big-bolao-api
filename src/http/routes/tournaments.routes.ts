@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 
 import { getTournamentMatchesController } from '@/http/controllers/tournaments/getTournamentMatchesController';
+import { getTournamentDetailController } from '@/http/controllers/tournaments/getTournamentDetailController';
 import { listTournamentsController } from '@/http/controllers/tournaments/listTournamentsController';
 import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
@@ -35,6 +36,33 @@ export function tournamentsRoutes(app: FastifyInstance): void {
       },
     },
     listTournamentsController
+  );
+
+  app.get(
+    '/tournaments/:tournamentId',
+    {
+      schema: {
+        tags: ['Tournaments'],
+        summary: 'Get tournament details',
+        description: 'Retrieves tournament metadata and basic statistics',
+        params: tournamentSchemas.TournamentIdParam,
+        response: {
+          200: {
+            description: 'Tournament details retrieved successfully',
+            type: 'object',
+            properties: {
+              tournament: tournamentSchemas.TournamentWithStats,
+            },
+            required: ['tournament'],
+          },
+          401: commonSchemas.UnauthorizedError,
+          404: tournamentSchemas.TournamentNotFoundError,
+          422: tournamentSchemas.TournamentValidationError,
+          500: tournamentSchemas.TournamentInternalServerError,
+        },
+      },
+    },
+    getTournamentDetailController
   );
 
   app.get(
