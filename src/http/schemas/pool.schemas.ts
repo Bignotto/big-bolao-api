@@ -79,6 +79,85 @@ export const poolSchemas = {
     required: ['id', 'name', 'tournamentId', 'creatorId', 'isPrivate', 'createdAt'],
   },
 
+  // Public Pool object (omits sensitive fields like inviteCode)
+  PublicPool: {
+    type: 'object',
+    properties: {
+      id: { type: 'number', description: 'Pool unique identifier' },
+      name: { type: 'string', description: 'Pool name' },
+      description: { type: 'string', nullable: true, description: 'Pool description' },
+      tournamentId: { type: 'number', description: 'Tournament ID this pool belongs to' },
+      creatorId: { type: 'string', description: 'Pool creator user ID' },
+      isPrivate: { type: 'boolean', description: 'Whether the pool is private' },
+      maxParticipants: {
+        type: 'number',
+        nullable: true,
+        description: 'Maximum number of participants',
+      },
+      registrationDeadline: {
+        type: 'string',
+        format: 'date-time',
+        nullable: true,
+        description: 'Registration deadline',
+      },
+      createdAt: { type: 'string', format: 'date-time', description: 'Pool creation timestamp' },
+      creator: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          fullName: { type: 'string' },
+          profileImageUrl: { type: 'string', nullable: true },
+        },
+        description: 'Pool creator information',
+      },
+      tournament: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          name: { type: 'string' },
+          startDate: { type: 'string', format: 'date-time' },
+          endDate: { type: 'string', format: 'date-time' },
+          status: {
+            type: 'string',
+            enum: ['UPCOMING', 'ACTIVE', 'COMPLETED'],
+          },
+        },
+        description: 'Tournament information',
+      },
+      participantsCount: { type: 'number', description: 'Number of participants in the pool' },
+      isCreator: { type: 'boolean', description: 'Whether the current user is the pool creator' },
+      isParticipant: {
+        type: 'boolean',
+        description: 'Whether the current user is a participant in the pool',
+      },
+      scoringRules: {
+        type: 'object',
+        properties: {
+          exactScorePoints: { type: 'number', description: 'Points for exact score prediction' },
+          correctWinnerPoints: {
+            type: 'number',
+            description: 'Points for correct winner prediction',
+          },
+          correctDrawPoints: { type: 'number', description: 'Points for correct draw prediction' },
+          correctWinnerGoalDiffPoints: {
+            type: 'number',
+            description: 'Points for correct winner with goal difference prediction',
+          },
+          finalMultiplier: {
+            type: 'number',
+            description: 'Multiplier for final stage predictions',
+          },
+          knockoutMultiplier: {
+            type: 'number',
+            description: 'Multiplier for knockout stage predictions',
+          },
+        },
+        description: 'Scoring rules for the pool',
+      },
+    },
+    required: ['id', 'name', 'tournamentId', 'creatorId', 'isPrivate', 'createdAt'],
+  },
+
   // Create Pool Request Body
   CreatePoolRequest: {
     type: 'object',
@@ -228,8 +307,23 @@ export const poolSchemas = {
     properties: {
       pools: {
         type: 'array',
-        items: { $ref: 'Pool#' },
+        items: { $ref: 'PublicPool#' },
       },
+    },
+    example: {
+      pools: [
+        {
+          id: 1,
+          name: 'Public Pool Example',
+          description: 'An example public pool',
+          tournamentId: 10,
+          creatorId: 'cjld2cjxh0000qzrmn831i7rn',
+          isPrivate: false,
+          maxParticipants: null,
+          registrationDeadline: null,
+          createdAt: '2024-01-01T12:00:00.000Z',
+        },
+      ],
     },
   },
 

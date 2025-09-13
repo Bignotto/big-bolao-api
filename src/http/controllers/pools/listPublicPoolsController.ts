@@ -25,7 +25,13 @@ export async function listPublicPoolsController(
       name,
     });
 
-    return reply.status(200).send({ pools });
+    // Omit inviteCode from public listing
+    const sanitized = pools.map((pool) => {
+      const { inviteCode: _inviteCode, ...rest } = pool as any;
+      return rest;
+    });
+
+    return reply.status(200).send({ pools: sanitized });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return reply
