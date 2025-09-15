@@ -16,8 +16,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3333),
   HOST: z.string().default('0.0.0.0'),
   LOG_LEVEL: z.string().default('info'),
+  DATABASE_URL: z.string(),
   SUPABASE_URL: z.string(),
   SUPABASE_ANON_KEY: z.string(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string(),
   TEST_USER_PASSWORD: z.string().optional(),
   TEST_USER_EMAIL: z.string().optional(),
 }).superRefine((data, ctx) => {
