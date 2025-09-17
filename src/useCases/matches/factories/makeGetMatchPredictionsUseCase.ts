@@ -3,7 +3,7 @@ import { PrismaPredictionsRepository } from '@/repositories/predictions/PrismaPr
 
 import { GetMatchPredictionsUseCase } from '../getMatchPredictionsUseCase';
 
-export function makeGetMatchPredictionsUseCase() {
+export function makeGetMatchPredictionsUseCase(): GetMatchPredictionsUseCase {
   const predictionsRepository = new PrismaPredictionsRepository();
   const matchesRepository = new PrismaMatchesRepository();
   const useCase = new GetMatchPredictionsUseCase(predictionsRepository, matchesRepository);

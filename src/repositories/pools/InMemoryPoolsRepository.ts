@@ -343,7 +343,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     return Promise.resolve(pools.slice(startIndex, endIndex));
   }
 
-  async removeParticipant({ poolId, userId }: { poolId: number; userId: string }) {
+  async removeParticipant({ poolId, userId }: { poolId: number; userId: string }): Promise<void> {
     const participantIndex = this.participants.findIndex(
       (participant) => participant.poolId === poolId && participant.userId === userId
     );

@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 
-import { getTournamentMatchesController } from '@/http/controllers/tournaments/getTournamentMatchesController';
 import { getTournamentDetailController } from '@/http/controllers/tournaments/getTournamentDetailController';
+import { getTournamentMatchesController } from '@/http/controllers/tournaments/getTournamentMatchesController';
 import { listTournamentsController } from '@/http/controllers/tournaments/listTournamentsController';
 import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';

@@ -4,11 +4,10 @@ import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationServ
 
 import { UpdatePoolUseCase } from '../updatePoolUseCase';
 
-export function makeUpdatePoolUseCase() {
+export function makeUpdatePoolUseCase(): UpdatePoolUseCase {
   const poolsRepository = new PrismaPoolsRepository();
   const usersRepository = new PrismaUsersRepository();
   const poolAuthorizationService = new PoolAuthorizationService(poolsRepository);
   const useCase = new UpdatePoolUseCase(poolsRepository, usersRepository, poolAuthorizationService);
-
   return useCase;
 }

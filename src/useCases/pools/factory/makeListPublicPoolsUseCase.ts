@@ -2,7 +2,7 @@ import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepositor
 
 import { ListPublicPoolsUseCase } from '../listPublicPoolsUseCase';
 
-export function makeListPublicPoolsUseCase() {
+export function makeListPublicPoolsUseCase(): ListPublicPoolsUseCase {
   const poolsRepository = new PrismaPoolsRepository();
   return new ListPublicPoolsUseCase(poolsRepository);
 }

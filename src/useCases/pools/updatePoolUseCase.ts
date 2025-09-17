@@ -1,3 +1,5 @@
+import type { Pool } from '@prisma/client';
+
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
@@ -29,7 +31,7 @@ export class UpdatePoolUseCase {
     isPrivate,
     maxParticipants,
     registrationDeadline,
-  }: IUpdatePoolRequest) {
+  }: IUpdatePoolRequest): Promise<Pool> {
     const user = await this.usersRepository.findById(userId);
     if (!user) {
       throw new ResourceNotFoundError('User not found');

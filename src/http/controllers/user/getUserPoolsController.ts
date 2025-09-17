@@ -7,7 +7,7 @@ import { makeGetUserPoolsUseCase } from '@/useCases/pools/factory/makeGetUserPoo
 export async function getUserPoolsController(
   request: FastifyRequest<{ Params: { userId: string } }>,
   reply: FastifyReply
-) {
+): Promise<FastifyReply> {
   try {
     const paramsSchema = z.object({
       userId: z.string(),

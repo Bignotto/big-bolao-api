@@ -4,12 +4,11 @@ import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepositor
 
 import { CreatePoolUseCase } from '../createPoolUseCase';
 
-export function makeCreatePoolUseCase() {
+export function makeCreatePoolUseCase(): CreatePoolUseCase {
   const poolsRepository = new PrismaPoolsRepository();
   const usersRepository = new PrismaUsersRepository();
   const tournamentsRepository = new PrismaTournamentsRepository();
 
   const useCase = new CreatePoolUseCase(poolsRepository, usersRepository, tournamentsRepository);
-
   return useCase;
 }

@@ -4,7 +4,7 @@ import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationServ
 
 import { LeavePoolUseCase } from '../leavePoolUseCase';
 
-export function makeLeavePoolUseCase() {
+export function makeLeavePoolUseCase(): LeavePoolUseCase {
   const poolsRepository = new PrismaPoolsRepository();
   const usersRepository = new PrismaUsersRepository();
   const poolAuthorizationService = new PoolAuthorizationService(poolsRepository);

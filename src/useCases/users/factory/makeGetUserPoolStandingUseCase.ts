@@ -3,7 +3,7 @@ import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepositor
 
 import { GetUserPoolStandingUseCase } from '../getUserPoolsStandingsUseCase';
 
-export function makeGetUserPoolStandingUseCase() {
+export function makeGetUserPoolStandingUseCase(): GetUserPoolStandingUseCase {
   const poolsRepository = new PrismaPoolsRepository();
   const usersRepository = new PrismaUsersRepository();
 

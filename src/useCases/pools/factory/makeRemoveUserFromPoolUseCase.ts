@@ -3,7 +3,7 @@ import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepositor
 
 import { RemoveUserFromPoolUseCase } from '../removeUserFromPoolUseCase';
 
-export function makeRemoveUserFromPoolUseCase() {
+export function makeRemoveUserFromPoolUseCase(): RemoveUserFromPoolUseCase {
   const poolsRepository = new PrismaPoolsRepository();
   const usersRepository = new PrismaUsersRepository();
   const removeUserFromPoolUseCase = new RemoveUserFromPoolUseCase(poolsRepository, usersRepository);

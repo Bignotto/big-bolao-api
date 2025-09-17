@@ -5,7 +5,7 @@ import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepositor
 
 import { UpdatePredictionUseCase } from '../updatePredictionUseCase';
 
-export function makeUpdatePredictionUseCase() {
+export function makeUpdatePredictionUseCase(): UpdatePredictionUseCase {
   const predictionsRepository = new PrismaPredictionsRepository();
   const poolsRepository = new PrismaPoolsRepository();
   const usersRepository = new PrismaUsersRepository();

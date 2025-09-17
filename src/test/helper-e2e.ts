@@ -18,7 +18,7 @@ export async function createTestApp(): Promise<FastifyInstance> {
 
     return app;
   } catch (error) {
-    console.error('❌ Failed to create test app:', error);
+    process.stderr.write(`❌ Failed to create test app: ${String(error)}\n`);
     throw error;
   }
 }
@@ -29,7 +29,7 @@ export async function closeTestApp(): Promise<void> {
       await app.close();
       app = null;
     } catch (error) {
-      console.error('❌ Failed to close test app:', error);
+      process.stderr.write(`❌ Failed to close test app: ${String(error)}\n`);
       // Não throw aqui para não falhar o cleanup
     }
   }

@@ -3,10 +3,9 @@ import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepositor
 
 import { GetUserPoolsUseCase } from '../getUserPoolsUseCase';
 
-export function makeGetUserPoolsUseCase() {
+export function makeGetUserPoolsUseCase(): GetUserPoolsUseCase {
   const poolsRepository = new PrismaPoolsRepository();
   const usersRepository = new PrismaUsersRepository();
   const useCase = new GetUserPoolsUseCase(poolsRepository, usersRepository);
-
   return useCase;
 }

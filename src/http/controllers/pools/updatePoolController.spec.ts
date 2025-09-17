@@ -22,7 +22,7 @@ type ErrorResponse = {
   code?: string;
   error?: string;
   message: string;
-  issues?: any;
+  issues?: unknown;
 };
 
 describe('Update Pool Controller (e2e)', async () => {

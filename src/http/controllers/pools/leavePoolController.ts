@@ -6,7 +6,10 @@ import { NotParticipantError } from '@/useCases/pools/errors/NotParticipantError
 import { UnauthorizedError } from '@/useCases/pools/errors/UnauthorizedError';
 import { makeLeavePoolUseCase } from '@/useCases/pools/factory/makeLeavePoolUseCase';
 
-export async function leavePoolController(request: FastifyRequest, reply: FastifyReply) {
+export async function leavePoolController(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<FastifyReply> {
   const leavePoolParamsSchema = z.object({
     poolId: z.coerce.number(),
   });
@@ -32,7 +35,7 @@ export async function leavePoolController(request: FastifyRequest, reply: Fastif
       return reply.status(403).send({ message: error.message });
     }
 
-    console.log(JSON.stringify(error, null, 2));
+    reply.log.error(error);
     return reply.status(500).send({ message: 'Internal server error' });
   }
 }

@@ -110,7 +110,11 @@ export const createServer = async (): Promise<FastifyInstance> => {
           next();
         },
       },
-      transformSpecification: (swaggerObject, _request, _reply) => {
+      transformSpecification: (
+        swaggerObject: unknown,
+        _request: unknown,
+        _reply: unknown
+      ): unknown => {
         return swaggerObject;
       },
       transformSpecificationClone: true,
@@ -130,13 +134,13 @@ export const createServer = async (): Promise<FastifyInstance> => {
 
   server.setErrorHandler((error, _, reply) => {
     if (error instanceof ZodError) {
-      if (env.NODE_ENV !== 'test') console.log(JSON.stringify(error, null, 2));
+      if (env.NODE_ENV !== 'test') server.log.warn(JSON.stringify(error, null, 2));
 
       return reply.status(422).send({ message: 'Validation error', issues: error.format() });
     }
 
     if (env.NODE_ENV !== 'production') {
-      console.error(error);
+      server.log.error(error);
     } else {
       // TODO: log unknown error
     }
@@ -147,8 +151,10 @@ export const createServer = async (): Promise<FastifyInstance> => {
   return server;
 };
 // Graceful shutdown handler
-export const closeGracefully = async (signal: string) => {
-  if (env.NODE_ENV !== 'test') console.log(`Received signal to terminate: ${signal}`);
+export const closeGracefully = async (signal: string): Promise<void> => {
+  if (env.NODE_ENV !== 'test') {
+    process.stdout.write(`Received signal to terminate: ${signal}\n`);
+  }
 
   await prisma.$disconnect();
   process.exit(0);
@@ -157,13 +163,13 @@ export const closeGracefully = async (signal: string) => {
 if (env.NODE_ENV !== 'test') {
   process.on('SIGINT', () => {
     closeGracefully('SIGINT').catch((err) => {
-      console.error('Error during graceful shutdown:', err);
+      process.stderr.write(`Error during graceful shutdown: ${String(err)}\n`);
       process.exit(1);
     });
   });
   process.on('SIGTERM', () => {
     closeGracefully('SIGTERM').catch((err) => {
-      console.error('Error during graceful shutdown:', err);
+      process.stderr.write(`Error during graceful shutdown: ${String(err)}\n`);
       process.exit(1);
     });
   });

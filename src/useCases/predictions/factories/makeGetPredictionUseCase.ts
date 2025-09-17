@@ -2,7 +2,7 @@ import { PrismaPredictionsRepository } from '@/repositories/predictions/PrismaPr
 
 import { GetPredictionUseCase } from '../getPredictionUseCase';
 
-export function makeGetPredictionUseCase() {
+export function makeGetPredictionUseCase(): GetPredictionUseCase {
   const predictionsRepository = new PrismaPredictionsRepository();
   const useCase = new GetPredictionUseCase(predictionsRepository);
 

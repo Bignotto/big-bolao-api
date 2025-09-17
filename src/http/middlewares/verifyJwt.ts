@@ -1,6 +1,9 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function verifyJwt(request: FastifyRequest, reply: FastifyReply) {
+export async function verifyJwt(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> {
   try {
     if (!request.headers.authorization) {
       throw new Error('Missing authorization header');
@@ -12,6 +15,6 @@ export async function verifyJwt(request: FastifyRequest, reply: FastifyReply) {
       sub: (payload as { sub: string }).sub,
     };
   } catch {
-    return reply.status(401).send({ message: 'Unauthorized.' });
+    await reply.status(401).send({ message: 'Unauthorized.' });
   }
 }

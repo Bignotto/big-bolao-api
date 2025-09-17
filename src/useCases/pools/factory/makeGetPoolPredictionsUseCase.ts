@@ -4,7 +4,7 @@ import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationServ
 
 import { GetPoolPredictionsUseCase } from '../getPoolsPredictionsUseCase';
 
-export function makeGetPoolPredictionsUseCase() {
+export function makeGetPoolPredictionsUseCase(): GetPoolPredictionsUseCase {
   const predictionsRepository = new PrismaPredictionsRepository();
   const poolsRepository = new PrismaPoolsRepository();
   const poolAuthorizationService = new PoolAuthorizationService(poolsRepository);

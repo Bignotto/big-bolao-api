@@ -9,7 +9,7 @@ export async function getMatchController(
     Params: { matchId: string };
   }>,
   reply: FastifyReply
-) {
+): Promise<FastifyReply> {
   const getMatchParamsSchema = z.object({
     matchId: z.coerce.number(),
   });
