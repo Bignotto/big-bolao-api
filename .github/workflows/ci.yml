@@ -1,5 +1,9 @@
 name: CI
 
+env:
+  TEST_USER_EMAIL: 'bignotto@gmail.com'
+  TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
 on:
   push:
   pull_request:
