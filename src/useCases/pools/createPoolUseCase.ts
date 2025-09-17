@@ -1,3 +1,5 @@
+import type { Pool } from '@prisma/client';
+
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
@@ -33,7 +35,7 @@ export class CreatePoolUseCase {
     maxParticipants,
     registrationDeadline,
     inviteCode,
-  }: ICreatePoolRequest) {
+  }: ICreatePoolRequest): Promise<Pool> {
     if (isPrivate && !inviteCode) {
       throw new InviteCodeRequiredError();
     }

@@ -3,7 +3,7 @@ import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTo
 
 import { UpdateMatchUseCase } from '../updateMatchUseCase';
 
-export function makeUpdateMatchUseCase() {
+export function makeUpdateMatchUseCase(): UpdateMatchUseCase {
   const matchesRepository = new PrismaMatchesRepository();
   const tournamentsRepository = new PrismaTournamentsRepository();
   const updateMatchUseCase = new UpdateMatchUseCase(matchesRepository, tournamentsRepository);

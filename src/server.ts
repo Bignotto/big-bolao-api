@@ -8,8 +8,7 @@ const start = async () => {
     const host = process.env.HOST || '0.0.0.0';
 
     await server.listen({ port, host });
-
-    console.log(`Server is running on ${host}:${port}`);
+    server.log.info(`Server is running on ${host}:${port}`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);
@@ -17,6 +16,7 @@ const start = async () => {
 };
 
 start().catch((err) => {
-  console.error('Failed to start the server:', err);
+  // Use stderr to avoid console usage per lint rules
+  process.stderr.write(`Failed to start the server: ${String(err)}\n`);
   process.exit(1);
 });

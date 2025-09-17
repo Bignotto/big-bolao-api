@@ -9,7 +9,7 @@ interface IListPublicPoolsRequest {
 export class ListPublicPoolsUseCase {
   constructor(private poolsRepository: IPoolsRepository) {}
 
-  async execute({ page, perPage, name }: IListPublicPoolsRequest) {
+  async execute({ page, perPage, name }: IListPublicPoolsRequest): Promise<{ pools: import('@prisma/client').Pool[] }> {
     const pools = await this.poolsRepository.findPublicPools({
       page,
       perPage,

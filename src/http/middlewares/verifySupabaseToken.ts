@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 export async function verifySupabaseToken(
   request: FastifyRequest,
   reply: FastifyReply
-) {
+): Promise<void> {
   try {
     const authHeader = request.headers.authorization;
 
@@ -23,6 +23,6 @@ export async function verifySupabaseToken(
 
     request.user = { sub: data.user.id };
   } catch {
-    return reply.status(401).send({ message: 'Unauthorized.' });
+    await reply.status(401).send({ message: 'Unauthorized.' });
   }
 }

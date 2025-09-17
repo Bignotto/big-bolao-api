@@ -2,7 +2,7 @@ import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRep
 
 import { GetMatchUseCase } from '../getMatchUseCase';
 
-export function makeGetMatchUseCase() {
+export function makeGetMatchUseCase(): GetMatchUseCase {
   const matchesRepository = new PrismaMatchesRepository();
   const getMatchUseCase = new GetMatchUseCase(matchesRepository);
 

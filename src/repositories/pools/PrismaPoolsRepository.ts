@@ -106,7 +106,7 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return scoringRules;
   }
 
-  async addParticipant({ poolId, userId }: { poolId: number; userId: string }) {
+  async addParticipant({ poolId, userId }: { poolId: number; userId: string }): Promise<void> {
     await prisma.poolParticipant.create({
       data: {
         poolId,
@@ -115,7 +115,7 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     });
   }
 
-  async findById(id: number) {
+  async findById(id: number): Promise<Pool | null> {
     const pool = await prisma.pool.findUnique({
       where: { id },
       include: { tournament: true },
@@ -124,7 +124,7 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return pool;
   }
 
-  async findByInviteCode(inviteCode: string) {
+  async findByInviteCode(inviteCode: string): Promise<Pool | null> {
     const pool = await prisma.pool.findFirst({
       where: { inviteCode },
       include: { tournament: true },
@@ -133,7 +133,7 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return pool;
   }
 
-  async findByCreatorId(creatorId: string) {
+  async findByCreatorId(creatorId: string): Promise<Pool[]> {
     const pools = await prisma.pool.findMany({
       where: { creatorId },
     });
@@ -141,7 +141,7 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return pools;
   }
 
-  async findByParticipantId(userId: string) {
+  async findByParticipantId(userId: string): Promise<Pool[]> {
     const poolParticipants = await prisma.poolParticipant.findMany({
       where: { userId },
       include: { pool: true },
@@ -158,7 +158,7 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     page: number;
     perPage: number;
     name?: string;
-  }) {
+  }): Promise<Pool[]> {
     const pools = await prisma.pool.findMany({
       where: {
         isPrivate: false,
@@ -179,7 +179,7 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return pools;
   }
 
-  async removeParticipant({ poolId, userId }: { poolId: number; userId: string }) {
+  async removeParticipant({ poolId, userId }: { poolId: number; userId: string }): Promise<void> {
     await prisma.poolParticipant.delete({
       where: {
         poolId_userId: {
@@ -190,7 +190,7 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     });
   }
 
-  async getPoolStandings(poolId: number) {
+  async getPoolStandings(poolId: number): Promise<PoolStandings[]> {
     const poolStandings = await prisma.$queryRaw<PoolStandings[]>`
     SELECT * FROM pool_standings
     WHERE "poolId" = ${poolId}
@@ -208,7 +208,7 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     }));
   }
 
-  async getUserPoolsStandings(userId: string) {
+  async getUserPoolsStandings(userId: string): Promise<PoolStandings[]> {
     const userStandings = await prisma.$queryRaw<PoolStandings[]>`
     SELECT * FROM pool_standings
     WHERE "userId" = ${userId}

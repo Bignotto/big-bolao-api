@@ -9,9 +9,14 @@ interface IUpdateUserRequest {
 }
 
 export class UpdateUserUseCase {
-  constructor(private usersRepository: IUsersRepository) { }
+  constructor(private usersRepository: IUsersRepository) {}
 
-  async execute({ userId, email, fullName, profileImageUrl }: IUpdateUserRequest) {
+  async execute({
+    userId,
+    email,
+    fullName,
+    profileImageUrl,
+  }: IUpdateUserRequest): Promise<import('@prisma/client').User> {
     const user = await this.usersRepository.findById(userId);
 
     if (!user) {
@@ -19,7 +24,9 @@ export class UpdateUserUseCase {
     }
 
     const updatedUser = await this.usersRepository.update(userId, {
-      fullName, email, profileImageUrl,
+      fullName,
+      email,
+      profileImageUrl,
     });
 
     return updatedUser;

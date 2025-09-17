@@ -4,7 +4,7 @@ import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationServ
 
 import { GetPoolUsersUseCase } from '../getPoolUsersUseCase';
 
-export function makeGetPoolUsersUseCase() {
+export function makeGetPoolUsersUseCase(): GetPoolUsersUseCase {
   const poolsRepository = new PrismaPoolsRepository();
   const usersRepository = new PrismaUsersRepository();
   const poolAuthorizationService = new PoolAuthorizationService(poolsRepository);

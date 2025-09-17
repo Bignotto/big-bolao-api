@@ -24,9 +24,9 @@ beforeAll(() => {
     // Initialize Prisma client
     prisma = new PrismaClient();
 
-    console.log(`✅ Test database setup complete`);
+    process.stdout.write(`✅ Test database setup complete\n`);
   } catch (error) {
-    console.error('❌ Failed to setup test database:', error);
+    process.stderr.write(`❌ Failed to setup test database: ${String(error)}\n`);
     throw error;
   }
 });
@@ -34,9 +34,9 @@ beforeAll(() => {
 afterAll(async () => {
   try {
     await prisma.$disconnect();
-    console.log(`✅ Test database cleanup complete`);
+    process.stdout.write(`✅ Test database cleanup complete\n`);
   } catch (error) {
-    console.error('❌ Failed to cleanup test database:', error);
+    process.stderr.write(`❌ Failed to cleanup test database: ${String(error)}\n`);
   }
 });
 

@@ -3,7 +3,7 @@ import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationServ
 
 import { GetPoolStandingsUseCase } from '../getPoolStandingsUseCase';
 
-export function makeGetPoolStandingsUseCase() {
+export function makeGetPoolStandingsUseCase(): GetPoolStandingsUseCase {
   const poolsRepository = new PrismaPoolsRepository();
   const poolAuthorizationService = new PoolAuthorizationService(poolsRepository);
   const getPoolStandingsUseCase = new GetPoolStandingsUseCase(

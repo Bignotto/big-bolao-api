@@ -1,3 +1,4 @@
+import { Pool } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
@@ -14,7 +15,7 @@ type ListPublicPoolsQuery = z.infer<typeof listPublicPoolsQuerySchema>;
 export async function listPublicPoolsController(
   request: FastifyRequest<{ Querystring: ListPublicPoolsQuery }>,
   reply: FastifyReply
-) {
+): Promise<FastifyReply> {
   try {
     const { page, perPage, name } = listPublicPoolsQuerySchema.parse(request.query);
 
@@ -26,8 +27,9 @@ export async function listPublicPoolsController(
     });
 
     // Omit inviteCode from public listing
-    const sanitized = pools.map((pool) => {
-      const { inviteCode: _inviteCode, ...rest } = pool as any;
+    const sanitized: Array<Omit<Pool, 'inviteCode'>> = pools.map((pool) => {
+      const { inviteCode: _inviteCode, ...rest } = pool;
+      void _inviteCode;
       return rest;
     });
 

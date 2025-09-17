@@ -5,26 +5,36 @@ import { prisma } from '@/lib/prisma';
 import { ITournamentsRepository } from './ITournamentsRepository';
 
 export class PrismaTournamentsRepository implements ITournamentsRepository {
-  async findById(id: number) {
+  async findById(id: number): Promise<import('@prisma/client').Tournament | null> {
     const tournament = await prisma.tournament.findUnique({
       where: { id },
     });
     return tournament;
   }
 
-  async create(data: Prisma.TournamentCreateInput) {
+  async create(data: Prisma.TournamentCreateInput): Promise<import('@prisma/client').Tournament> {
     const tournament = await prisma.tournament.create({
       data,
     });
     return tournament;
   }
 
-  async list() {
+  async list(): Promise<import('@prisma/client').Tournament[]> {
     const tournaments = await prisma.tournament.findMany();
     return tournaments;
   }
 
-  async getDetails(id: number) {
+  async getDetails(
+    id: number
+  ): Promise<
+    | (import('@prisma/client').Tournament & {
+        totalMatches: number;
+        completedMatches: number;
+        totalTeams: number;
+        totalPools: number;
+      })
+    | null
+  > {
     const tournament = await prisma.tournament.findUnique({
       where: { id },
       include: {

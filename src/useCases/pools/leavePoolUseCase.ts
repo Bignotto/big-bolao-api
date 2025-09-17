@@ -1,3 +1,5 @@
+import type { Pool } from '@prisma/client';
+
 import { PoolAuthorizationService } from '@/services/pools/PoolAuthorizationService';
 
 import { ResourceNotFoundError } from '../../global/errors/ResourceNotFoundError';
@@ -16,7 +18,7 @@ export class LeavePoolUseCase {
     private poolAuthorizationService: PoolAuthorizationService
   ) {}
 
-  async execute({ poolId, userId }: ILeavePoolRequest) {
+  async execute({ poolId, userId }: ILeavePoolRequest): Promise<Pool> {
     // Verify user exists
     const user = await this.usersRepository.findById(userId);
     if (!user) {

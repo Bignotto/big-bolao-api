@@ -1,6 +1,6 @@
+import { MatchStatus } from '@prisma/client';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { MatchStatus } from '@prisma/client';
 
 import { PrismaMatchesRepository } from '@/repositories/matches/PrismaMatchesRepository';
 import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
@@ -92,4 +92,3 @@ describe('GET /tournaments/:tournamentId', async () => {
     expect(response.status).toBe(400);
   });
 });
-

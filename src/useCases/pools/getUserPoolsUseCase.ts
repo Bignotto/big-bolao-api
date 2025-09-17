@@ -12,7 +12,7 @@ export class GetUserPoolsUseCase {
     private usersRepository: IUsersRepository
   ) {}
 
-  async execute({ userId }: IGetUserPoolsRequest) {
+  async execute({ userId }: IGetUserPoolsRequest): Promise<{ pools: import('@prisma/client').Pool[] }> {
     const user = await this.usersRepository.findById(userId);
     if (!user) {
       throw new ResourceNotFoundError('User not found');

@@ -8,7 +8,7 @@ interface IGetUserInfoRequest {
 export class GetUserInfoUseCase {
   constructor(private usersRepository: IUsersRepository) {}
 
-  async execute({ userId }: IGetUserInfoRequest) {
+  async execute({ userId }: IGetUserInfoRequest): Promise<import('@prisma/client').User> {
     const user = await this.usersRepository.findById(userId);
 
     if (!user) {

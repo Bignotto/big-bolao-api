@@ -3,7 +3,7 @@ import { PrismaPredictionsRepository } from '../../../repositories/predictions/P
 import { PrismaUsersRepository } from '../../../repositories/users/PrismaUsersRepository';
 import { GetUserPredictionsUseCase } from '../getUserPredictionsUseCase';
 
-export function makeGetUserPredictionsUseCase() {
+export function makeGetUserPredictionsUseCase(): GetUserPredictionsUseCase {
   const predictionsRepository = new PrismaPredictionsRepository();
   const usersRepository = new PrismaUsersRepository();
   const poolsRepository = new PrismaPoolsRepository();
