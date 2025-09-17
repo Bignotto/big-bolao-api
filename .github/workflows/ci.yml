@@ -1,9 +1,5 @@
 name: CI
 
-env:
-  TEST_USER_EMAIL: 'bignotto@gmail.com'
-  TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-
 on:
   push:
   pull_request:
@@ -11,6 +7,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: bolao
+          POSTGRES_USER: bolao
+          POSTGRES_PASSWORD: bolaopass
+        options: --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
@@ -24,3 +33,15 @@ jobs:
       - run: npm run lint
       - run: npm run test:run
       - run: npm run test:e2e
+        env:
+          DATABASE_URL: postgres://bolao:bolaopass@localhost:5432/bolao
+          TEST_USER_EMAIL: 'bignotto@gmail.com'
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          THE_APP_NAME: Bolao da Copa
+          THE_APP_SECRET: ${{ secrets.THE_APP_SECRET }}
+          THE_APP_VERSION: 1.0.0
+          PORT: 3333
+          HOST: 0.0.0.0
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
