@@ -19,7 +19,6 @@ const envSchema = z.object({
   DATABASE_URL: z.string(),
   SUPABASE_URL: z.string(),
   SUPABASE_ANON_KEY: z.string(),
-  SUPABASE_SERVICE_ROLE_KEY: z.string(),
   TEST_USER_PASSWORD: z.string().optional(),
   TEST_USER_EMAIL: z.string().optional(),
 }).superRefine((data, ctx) => {
