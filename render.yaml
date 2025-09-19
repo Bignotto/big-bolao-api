@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: big-bolao-api
+    env: docker
+    plan: starter
+    autoDeploy: false
+    region: oregon
+    numInstances: 1
+    dockerfilePath: ./Dockerfile
+    dockerCommand: ./scripts/start.sh
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: '3333'
+      - key: HOST
+        value: 0.0.0.0
+      - key: LOG_LEVEL
+        value: info
+      - key: THE_APP_NAME
+        value: Bolao da Copa
+      - key: THE_APP_VERSION
+        value: 1.0.0
+      - key: THE_APP_SECRET
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
