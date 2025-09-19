@@ -9,6 +9,11 @@
 
 See `AGENTS.md` for commands and project guidelines.
 
+## Production Startup
+
+- `scripts/start.sh` applies pending migrations with `npx prisma migrate deploy` and then boots the compiled server.
+- The script intentionally skips `npx prisma db seed` so production data is never reset during container start.
+
 ## Database Seeding
 
 - Entry point: `prisma/seed.ts` orchestrates seeding order.
