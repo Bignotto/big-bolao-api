@@ -2,7 +2,7 @@ import cors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
-import fastify, { FastifyInstance } from 'fastify';
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
 
 import { env } from './env/config';
@@ -111,12 +111,10 @@ export const createServer = async (): Promise<FastifyInstance> => {
         },
       },
       transformSpecification: (
-        swaggerObject: unknown,
-        _request: unknown,
-        _reply: unknown
-      ): unknown => {
-        return swaggerObject;
-      },
+        swaggerObject: Readonly<Record<string, any>>,
+        _request: FastifyRequest,
+        _reply: FastifyReply
+      ): Record<string, any> => swaggerObject,
       transformSpecificationClone: true,
     });
   }
