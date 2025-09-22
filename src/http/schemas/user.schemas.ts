@@ -1,4 +1,6 @@
-export const userSchemas = {
+import type { OpenAPIV3 } from 'openapi-types';
+
+export const userSchemas: Record<string, OpenAPIV3.SchemaObject> = {
   // Base User object
   User: {
     type: 'object',

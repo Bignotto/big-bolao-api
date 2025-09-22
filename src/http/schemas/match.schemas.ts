@@ -1,4 +1,6 @@
-export const matchSchemas = {
+import type { OpenAPIV3 } from 'openapi-types';
+
+export const matchSchemas: Record<string, OpenAPIV3.SchemaObject> = {
   // Base Match schema
   Match: {
     type: 'object',
