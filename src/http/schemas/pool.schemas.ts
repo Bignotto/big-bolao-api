@@ -1,4 +1,6 @@
-export const poolSchemas = {
+import type { OpenAPIV3 } from 'openapi-types';
+
+export const poolSchemas: Record<string, OpenAPIV3.SchemaObject> = {
   // Base Pool object
   Pool: {
     type: 'object',

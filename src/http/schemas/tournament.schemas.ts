@@ -1,4 +1,6 @@
-export const tournamentSchemas = {
+import type { OpenAPIV3 } from 'openapi-types';
+
+export const tournamentSchemas: Record<string, OpenAPIV3.SchemaObject> = {
   // Base Tournament schema
   Tournament: {
     type: 'object',

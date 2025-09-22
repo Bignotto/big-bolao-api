@@ -1,4 +1,6 @@
-export const predictionSchemas = {
+import type { OpenAPIV3 } from 'openapi-types';
+
+export const predictionSchemas: Record<string, OpenAPIV3.SchemaObject> = {
   // Base Prediction schema
   Prediction: {
     type: 'object',
