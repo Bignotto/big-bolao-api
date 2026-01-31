@@ -9,7 +9,7 @@ beforeAll(() => {
   try {
     // Use db push instead of migrate deploy for tests
     // This pushes the schema without using migration history
-    execSync('npx prisma db push --force-reset', {
+    execSync('npx prisma db push --force-reset --skip-generate', {
       stdio: 'inherit',
     });
 
