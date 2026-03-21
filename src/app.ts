@@ -96,6 +96,8 @@ export const createServer = async (): Promise<FastifyInstance> => {
       },
     });
 
+    //server.get('/openapi.json', async () => {return server.swagger();});
+
     await server.register(swaggerUi, {
       routePrefix: '/docs',
       uiConfig: {
