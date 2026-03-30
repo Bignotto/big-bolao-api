@@ -7,18 +7,36 @@ let prisma: PrismaClient;
 
 beforeAll(() => {
   try {
-    // Use db push instead of migrate deploy for tests
-    // This pushes the schema without using migration history
-    execSync('npx prisma db push --force-reset --skip-generate', {
-      stdio: 'inherit',
-    });
+    const databaseUrl = process.env.DATABASE_URL;
 
-    // Executa o script SQL para criar as views
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL is not set. Make sure .env.test exists and is loaded.');
+    }
+
+    const isLocal =
+      databaseUrl.includes('localhost') ||
+      databaseUrl.includes('127.0.0.1') ||
+      /192\.168\.\d+\.\d+/.test(databaseUrl) ||
+      /10\.\d+\.\d+\.\d+/.test(databaseUrl) ||
+      /172\.(1[6-9]|2\d|3[01])\.\d+\.\d+/.test(databaseUrl);
+
+    if (!isLocal) {
+      throw new Error(
+        `Refusing to reset a non-local database: ${databaseUrl}\n` +
+          'E2E tests must run against a local database. Check your .env.test file.'
+      );
+    }
+
+    const execOptions = {
+      stdio: 'pipe',
+      env: { ...process.env, DATABASE_URL: databaseUrl },
+    } satisfies Parameters<typeof execSync>[1];
+
+    execSync('npx prisma db push --force-reset --skip-generate', execOptions);
+
     execSync(
       'npx prisma db execute --file ./prisma/migrations/20250420092255_add_pool_standings_views/migration.sql',
-      {
-        stdio: 'inherit',
-      }
+      execOptions
     );
 
     // Initialize Prisma client

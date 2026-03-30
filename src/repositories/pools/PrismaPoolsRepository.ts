@@ -106,6 +106,13 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     return scoringRules;
   }
 
+  async updateScoringRules(poolId: number, data: Prisma.ScoringRuleUpdateInput): Promise<ScoringRule> {
+    return prisma.scoringRule.update({
+      where: { poolId },
+      data,
+    });
+  }
+
   async addParticipant({ poolId, userId }: { poolId: number; userId: string }): Promise<void> {
     await prisma.poolParticipant.create({
       data: {

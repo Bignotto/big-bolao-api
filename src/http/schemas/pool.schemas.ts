@@ -579,4 +579,58 @@ export const poolSchemas = {
       message: { type: 'string', example: 'Internal server error.' },
     },
   },
+
+  UpdateScoringRulesRequest: {
+    type: 'object',
+    properties: {
+      exactScorePoints: {
+        type: 'integer',
+        description: 'Points for exact score prediction (must be >= 1)',
+      },
+      correctWinnerGoalDiffPoints: {
+        type: 'integer',
+        description: 'Points for correct winner with matching goal difference (must be >= 1)',
+      },
+      correctWinnerPoints: {
+        type: 'integer',
+        description: 'Points for correct winner prediction (must be >= 1)',
+      },
+      correctDrawPoints: {
+        type: 'integer',
+        description: 'Points for correct draw prediction (must be >= 1)',
+      },
+      specialEventPoints: {
+        type: 'integer',
+        description: 'Points for special event prediction (must be >= 0)',
+      },
+      knockoutMultiplier: {
+        type: 'number',
+        description: 'Multiplier applied to knockout stage matches (must be >= 1)',
+      },
+      finalMultiplier: {
+        type: 'number',
+        description: 'Multiplier applied to FINAL stage matches (must be >= 1)',
+      },
+    },
+  },
+
+  UpdateScoringRulesResponse: {
+    type: 'object',
+    properties: {
+      scoringRules: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          poolId: { type: 'number' },
+          exactScorePoints: { type: 'number' },
+          correctWinnerGoalDiffPoints: { type: 'number' },
+          correctWinnerPoints: { type: 'number' },
+          correctDrawPoints: { type: 'number' },
+          specialEventPoints: { type: 'number' },
+          knockoutMultiplier: { type: 'number' },
+          finalMultiplier: { type: 'number' },
+        },
+      },
+    },
+  },
 };
