@@ -12,6 +12,7 @@ import { leavePoolController } from '@/http/controllers/pools/leavePoolControlle
 import { listPublicPoolsController } from '@/http/controllers/pools/listPublicPoolsController';
 import { removeUserFromPoolController } from '@/http/controllers/pools/removeUserFromPoolController';
 import { updatePoolController } from '@/http/controllers/pools/updatePoolController';
+import { updateScoringRulesController } from '@/http/controllers/pools/updateScoringRulesController';
 import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { poolSchemas } from '@/http/schemas/pool.schemas';
@@ -395,6 +396,46 @@ export function poolRoutes(app: FastifyInstance): void {
       },
     },
     updatePoolController
+  );
+
+  app.put(
+    '/pools/:poolId/scoring-rules',
+    {
+      schema: {
+        tags: ['Pools'],
+        summary: 'Update pool scoring rules',
+        description: 'Updates the scoring rules for a pool (only pool owner can perform this action)',
+        params: poolSchemas.PoolIdParam,
+        body: poolSchemas.UpdateScoringRulesRequest,
+        response: {
+          200: {
+            description: 'Scoring rules updated successfully',
+            ...poolSchemas.UpdateScoringRulesResponse,
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...commonSchemas.UnauthorizedError,
+          },
+          403: {
+            description: 'Only pool owner can update scoring rules',
+            ...poolSchemas.NotPoolOwnerError,
+          },
+          404: {
+            description: 'Pool not found',
+            ...commonSchemas.PoolNotFoundError,
+          },
+          422: {
+            description: 'Validation error',
+            ...poolSchemas.PoolValidationError,
+          },
+          500: {
+            description: 'Internal server error',
+            ...poolSchemas.PoolInternalServerError,
+          },
+        },
+      },
+    },
+    updateScoringRulesController
   );
 
   app.get(

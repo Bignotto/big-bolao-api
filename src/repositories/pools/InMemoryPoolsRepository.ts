@@ -272,6 +272,47 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     return Promise.resolve(updatedPool);
   }
 
+  async updateScoringRules(poolId: number, data: Prisma.ScoringRuleUpdateInput): Promise<ScoringRule> {
+    const index = this.scoringRules.findIndex((rule) => rule.poolId === poolId);
+    if (index === -1) {
+      throw new Error('Scoring rules not found');
+    }
+
+    const existing = this.scoringRules[index];
+    const updated: ScoringRule = {
+      ...existing,
+      exactScorePoints:
+        typeof data.exactScorePoints === 'number' ? data.exactScorePoints : existing.exactScorePoints,
+      correctWinnerGoalDiffPoints:
+        typeof data.correctWinnerGoalDiffPoints === 'number'
+          ? data.correctWinnerGoalDiffPoints
+          : existing.correctWinnerGoalDiffPoints,
+      correctWinnerPoints:
+        typeof data.correctWinnerPoints === 'number'
+          ? data.correctWinnerPoints
+          : existing.correctWinnerPoints,
+      correctDrawPoints:
+        typeof data.correctDrawPoints === 'number'
+          ? data.correctDrawPoints
+          : existing.correctDrawPoints,
+      specialEventPoints:
+        typeof data.specialEventPoints === 'number'
+          ? data.specialEventPoints
+          : existing.specialEventPoints,
+      knockoutMultiplier:
+        typeof data.knockoutMultiplier === 'number'
+          ? new Prisma.Decimal(data.knockoutMultiplier)
+          : existing.knockoutMultiplier,
+      finalMultiplier:
+        typeof data.finalMultiplier === 'number'
+          ? new Prisma.Decimal(data.finalMultiplier)
+          : existing.finalMultiplier,
+    };
+
+    this.scoringRules[index] = updated;
+    return Promise.resolve(updated);
+  }
+
   async createScoringRules(data: Prisma.ScoringRuleCreateInput): Promise<ScoringRule> {
     const newId = this.scoringRules.length + 1;
 

@@ -22,6 +22,7 @@ export interface IPoolsRepository {
     name?: string;
   }): Promise<Pool[]>;
   getScoringRules(poolId: number): Promise<ScoringRule[]>;
+  updateScoringRules(poolId: number, data: Prisma.ScoringRuleUpdateInput): Promise<ScoringRule>;
   getPoolParticipants(poolId: number): Promise<PoolParticipant[]>;
   getPool(id: number): Promise<PoolCompleteInfo | null>;
   update(id: number, data: Prisma.PoolUpdateInput): Promise<Pool>;

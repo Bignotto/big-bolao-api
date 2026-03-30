@@ -225,6 +225,7 @@ Big Bolão is a sports betting/pool game where users:
 | DELETE | `/pools/:poolId/users/:userId` | Yes | Remove user from pool (owner only) |
 | GET | `/pools/:poolId/predictions` | Yes | All predictions in the pool |
 | GET | `/pools/:poolId/standings` | Yes | Pool leaderboard |
+| PUT | `/pools/:poolId/scoring-rules` | Yes | Update scoring rules (owner only) |
 | GET | `/pool-invites/:inviteCode` | Yes | Get pool by invite code (read-only) |
 | POST | `/pool-invites/:inviteCode` | Yes | Join pool by invite code |
 
@@ -254,6 +255,23 @@ Big Bolão is a sports betting/pool game where users:
   "limit": 10
 }
 ```
+
+**PUT /pools/:poolId/scoring-rules (owner only)**
+```json
+// Request (all fields optional — only send fields you want to change)
+{
+  "exactScorePoints": 5,
+  "correctWinnerGoalDiffPoints": 3,
+  "correctWinnerPoints": 2,
+  "correctDrawPoints": 2,
+  "specialEventPoints": 3,
+  "knockoutMultiplier": 1.5,
+  "finalMultiplier": 2.0
+}
+// Response 200
+{ "scoringRules": ScoringRule }
+```
+> ⚠️ Changing scoring rules recalculates all past points retroactively (the view joins live). Warn the user in the UI before saving.
 
 ---
 
@@ -352,10 +370,61 @@ All errors follow this shape:
 - Predictions can be updated before a match starts; once started, they are locked
 - Pool owners can remove participants; regular users can only leave
 - `inviteCode` must be unique across all pools
-- `ScoringRule` is created automatically when a pool is created
+- `ScoringRule` is created automatically when a pool is created; the pool owner can update it via `PUT /pools/:poolId/scoring-rules`
+- Scoring rule changes are **retroactive** — past points are recalculated immediately since the view joins live
 - `pointsEarned` on a prediction is `null` until the match status is `COMPLETED`
 - Knockout stage predictions use `knockoutMultiplier`; final uses `finalMultiplier`
 - `role: ADMIN` is required to update match results via `PUT /matches/:matchId`
+
+---
+
+## Scoring Logic
+
+Each pool has one `ScoringRule` record. Points are calculated by the database when a match is `COMPLETED` and are exposed via `pointsEarned` on `Prediction` and `totalPoints` on leaderboard entries.
+
+### Base Points (priority order — first match wins)
+
+| Condition | Field | Default |
+|---|---|---|
+| Predicted home AND away score exactly correct | `exactScorePoints` | 5 |
+| Correct winner AND correct goal difference (e.g. predicted 2-0, actual 3-1 — both home wins by 1) | `correctWinnerGoalDiffPoints` | 3 |
+| Correct winner, wrong goal difference | `correctWinnerPoints` | 2 |
+| Predicted draw AND match ended in a draw | `correctDrawPoints` | 2 |
+| None of the above | — | 0 |
+
+### Stage Multipliers
+
+```
+finalPoints = basePoints × stageMultiplier
+```
+
+| Match stage | Multiplier field | Default |
+|---|---|---|
+| `GROUP` | *(hardcoded 1 — no multiplier)* | 1× |
+| Any knockout stage (`ROUND_OF_32`, `ROUND_OF_16`, `QUARTER_FINAL`, `SEMI_FINAL`, `THIRD_PLACE`) | `knockoutMultiplier` | 1.5× |
+| `FINAL` | `finalMultiplier` | 2.0× |
+
+### Example
+
+A user predicts **2-1** and the actual result is **3-1** in a `SEMI_FINAL`:
+- Correct winner (home) ✓, goal difference matches (both +1) ✓ → `correctWinnerGoalDiffPoints` = 3 pts
+- Stage multiplier: `knockoutMultiplier` = 1.5×
+- **Total: 3 × 1.5 = 4.5 points**
+
+### UI Guidance
+
+- Always show the pool's `scoringRules` when the user is submitting or reviewing a prediction
+- `pointsEarned` is `null` until `matchStatus === "COMPLETED"` — show a pending state
+- `specialEventPoints` is stored but not currently used in scoring — do not display it
+- Extra-time / penalty prediction fields are stored but have no scoring impact in the current version
+
+### Pool Settings Screen — Editing Scoring Rules
+
+1. Load current rules from `pool.scoringRules` (already included in `GET /pools/:poolId`)
+2. Show editable fields pre-filled with current values — only show this form when `pool.isCreator === true`
+3. Before saving, display a confirmation: *"Changing scoring rules will recalculate all points immediately."*
+4. On confirm, call `PUT /pools/:poolId/scoring-rules` with only the changed fields
+5. On success, refresh the leaderboard (`GET /pools/:poolId/standings`) to reflect recalculated points
 
 ---
 
