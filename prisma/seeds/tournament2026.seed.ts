@@ -30,19 +30,22 @@ export async function assignTeams2026ToTournament(
 ) {
   // Groups from December 5, 2025 FIFA World Cup 2026 draw
   // ⚠️ Group E 4th team uses placeholder — verify official data
+  // Groups from the December 5, 2025 FIFA World Cup 2026 draw.
+  // UEFA playoff winners confirmed March 31, 2026.
+  // Inter-confederation playoff winners confirmed March 31, 2026.
   const groupAssignments: GroupAssignment[] = [
-    { group: 'A', teams: ['Mexico', 'South Korea', 'South Africa', 'UEFA Playoff D Winner'] },
-    { group: 'B', teams: ['Canada', 'Switzerland', 'Qatar', 'UEFA Playoff A Winner'] },
-    { group: 'C', teams: ['Brazil', 'Morocco', 'Haiti', 'Curaçao'] },
-    { group: 'D', teams: ['United States', 'Paraguay', 'Australia', 'UEFA Playoff C Winner'] },
-    { group: 'E', teams: ['Germany', 'Côte d\'Ivoire', 'Ecuador', 'TBD Group E'] },
-    { group: 'F', teams: ['Netherlands', 'Japan', 'Tunisia', 'UEFA Playoff B Winner'] },
-    { group: 'G', teams: ['Belgium', 'Egypt', 'Iran', 'New Zealand'] },
-    { group: 'H', teams: ['Spain', 'Cabo Verde', 'Saudi Arabia', 'Uruguay'] },
-    { group: 'I', teams: ['France', 'Senegal', 'Norway', 'Inter-Confederation Playoff 2 Winner'] },
-    { group: 'J', teams: ['Argentina', 'Algeria', 'Austria', 'Jordan'] },
-    { group: 'K', teams: ['Portugal', 'Colombia', 'Uzbekistan', 'Inter-Confederation Playoff 1 Winner'] },
-    { group: 'L', teams: ['England', 'Croatia', 'Ghana', 'Panama'] },
+    { group: 'A', teams: ['México', 'Coreia do Sul', 'África do Sul', 'Tchéquia'] },
+    { group: 'B', teams: ['Canadá', 'Bósnia e Herzegovina', 'Catar', 'Suíça'] },
+    { group: 'C', teams: ['Brasil', 'Marrocos', 'Haiti', 'Escócia'] },
+    { group: 'D', teams: ['Estados Unidos', 'Paraguai', 'Austrália', 'Turquia'] },
+    { group: 'E', teams: ['Alemanha', 'Curaçao', 'Costa do Marfim', 'Equador'] },
+    { group: 'F', teams: ['Holanda', 'Japão', 'Suécia', 'Tunísia'] },
+    { group: 'G', teams: ['Bélgica', 'Egito', 'Irã', 'Nova Zelândia'] },
+    { group: 'H', teams: ['Espanha', 'Cabo Verde', 'Arábia Saudita', 'Uruguai'] },
+    { group: 'I', teams: ['França', 'Senegal', 'Iraque', 'Noruega'] },
+    { group: 'J', teams: ['Argentina', 'Argélia', 'Áustria', 'Jordânia'] },
+    { group: 'K', teams: ['Portugal', 'República Democrática do Congo', 'Uzbequistão', 'Colômbia'] },
+    { group: 'L', teams: ['Inglaterra', 'Croácia', 'Gana', 'Panamá'] },
   ];
 
   for (const group of groupAssignments) {
