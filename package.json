@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "node build/server.cjs",
-    "build": "tsup src --out-dir build",
+    "build": "tsup",
     "test": "vitest",
     "test:watch": "vitest",
     "test:run": "vitest run",
