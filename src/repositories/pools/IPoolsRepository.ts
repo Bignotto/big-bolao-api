@@ -7,6 +7,24 @@ export type PoolCompleteInfo = Prisma.PoolGetPayload<{
   include: { participants: true; scoringRules: true };
 }>;
 
+export type PoolPredictionEntry = {
+  poolId: number;
+  poolName: string;
+  matchId: number;
+  prediction: {
+    id: number;
+    predictedHomeScore: number;
+    predictedAwayScore: number;
+    predictedHasExtraTime: boolean;
+    predictedHasPenalties: boolean;
+    predictedPenaltyHomeScore: number | null;
+    predictedPenaltyAwayScore: number | null;
+    pointsEarned: number | null;
+    submittedAt: Date;
+    updatedAt: Date | null;
+  } | null;
+};
+
 export interface IPoolsRepository {
   create(data: Prisma.PoolCreateInput): Promise<Pool>;
   createScoringRules(data: Prisma.ScoringRuleCreateInput): Promise<ScoringRule>;
@@ -30,4 +48,9 @@ export interface IPoolsRepository {
   getUserPoolsStandings(userId: string): Promise<PoolStandings[]>;
   findByName(name: string): Promise<Pool | null>;
   deletePoolById(poolId: number): Promise<void>;
+  getPoolsWithUserPredictionForMatch(params: {
+    tournamentId: number;
+    matchId: number;
+    userId: string;
+  }): Promise<PoolPredictionEntry[]>;
 }

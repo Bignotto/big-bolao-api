@@ -3,6 +3,7 @@ import { FastifyInstance } from 'fastify';
 import { getMatchController } from '@/http/controllers/matches/getMatchController';
 import { getMatchPredictionsController } from '@/http/controllers/matches/getMatchPredictionsController';
 import { updateMatchController } from '@/http/controllers/matches/updateMatchController';
+import { getMyMatchPredictionsController } from '@/http/controllers/predictions/getMyMatchPredictionsController';
 import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { matchSchemas } from '@/http/schemas/match.schemas';
@@ -80,6 +81,42 @@ export function matchesRoutes(app: FastifyInstance): void {
       },
     },
     getMatchPredictionsController
+  );
+
+  app.get(
+    '/matches/:matchId/predictions/me',
+    {
+      schema: {
+        tags: ['Matches'],
+        summary: "Get my prediction status for a match",
+        description:
+          "Returns the authenticated user's prediction (or null if not submitted) for a specific match across all pools the user participates in for that tournament.",
+        params: matchSchemas.MatchIdParam,
+        response: {
+          200: {
+            description: 'Prediction status retrieved successfully',
+            ...matchSchemas.GetMyMatchPredictionsResponse,
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...commonSchemas.UnauthorizedError,
+          },
+          404: {
+            description: 'Match not found',
+            ...commonSchemas.MatchNotFoundError,
+          },
+          422: {
+            description: 'Validation error',
+            ...matchSchemas.MatchValidationError,
+          },
+          500: {
+            description: 'Internal server error',
+            ...matchSchemas.MatchInternalServerError,
+          },
+        },
+      },
+    },
+    getMyMatchPredictionsController
   );
 
   app.put(

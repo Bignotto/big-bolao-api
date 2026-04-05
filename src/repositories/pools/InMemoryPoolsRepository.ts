@@ -5,7 +5,7 @@ import { PoolParticipant } from '@/global/types/poolParticipant';
 import { PoolStandings } from '@/global/types/poolStandings';
 import { PredictionPoints } from '@/global/types/predictionPoints';
 
-import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
+import { IPoolsRepository, PoolCompleteInfo, PoolPredictionEntry } from './IPoolsRepository';
 
 export class InMemoryPoolsRepository implements IPoolsRepository {
   public pools: Pool[] = [];
@@ -403,5 +403,50 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
   }
   deletePoolById(_poolId: number): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  async getPoolsWithUserPredictionForMatch({
+    tournamentId,
+    matchId,
+    userId,
+  }: {
+    tournamentId: number;
+    matchId: number;
+    userId: string;
+  }): Promise<PoolPredictionEntry[]> {
+    const userPoolIds = this.participants
+      .filter((p) => p.userId === userId)
+      .map((p) => p.poolId);
+
+    const eligiblePools = this.pools.filter(
+      (pool) => pool.tournamentId === tournamentId && userPoolIds.includes(pool.id)
+    );
+
+    return eligiblePools.map((pool) => {
+      const found =
+        this.predictions.find(
+          (pred) => pred.poolId === pool.id && pred.matchId === matchId && pred.userId === userId
+        ) ?? null;
+
+      return {
+        poolId: pool.id,
+        poolName: pool.name,
+        matchId,
+        prediction: found
+          ? {
+              id: found.id,
+              predictedHomeScore: found.predictedHomeScore,
+              predictedAwayScore: found.predictedAwayScore,
+              predictedHasExtraTime: found.predictedHasExtraTime,
+              predictedHasPenalties: found.predictedHasPenalties,
+              predictedPenaltyHomeScore: found.predictedPenaltyHomeScore,
+              predictedPenaltyAwayScore: found.predictedPenaltyAwayScore,
+              pointsEarned: found.pointsEarned ?? null,
+              submittedAt: found.submittedAt,
+              updatedAt: found.updatedAt ?? null,
+            }
+          : null,
+      };
+    });
   }
 }
