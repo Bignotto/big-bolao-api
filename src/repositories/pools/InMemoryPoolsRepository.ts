@@ -405,7 +405,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     throw new Error('Method not implemented.');
   }
 
-  async getPoolsWithUserPredictionForMatch({
+  getPoolsWithUserPredictionForMatch({
     tournamentId,
     matchId,
     userId,
@@ -422,7 +422,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
       (pool) => pool.tournamentId === tournamentId && userPoolIds.includes(pool.id)
     );
 
-    return eligiblePools.map((pool) => {
+    return Promise.resolve(eligiblePools.map((pool) => {
       const found =
         this.predictions.find(
           (pred) => pred.poolId === pool.id && pred.matchId === matchId && pred.userId === userId
@@ -447,6 +447,6 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
             }
           : null,
       };
-    });
+    }));
   }
 }
