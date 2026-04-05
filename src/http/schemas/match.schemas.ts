@@ -244,4 +244,38 @@ export const matchSchemas = {
       match: { $ref: 'MatchWithTeams#' },
     },
   },
+
+  GetMyMatchPredictionsResponse: {
+    type: 'object',
+    properties: {
+      predictions: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            poolId: { type: 'number' },
+            poolName: { type: 'string' },
+            matchId: { type: 'number' },
+            prediction: {
+              nullable: true,
+              type: 'object',
+              properties: {
+                id: { type: 'number' },
+                predictedHomeScore: { type: 'number' },
+                predictedAwayScore: { type: 'number' },
+                predictedHasExtraTime: { type: 'boolean' },
+                predictedHasPenalties: { type: 'boolean' },
+                predictedPenaltyHomeScore: { type: 'number', nullable: true },
+                predictedPenaltyAwayScore: { type: 'number', nullable: true },
+                pointsEarned: { type: 'number', nullable: true },
+                submittedAt: { type: 'string', format: 'date-time' },
+                updatedAt: { type: 'string', format: 'date-time', nullable: true },
+              },
+            },
+          },
+          required: ['poolId', 'poolName', 'matchId', 'prediction'],
+        },
+      },
+    },
+  },
 };

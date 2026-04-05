@@ -4,7 +4,7 @@ import { InviteCodeInUseError } from '@/global/errors/InviteCodeInUseError';
 import { PoolParticipant } from '@/global/types/poolParticipant';
 import { PoolStandings } from '@/global/types/poolStandings';
 
-import { IPoolsRepository, PoolCompleteInfo } from './IPoolsRepository';
+import { IPoolsRepository, PoolCompleteInfo, PoolPredictionEntry } from './IPoolsRepository';
 import { prisma } from '../../lib/prisma';
 
 export class PrismaPoolsRepository implements IPoolsRepository {
@@ -256,5 +256,49 @@ export class PrismaPoolsRepository implements IPoolsRepository {
     await prisma.pool.delete({
       where: { id: poolId },
     });
+  }
+
+  async getPoolsWithUserPredictionForMatch({
+    tournamentId,
+    matchId,
+    userId,
+  }: {
+    tournamentId: number;
+    matchId: number;
+    userId: string;
+  }): Promise<PoolPredictionEntry[]> {
+    const pools = await prisma.pool.findMany({
+      where: {
+        tournamentId,
+        participants: { some: { userId } },
+      },
+      select: {
+        id: true,
+        name: true,
+        predictions: {
+          where: { matchId, userId },
+          select: {
+            id: true,
+            predictedHomeScore: true,
+            predictedAwayScore: true,
+            predictedHasExtraTime: true,
+            predictedHasPenalties: true,
+            predictedPenaltyHomeScore: true,
+            predictedPenaltyAwayScore: true,
+            pointsEarned: true,
+            submittedAt: true,
+            updatedAt: true,
+          },
+          take: 1,
+        },
+      },
+    });
+
+    return pools.map((pool) => ({
+      poolId: pool.id,
+      poolName: pool.name,
+      matchId,
+      prediction: pool.predictions[0] ?? null,
+    }));
   }
 }
