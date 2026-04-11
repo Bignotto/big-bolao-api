@@ -1,7 +1,5 @@
-import { Match } from '@prisma/client';
-
 import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
-import { IMatchesRepository } from '@/repositories/matches/IMatchesRepository';
+import { IMatchesRepository, MatchWithTeams } from '@/repositories/matches/IMatchesRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 
 interface GetTournamentMatchesUseCaseRequest {
@@ -9,7 +7,7 @@ interface GetTournamentMatchesUseCaseRequest {
 }
 
 interface GetTournamentMatchesUseCaseResponse {
-  matches: Match[];
+  matches: MatchWithTeams[];
 }
 
 export class GetTournamentMatchesUseCase {

@@ -82,7 +82,7 @@ export function tournamentsRoutes(app: FastifyInstance): void {
             properties: {
               matches: {
                 type: 'array',
-                items: matchSchemas.Match,
+                items: { $ref: 'MatchWithTeams#' },
               },
             },
             required: ['matches'],

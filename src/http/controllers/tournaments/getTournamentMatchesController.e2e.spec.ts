@@ -1,4 +1,3 @@
-import { Match } from '@prisma/client';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -14,7 +13,14 @@ import { createMatchWithTeams } from '@/test/mocks/match';
 import { createTournament } from '@/test/mocks/tournament';
 
 type TournamentMatchesResponse = {
-  matches: Array<Match>;
+  matches: Array<{
+    id: number;
+    tournamentId: number;
+    homeTeamId: number;
+    awayTeamId: number;
+    homeTeam: { id: number; name: string; countryCode: string | null; flagUrl: string | null };
+    awayTeam: { id: number; name: string; countryCode: string | null; flagUrl: string | null };
+  }>;
 };
 
 describe('GET /tournaments/:tournamentId/matches', async () => {
@@ -49,6 +55,12 @@ describe('GET /tournaments/:tournamentId/matches', async () => {
     const body = response.body as TournamentMatchesResponse;
     expect(body.matches).toBeInstanceOf(Array);
     expect(body.matches.length).toBe(3);
+    expect(body.matches[0].homeTeam).toBeDefined();
+    expect(body.matches[0].awayTeam).toBeDefined();
+    expect(body.matches[0].homeTeam).toHaveProperty('id');
+    expect(body.matches[0].homeTeam).toHaveProperty('name');
+    expect(body.matches[0].homeTeam).toHaveProperty('flagUrl');
+    expect(body.matches[0].awayTeam).toHaveProperty('flagUrl');
   });
 
   it('should require authentication', async () => {

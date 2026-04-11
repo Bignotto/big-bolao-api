@@ -1,6 +1,6 @@
 import { Match, MatchStatus, Prisma } from '@prisma/client';
 
-import { IMatchesRepository } from './IMatchesRepository';
+import { IMatchesRepository, MatchWithTeams } from './IMatchesRepository';
 import { prisma } from '../../lib/prisma';
 
 export class PrismaMatchesRepository implements IMatchesRepository {
@@ -20,10 +20,11 @@ export class PrismaMatchesRepository implements IMatchesRepository {
     return match;
   }
 
-  async findByTournamentId(tournamentId: number): Promise<Match[]> {
+  async findByTournamentId(tournamentId: number): Promise<MatchWithTeams[]> {
     const matches = await prisma.match.findMany({
       where: { tournamentId },
       orderBy: { matchDatetime: 'asc' },
+      include: { homeTeam: true, awayTeam: true },
     });
 
     return matches;

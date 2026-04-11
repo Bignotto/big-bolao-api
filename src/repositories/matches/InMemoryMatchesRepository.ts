@@ -1,6 +1,6 @@
 import { Match, MatchStage, MatchStatus, Prisma, Team, Tournament } from '@prisma/client';
 
-import { IMatchesRepository } from './IMatchesRepository';
+import { IMatchesRepository, MatchWithTeams } from './IMatchesRepository';
 
 export class InMemoryMatchesRepository implements IMatchesRepository {
   public matches: Match[] = [];
@@ -38,10 +38,15 @@ export class InMemoryMatchesRepository implements IMatchesRepository {
     return Promise.resolve(match || null);
   }
 
-  findByTournamentId(tournamentId: number): Promise<Match[]> {
+  findByTournamentId(tournamentId: number): Promise<MatchWithTeams[]> {
     const matches = this.matches
       .filter((match) => match.tournamentId === tournamentId)
-      .sort((a, b) => a.matchDatetime.getTime() - b.matchDatetime.getTime());
+      .sort((a, b) => a.matchDatetime.getTime() - b.matchDatetime.getTime())
+      .map((match) => ({
+        ...match,
+        homeTeam: this.teams.find((t) => t.id === match.homeTeamId) as Team,
+        awayTeam: this.teams.find((t) => t.id === match.awayTeamId) as Team,
+      }));
 
     return Promise.resolve(matches);
   }
