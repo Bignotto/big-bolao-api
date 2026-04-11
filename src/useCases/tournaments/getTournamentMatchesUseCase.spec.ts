@@ -30,6 +30,17 @@ describe('Get Tournament Matches Use Case', () => {
       endDate: new Date(),
     });
 
+    // Seed teams into the in-memory repository
+    for (let i = 1; i <= 6; i++) {
+      matchesRepository.teams.push({
+        id: i,
+        name: `Team ${i}`,
+        countryCode: null,
+        flagUrl: `https://example.com/flags/${i}.png`,
+        createdAt: new Date(),
+      });
+    }
+
     for (let i = 1; i <= 3; i++) {
       await matchesRepository.create({
         tournament: { connect: { id: tournament1.id } },
@@ -51,6 +62,9 @@ describe('Get Tournament Matches Use Case', () => {
     // Assert
     expect(matches).toHaveLength(3);
     expect(matches.every((m) => m.tournamentId === tournament1.id)).toBe(true);
+    expect(matches[0].homeTeam).toBeDefined();
+    expect(matches[0].awayTeam).toBeDefined();
+    expect(matches[0].homeTeam.flagUrl).toBe('https://example.com/flags/1.png');
   });
 
   it('should throw if tournament does not exist', async () => {
