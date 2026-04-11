@@ -5,7 +5,6 @@ import { getTournamentMatchesController } from '@/http/controllers/tournaments/g
 import { listTournamentsController } from '@/http/controllers/tournaments/listTournamentsController';
 import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
-import { matchSchemas } from '@/http/schemas/match.schemas';
 import { tournamentSchemas } from '@/http/schemas/tournament.schemas';
 
 export function tournamentsRoutes(app: FastifyInstance): void {
