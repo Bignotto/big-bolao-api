@@ -3,7 +3,6 @@ import { Match, Pool, Prediction, Prisma, ScoringRule } from '@prisma/client';
 import { InviteCodeInUseError } from '@/global/errors/InviteCodeInUseError';
 import { PoolParticipant } from '@/global/types/poolParticipant';
 import { PoolStandings } from '@/global/types/poolStandings';
-import { PredictionPoints } from '@/global/types/predictionPoints';
 
 import { IPoolsRepository, PoolCompleteInfo, PoolPredictionEntry } from './IPoolsRepository';
 
@@ -19,22 +18,7 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
   This method could have only produced a mock-up for pool standings, but... 
   */
   async getPoolStandings(poolId: number): Promise<PoolStandings[]> {
-    if (this.predictions.length === 0) {
-      throw new Error('No predictions found');
-    }
-    if (this.scoringRules.length === 0) {
-      throw new Error('No scoring rules found');
-    }
-    if (this.matches.length === 0) {
-      throw new Error('No matches found');
-    }
-
     const poolPredictions = this.predictions.filter((prediction) => prediction.poolId === poolId);
-    if (poolPredictions.length === 0) {
-      throw new Error('No predictions found for this pool');
-    }
-
-    const predictionsPoints: PredictionPoints[] = [];
     const summary: { [id: string]: PoolStandings } = {};
 
     for (const prediction of poolPredictions) {
@@ -90,38 +74,22 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
           break;
       }
 
-      predictionsPoints.push({
-        Prediction: 0,
-        poolId,
-        matchId: match ? match.id : 0,
-        userId: prediction.userId,
-        homeTeamScore: match?.homeTeamScore ?? 0,
-        awayTeamScore: match?.awayTeamScore ?? 0,
-        stage: match?.stage ?? '',
-        matchStatus: match?.matchStatus ?? '',
-        predictedHome: prediction.predictedPenaltyHomeScore ?? 0,
-        predictedAway: prediction.predictedPenaltyAwayScore ?? 0,
-        predictedHasExtraTime: prediction.predictedHasExtraTime,
-        predictedHasPenalties: prediction.predictedHasPenalties,
-        predictedHomePenalty: prediction.predictedPenaltyHomeScore,
-        predictedAwayPenalty: prediction.predictedPenaltyAwayScore,
-        exactScore:
-          prediction.predictedHomeScore === match?.homeTeamScore &&
-          prediction.predictedAwayScore === match?.awayTeamScore
-            ? 1
-            : 0,
-        basepoints,
-        stagemultiplier,
-        TotalPoints: basepoints * stagemultiplier,
-      });
+      const exactScore =
+        prediction.predictedHomeScore === match?.homeTeamScore &&
+        prediction.predictedAwayScore === match?.awayTeamScore
+          ? 1
+          : 0;
+
       if (summary[prediction.userId]) {
         summary[prediction.userId].totalPoints += basepoints * stagemultiplier;
+        summary[prediction.userId].totalPredictions += 1;
+        summary[prediction.userId].exactScoreCount += exactScore;
       } else {
         summary[prediction.userId] = {
           userId: prediction.userId,
           poolId,
           totalPoints: basepoints * stagemultiplier,
-          exactScoreCount: 0,
+          exactScoreCount: exactScore,
           fullName: '',
           guessRatio: 0,
           pointsRatio: 0,
@@ -132,7 +100,41 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
         };
       }
     }
-    return Promise.resolve(Object.values(summary));
+
+    const pool = this.pools.find((pool) => pool.id === poolId);
+    const participants = this.participants.filter((participant) => participant.poolId === poolId);
+
+    for (const participant of participants) {
+      if (summary[participant.userId]) {
+        continue;
+      }
+
+      summary[participant.userId] = {
+        userId: participant.userId,
+        poolId,
+        totalPoints: 0,
+        exactScoreCount: 0,
+        fullName: participant.userId === pool?.creatorId ? 'Creator User' : 'testing user',
+        guessRatio: 0,
+        pointsRatio: 0,
+        predictionsRatio: 0,
+        profileImageUrl: 'fake url',
+        ranking: 0,
+        totalPredictions: 0,
+      };
+    }
+
+    const standings = Object.values(summary).sort((a, b) => {
+      if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+      if (b.exactScoreCount !== a.exactScoreCount) return b.exactScoreCount - a.exactScoreCount;
+      return a.userId.localeCompare(b.userId);
+    });
+
+    standings.forEach((standing, index) => {
+      standing.ranking = index + 1;
+    });
+
+    return Promise.resolve(standings);
   }
 
   /*

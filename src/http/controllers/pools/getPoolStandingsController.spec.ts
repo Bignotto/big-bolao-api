@@ -210,7 +210,7 @@ describe('Get Pool Standings Controller (e2e)', async () => {
     }
   });
 
-  it('should return empty standings for pool with no completed matches', async () => {
+  it('should return pool members with zero totals when there are no completed matches', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
 
     const pool = await createPool(poolsRepository, {
@@ -229,7 +229,17 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     const body = response.body as GetPoolStandingsResponse;
     expect(Array.isArray(body.standings)).toBe(true);
-    // Standings might be empty if no matches are completed
+    expect(body.standings).toHaveLength(1);
+    expect(body.standings[0]).toMatchObject({
+      userId,
+      poolId: pool.id,
+      totalPredictions: 0,
+      totalPoints: 0,
+      exactScoreCount: 0,
+      pointsRatio: 0,
+      guessRatio: 0,
+      predictionsRatio: 0,
+    });
   });
 
   it('should handle pools with multiple participants in standings', async () => {
@@ -256,7 +266,7 @@ describe('Get Pool Standings Controller (e2e)', async () => {
 
     const body = response.body as GetPoolStandingsResponse;
     expect(Array.isArray(body.standings)).toBe(true);
-    expect(body.standings.length).toBeGreaterThanOrEqual(0);
+    expect(body.standings.length).toBeGreaterThanOrEqual(3);
   });
 
   it('should allow pool creator to access standings even if not actively participating', async () => {

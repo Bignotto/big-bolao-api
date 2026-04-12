@@ -199,8 +199,30 @@ export class PrismaPoolsRepository implements IPoolsRepository {
 
   async getPoolStandings(poolId: number): Promise<PoolStandings[]> {
     const poolStandings = await prisma.$queryRaw<PoolStandings[]>`
-    SELECT * FROM pool_standings
-    WHERE "poolId" = ${poolId}
+    SELECT
+      row_number() over(
+        PARTITION BY PP."poolId"
+        ORDER BY
+          coalesce(PS."totalPoints", 0) desc,
+          coalesce(PS."exactScoreCount", 0) desc,
+          USR."fullName" asc
+      ) as ranking,
+      USR."fullName",
+      USR."profileImageUrl",
+      PP."userId",
+      PP."poolId",
+      coalesce(PS."totalPredictions", 0) as "totalPredictions",
+      coalesce(PS."totalPoints", 0) as "totalPoints",
+      coalesce(PS."exactScoreCount", 0) as "exactScoreCount",
+      coalesce(PS."pointsRatio", 0) as "pointsRatio",
+      coalesce(PS."guessRatio", 0) as "guessRatio",
+      coalesce(PS."predictionsRatio", 0) as "predictionsRatio"
+    FROM pool_participants PP
+      INNER JOIN users USR on USR.id = PP."userId"
+      LEFT JOIN pool_standings PS
+        ON PS."poolId" = PP."poolId"
+        AND PS."userId" = PP."userId"
+    WHERE PP."poolId" = ${poolId}
     ORDER BY "ranking"
     `;
     return poolStandings.map((standing) => ({
