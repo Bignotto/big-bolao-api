@@ -3,6 +3,7 @@ import { FastifyInstance } from 'fastify';
 import { createPoolController } from '@/http/controllers/pools/createPoolController';
 import { getPoolByInviteController } from '@/http/controllers/pools/getPoolByInviteController';
 import { getPoolController } from '@/http/controllers/pools/getPoolController';
+import { getPoolMatchPredictionsController } from '@/http/controllers/pools/getPoolMatchPredictionsController';
 import { getPoolPredictionsController } from '@/http/controllers/pools/getPoolPredictionsController';
 import { getPoolStandingsController } from '@/http/controllers/pools/getPoolStandingsController';
 import { getPoolUsersController } from '@/http/controllers/pools/getPoolUsersController';
@@ -436,6 +437,46 @@ export function poolRoutes(app: FastifyInstance): void {
       },
     },
     updateScoringRulesController
+  );
+
+  app.get(
+    '/pools/:poolId/matches/:matchId/predictions',
+    {
+      schema: {
+        tags: ['Pools'],
+        summary: 'Get pool match predictions',
+        description:
+          'Retrieves prediction submission status for every participant in a pool for a specific match',
+        params: poolSchemas.PoolMatchPredictionsParams,
+        response: {
+          200: {
+            description: 'Pool match predictions retrieved successfully',
+            ...poolSchemas.GetPoolMatchPredictionsResponse,
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...commonSchemas.UnauthorizedError,
+          },
+          403: {
+            description: 'User is not a member of this pool',
+            ...commonSchemas.NotPoolMemberError,
+          },
+          404: {
+            description: 'Pool or match not found',
+            ...commonSchemas.PoolNotFoundError,
+          },
+          422: {
+            description: 'Validation error',
+            ...poolSchemas.PoolValidationError,
+          },
+          500: {
+            description: 'Internal server error',
+            ...poolSchemas.PoolInternalServerError,
+          },
+        },
+      },
+    },
+    getPoolMatchPredictionsController
   );
 
   app.get(

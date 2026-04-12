@@ -121,4 +121,12 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
   findByPoolId(poolId: number): Promise<Prediction[]> {
     return Promise.resolve(this.predictions.filter((prediction) => prediction.poolId === poolId));
   }
+
+  findByPoolIdAndMatchId(poolId: number, matchId: number): Promise<Prediction[]> {
+    return Promise.resolve(
+      this.predictions.filter(
+        (prediction) => prediction.poolId === poolId && prediction.matchId === matchId
+      )
+    );
+  }
 }

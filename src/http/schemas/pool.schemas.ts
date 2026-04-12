@@ -225,6 +225,23 @@ export const poolSchemas = {
     required: ['poolId'],
   },
 
+  PoolMatchPredictionsParams: {
+    type: 'object',
+    properties: {
+      poolId: {
+        type: 'string',
+        pattern: '^[0-9]+$',
+        description: 'Pool unique identifier',
+      },
+      matchId: {
+        type: 'string',
+        pattern: '^[0-9]+$',
+        description: 'Match unique identifier',
+      },
+    },
+    required: ['poolId', 'matchId'],
+  },
+
   // Get Pool Response
   GetPoolResponse: {
     type: 'object',
@@ -496,6 +513,71 @@ export const poolSchemas = {
         items: { $ref: 'PoolPrediction#' },
       },
     },
+  },
+
+  PoolMatchPredictionParticipant: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', description: 'User unique identifier' },
+      fullName: { type: 'string', description: 'User full name' },
+      profileImageUrl: { type: 'string', nullable: true, description: 'User profile image URL' },
+      joinedAt: { type: 'string', format: 'date-time', nullable: true },
+      isOwner: { type: 'boolean', description: 'Whether user is the pool owner' },
+    },
+    required: ['id', 'fullName', 'joinedAt', 'isOwner'],
+  },
+
+  PoolMatchPrediction: {
+    type: 'object',
+    properties: {
+      participant: { $ref: 'PoolMatchPredictionParticipant#' },
+      predictionSubmitted: { type: 'boolean' },
+      prediction: {
+        type: 'object',
+        nullable: true,
+        properties: {
+          id: { type: 'number', description: 'Prediction unique identifier' },
+          poolId: { type: 'number', description: 'Pool ID this prediction belongs to' },
+          matchId: { type: 'number', description: 'Match ID' },
+          userId: { type: 'string', description: 'User ID who made the prediction' },
+          predictedHomeScore: { type: 'number', description: 'Predicted home team score' },
+          predictedAwayScore: { type: 'number', description: 'Predicted away team score' },
+          predictedHasExtraTime: {
+            type: 'boolean',
+            description: 'Whether the prediction includes extra time',
+          },
+          predictedHasPenalties: {
+            type: 'boolean',
+            description: 'Whether the prediction includes penalties',
+          },
+          predictedPenaltyHomeScore: {
+            type: 'number',
+            nullable: true,
+            description: 'Predicted home team penalty score',
+          },
+          predictedPenaltyAwayScore: {
+            type: 'number',
+            nullable: true,
+            description: 'Predicted away team penalty score',
+          },
+          submittedAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time', nullable: true },
+          pointsEarned: { type: 'number', nullable: true },
+        },
+      },
+    },
+    required: ['participant', 'predictionSubmitted', 'prediction'],
+  },
+
+  GetPoolMatchPredictionsResponse: {
+    type: 'object',
+    properties: {
+      predictions: {
+        type: 'array',
+        items: { $ref: 'PoolMatchPrediction#' },
+      },
+    },
+    required: ['predictions'],
   },
 
   // Pool Standing object
