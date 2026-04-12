@@ -210,4 +210,27 @@ describe('GetPoolStandingsUseCase', () => {
       expect(standing.ranking).not.toBeNull();
     });
   });
+
+  it('should include pool participants without predictions', async () => {
+    const participantWithoutPredictions = await createUser(usersRepository, {
+      fullName: 'No Predictions User',
+    });
+
+    await poolsRepository.addParticipant({
+      poolId: pool.id,
+      userId: participantWithoutPredictions.id,
+    });
+
+    const { standings } = await sut.execute({ poolId: pool.id, userId: creator.id });
+
+    const standing = standings.find((entry) => entry.userId === participantWithoutPredictions.id);
+
+    expect(standing).toBeDefined();
+    expect(standing?.totalPredictions).toBe(0);
+    expect(standing?.totalPoints).toBe(0);
+    expect(standing?.exactScoreCount).toBe(0);
+    expect(standing?.pointsRatio).toBe(0);
+    expect(standing?.guessRatio).toBe(0);
+    expect(standing?.predictionsRatio).toBe(0);
+  });
 });

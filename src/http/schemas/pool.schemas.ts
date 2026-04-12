@@ -502,14 +502,17 @@ export const poolSchemas = {
   PoolStanding: {
     type: 'object',
     properties: {
-      position: { type: 'number', description: 'Current position in the pool' },
+      ranking: { type: 'number', description: 'Current position in the pool' },
+      fullName: { type: 'string', description: 'User name' },
+      profileImageUrl: { type: 'string', nullable: true, description: 'User avatar URL' },
       userId: { type: 'string', description: 'User ID' },
-      userName: { type: 'string', description: 'User name' },
-      userAvatar: { type: 'string', description: 'User avatar URL' },
-      totalPoints: { type: 'number', description: 'Total points earned' },
-      correctPredictions: { type: 'number', description: 'Number of correct predictions' },
+      poolId: { type: 'number', description: 'Pool ID' },
       totalPredictions: { type: 'number', description: 'Total number of predictions made' },
-      accuracy: { type: 'number', description: 'Prediction accuracy percentage' },
+      totalPoints: { type: 'number', description: 'Total points earned' },
+      exactScoreCount: { type: 'number', description: 'Number of exact score predictions' },
+      pointsRatio: { type: 'number', description: 'Percentage of possible points earned' },
+      guessRatio: { type: 'number', description: 'Percentage of exact score guesses' },
+      predictionsRatio: { type: 'number', description: 'Percentage of submitted predictions' },
     },
   },
 

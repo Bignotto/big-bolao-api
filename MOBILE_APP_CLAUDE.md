@@ -17,7 +17,7 @@ Big Bolão is a sports betting/pool game where users:
 ## Backend API
 
 **Base URL (production):** configured via environment
-**Auth:** All endpoints (except `POST /users`) require `Authorization: Bearer <supabase_token>` header
+**Auth:** All endpoints require `Authorization: Bearer <supabase_token>` header
 **Auth provider:** Supabase — the mobile app authenticates with Supabase directly, then passes the token to this API
 **Content-Type:** `application/json`
 **API Docs:** `/docs` (Swagger/OpenAPI)
@@ -166,17 +166,20 @@ Big Bolão is a sports betting/pool game where users:
 }
 ```
 
-### Leaderboard Entry
+### Pool Standing
 ```ts
 {
-  poolId: number
+  ranking: number
+  fullName: string
+  profileImageUrl: string | null
   userId: string
+  poolId: number
+  totalPredictions: number
   totalPoints: number
-  exactScoresCount: number
-  correctWinnersCount: number
-  rank: number | null
-  lastUpdated: string | null
-  user: User
+  exactScoreCount: number
+  pointsRatio: number
+  guessRatio: number
+  predictionsRatio: number
 }
 ```
 
@@ -188,7 +191,7 @@ Big Bolão is a sports betting/pool game where users:
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/users` | No | Create user account |
+| POST | `/users` | Yes | Create user account |
 | GET | `/users/me` | Yes | Get authenticated user |
 | GET | `/users/:userId` | Yes | Get user by ID |
 | PUT | `/users/:userId` | Yes | Update user profile |
@@ -215,7 +218,7 @@ Big Bolão is a sports betting/pool game where users:
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/pools` | Yes | List public pools (`?page=1&limit=10&name=filter`) |
+| GET | `/pools` | Yes | List public pools (`?page=1&perPage=10&name=filter`) |
 | POST | `/pools` | Yes | Create a new pool |
 | GET | `/pools/:poolId` | Yes | Get pool details |
 | PUT | `/pools/:poolId` | Yes | Update pool (owner only) |
@@ -249,12 +252,45 @@ Big Bolão is a sports betting/pool game where users:
 ```json
 // Response 200
 {
-  "pools": Pool[],
-  "total": 42,
-  "page": 1,
-  "limit": 10
+  "pools": Pool[]
 }
 ```
+
+**GET /pools/:poolId/standings**
+```json
+// Response 200
+{
+  "standings": [
+    {
+      "ranking": 1,
+      "fullName": "John Doe",
+      "profileImageUrl": "https://...",
+      "userId": "user-id",
+      "poolId": 1,
+      "totalPredictions": 4,
+      "totalPoints": 22,
+      "exactScoreCount": 2,
+      "pointsRatio": 55,
+      "guessRatio": 50,
+      "predictionsRatio": 100
+    },
+    {
+      "ranking": 2,
+      "fullName": "Jane Smith",
+      "profileImageUrl": null,
+      "userId": "user-id-2",
+      "poolId": 1,
+      "totalPredictions": 0,
+      "totalPoints": 0,
+      "exactScoreCount": 0,
+      "pointsRatio": 0,
+      "guessRatio": 0,
+      "predictionsRatio": 0
+    }
+  ]
+}
+```
+This endpoint includes all pool participants, including members without predictions. Use it for leaderboard and member-list screens when these standing fields are enough.
 
 **PUT /pools/:poolId/scoring-rules (owner only)**
 ```json
@@ -308,7 +344,40 @@ Big Bolão is a sports betting/pool game where users:
 |--------|------|------|-------------|
 | GET | `/matches/:matchId` | Yes | Get match details |
 | GET | `/matches/:matchId/predictions` | Yes | All predictions for a match |
+| GET | `/matches/:matchId/predictions/me` | Yes | Authenticated user's prediction status for a match across their pools |
 | PUT | `/matches/:matchId` | Yes | Update match result (ADMIN only) |
+
+**GET /matches/:matchId/predictions/me**
+```json
+// Response 200
+{
+  "predictions": [
+    {
+      "poolId": 1,
+      "poolName": "My Pool",
+      "matchId": 42,
+      "prediction": {
+        "id": 10,
+        "predictedHomeScore": 2,
+        "predictedAwayScore": 1,
+        "predictedHasExtraTime": false,
+        "predictedHasPenalties": false,
+        "predictedPenaltyHomeScore": null,
+        "predictedPenaltyAwayScore": null,
+        "pointsEarned": null,
+        "submittedAt": "2026-06-01T12:00:00Z",
+        "updatedAt": null
+      }
+    },
+    {
+      "poolId": 2,
+      "poolName": "Friends Pool",
+      "matchId": 42,
+      "prediction": null
+    }
+  ]
+}
+```
 
 **PUT /matches/:matchId (admin only)**
 ```json
@@ -330,7 +399,7 @@ Big Bolão is a sports betting/pool game where users:
 |--------|------|------|-------------|
 | GET | `/tournaments` | Yes | List all tournaments |
 | GET | `/tournaments/:tournamentId` | Yes | Get tournament details |
-| GET | `/tournaments/:tournamentId/matches` | Yes | Tournament matches (`?stage=FINAL&status=COMPLETED`) |
+| GET | `/tournaments/:tournamentId/matches` | Yes | Tournament matches (`?stage=FINAL&status=COMPLETED&group=A&limit=50&offset=0`) |
 
 ---
 
@@ -445,7 +514,7 @@ A user predicts **2-1** and the actual result is **3-1** in a `SEMI_FINAL`:
 1. **Always handle `null` values** — many fields are nullable (scores, profile images, deadlines)
 2. **Supabase token refresh** — tokens expire; implement auto-refresh in the mobile auth layer
 3. **Optimistic UI** — for predictions, apply local state immediately then sync with server
-4. **Pagination** — `GET /pools` supports `page` and `limit` query params; implement infinite scroll
+4. **Pagination** — `GET /pools` supports `page` and `perPage` query params; implement infinite scroll
 5. **Poll or push for match updates** — `matchStatus` and scores change server-side; consider polling or websocket subscriptions via Supabase Realtime
 6. **Role-aware UI** — hide admin controls (`PUT /matches/:matchId`) unless `user.role === "ADMIN"`
 7. **Invite flow** — use `GET /pool-invites/:code` to preview pool before `POST /pool-invites/:code` to join
