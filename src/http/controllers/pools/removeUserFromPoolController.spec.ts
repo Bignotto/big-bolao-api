@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -46,6 +48,7 @@ describe('Remove User From Pool Controller (e2e)', async () => {
     });
 
     const userToRemove = await createUser(usersRepository, {
+      id: randomUUID(),
       email: 'user-to-remove@example.com',
     });
 
@@ -73,6 +76,7 @@ describe('Remove User From Pool Controller (e2e)', async () => {
   it('should return 404 when trying to remove a user from a non-existent pool', async () => {
     const nonExistentPoolId = 9999;
     const userToRemove = await createUser(usersRepository, {
+      id: randomUUID(),
       email: 'user-to-remove-non-existent-pool@example.com',
     });
 
@@ -92,7 +96,7 @@ describe('Remove User From Pool Controller (e2e)', async () => {
       isPrivate: false,
     });
 
-    const nonExistentUserId = 'clh0000000000000000000000000'; // Non-existent CUID
+    const nonExistentUserId = randomUUID();
 
     const response = await request(app.server)
       .delete(`/pools/${pool.id}/users/${nonExistentUserId}`)
@@ -106,6 +110,7 @@ describe('Remove User From Pool Controller (e2e)', async () => {
     const tournament = await createTournament(tournamentsRepository, {});
 
     const poolOwner = await createUser(usersRepository, {
+      id: randomUUID(),
       email: 'pool-owner@example.com',
     });
 
@@ -116,6 +121,7 @@ describe('Remove User From Pool Controller (e2e)', async () => {
     });
 
     const userToRemove = await createUser(usersRepository, {
+      id: randomUUID(),
       email: 'user-to-remove-non-creator@example.com',
     });
 
@@ -153,6 +159,7 @@ describe('Remove User From Pool Controller (e2e)', async () => {
 
     // Create a user who is not a participant
     const nonParticipantUser = await createUser(usersRepository, {
+      id: randomUUID(),
       email: 'non-participant@example.com',
     });
 
@@ -175,6 +182,7 @@ describe('Remove User From Pool Controller (e2e)', async () => {
     });
 
     const userToRemove = await createUser(usersRepository, {
+      id: randomUUID(),
       email: 'user-to-remove-auth@example.com',
     });
 

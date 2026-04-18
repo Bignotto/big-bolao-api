@@ -12,7 +12,7 @@ export async function removeUserFromPoolController(
 ): Promise<void> {
   const removeUserFromPoolParamsSchema = z.object({
     poolId: z.coerce.number(),
-    userId: z.string().cuid(),
+    userId: z.string().uuid(),
   });
 
   try {
