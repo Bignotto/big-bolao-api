@@ -6,6 +6,7 @@ import { IUsersRepository } from '@/repositories/users/IUsersRepository';
 export async function createUser(
   repository: IUsersRepository,
   data: {
+    id?: string;
     fullName?: string;
     email?: string;
     passwordHash?: string;
@@ -15,6 +16,7 @@ export async function createUser(
   }
 ): Promise<User> {
   const user = await repository.create({
+    id: data.id,
     fullName: data.fullName ?? faker.person.fullName(),
     email: data.email ?? faker.internet.email(),
     passwordHash: data.passwordHash ?? 'hashed_password_' + Math.random().toString(36).slice(2, 10),
