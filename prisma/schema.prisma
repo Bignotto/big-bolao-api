@@ -94,6 +94,8 @@ model Match {
   stadium          String?
   stage            MatchStage   @default(GROUP)
   group            String?
+  apiFootballId    Int?
+  footballDataOrgId Int?
   homeTeamScore    Int?
   awayTeamScore    Int?
   matchStatus      MatchStatus  @default(SCHEDULED)
