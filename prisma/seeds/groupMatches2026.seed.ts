@@ -41,38 +41,38 @@ export async function createGroupMatches2026(tournamentId: number, teamMap: { [k
 
     // ── GRUPO D: Estados Unidos | Paraguai | Austrália | Turquia ─────────────
     { homeTeam: 'Estados Unidos', awayTeam: 'Paraguai',      datetime: '2026-06-13T01:00:00Z', group: 'D', stadium: 'SoFi Stadium, Inglewood' },
-    { homeTeam: 'Austrália',      awayTeam: 'Turquia',       datetime: '2026-06-13T04:00:00Z', group: 'D', stadium: 'BC Place, Vancouver' },
+    { homeTeam: 'Austrália',      awayTeam: 'Turquia',       datetime: '2026-06-14T04:00:00Z', group: 'D', stadium: 'BC Place, Vancouver' },
     { homeTeam: 'Estados Unidos', awayTeam: 'Austrália',     datetime: '2026-06-19T19:00:00Z', group: 'D', stadium: 'Lumen Field, Seattle' },
     { homeTeam: 'Turquia',        awayTeam: 'Paraguai',      datetime: '2026-06-20T03:00:00Z', group: 'D', stadium: "Levi's Stadium, Santa Clara" },
-    { homeTeam: 'Paraguai',       awayTeam: 'Austrália',     datetime: '2026-06-25T19:00:00Z', group: 'D', stadium: 'Gillette Stadium, Foxborough' },
-    { homeTeam: 'Turquia',        awayTeam: 'Estados Unidos',datetime: '2026-06-25T19:00:00Z', group: 'D', stadium: 'AT&T Stadium, Arlington' },
+    { homeTeam: 'Paraguai',       awayTeam: 'Austrália',     datetime: '2026-06-26T02:00:00Z', group: 'D', stadium: "Levi's Stadium, Santa Clara" },
+    { homeTeam: 'Turquia',        awayTeam: 'Estados Unidos',datetime: '2026-06-26T02:00:00Z', group: 'D', stadium: 'SoFi Stadium, Inglewood' },
 
     // ── GRUPO E: Alemanha | Curaçao | Costa do Marfim | Equador ─────────────
     { homeTeam: 'Alemanha',       awayTeam: 'Curaçao',        datetime: '2026-06-14T17:00:00Z', group: 'E', stadium: 'NRG Stadium, Houston' },
     { homeTeam: 'Costa do Marfim',awayTeam: 'Equador',        datetime: '2026-06-14T23:00:00Z', group: 'E', stadium: 'Lincoln Financial Field, Filadélfia' },
     { homeTeam: 'Alemanha',       awayTeam: 'Costa do Marfim',datetime: '2026-06-20T20:00:00Z', group: 'E', stadium: 'BMO Field, Toronto' },
-    { homeTeam: 'Equador',        awayTeam: 'Curaçao',        datetime: '2026-06-21T00:00:00Z', group: 'E', stadium: "Children's Mercy Park, Kansas City" },
+    { homeTeam: 'Equador',        awayTeam: 'Curaçao',        datetime: '2026-06-21T00:00:00Z', group: 'E', stadium: 'Arrowhead Stadium, Kansas City' },
     { homeTeam: 'Equador',        awayTeam: 'Alemanha',       datetime: '2026-06-25T20:00:00Z', group: 'E', stadium: 'MetLife Stadium, East Rutherford' },
     { homeTeam: 'Curaçao',        awayTeam: 'Costa do Marfim',datetime: '2026-06-25T20:00:00Z', group: 'E', stadium: 'Lincoln Financial Field, Filadélfia' },
 
     // ── GRUPO F: Holanda | Japão | Suécia | Tunísia ──────────────────────────
     { homeTeam: 'Holanda', awayTeam: 'Japão',   datetime: '2026-06-14T20:00:00Z', group: 'F', stadium: 'AT&T Stadium, Arlington' },
-    { homeTeam: 'Suécia',  awayTeam: 'Tunísia', datetime: '2026-06-15T02:00:00Z', group: 'F', stadium: 'Estadio Akron, Guadalajara' },
+    { homeTeam: 'Suécia',  awayTeam: 'Tunísia', datetime: '2026-06-15T02:00:00Z', group: 'F', stadium: 'Estadio BBVA, Guadalupe' },
     { homeTeam: 'Holanda', awayTeam: 'Suécia',  datetime: '2026-06-20T17:00:00Z', group: 'F', stadium: 'NRG Stadium, Houston' },
-    { homeTeam: 'Tunísia', awayTeam: 'Japão',   datetime: '2026-06-21T04:00:00Z', group: 'F', stadium: 'Estadio Akron, Guadalajara' },
+    { homeTeam: 'Tunísia', awayTeam: 'Japão',   datetime: '2026-06-21T04:00:00Z', group: 'F', stadium: 'Estadio BBVA, Guadalupe' },
     { homeTeam: 'Japão',   awayTeam: 'Suécia',  datetime: '2026-06-25T23:00:00Z', group: 'F', stadium: 'AT&T Stadium, Arlington' },
-    { homeTeam: 'Tunísia', awayTeam: 'Holanda', datetime: '2026-06-25T23:00:00Z', group: 'F', stadium: "Children's Mercy Park, Kansas City" },
+    { homeTeam: 'Tunísia', awayTeam: 'Holanda', datetime: '2026-06-25T23:00:00Z', group: 'F', stadium: 'Arrowhead Stadium, Kansas City' },
 
     // ── GRUPO G: Bélgica | Egito | Irã | Nova Zelândia ───────────────────────
-    { homeTeam: 'Bélgica',      awayTeam: 'Egito',        datetime: '2026-06-15T22:00:00Z', group: 'G', stadium: 'Lumen Field, Seattle' },
-    { homeTeam: 'Irã',          awayTeam: 'Nova Zelândia',datetime: '2026-06-16T04:00:00Z', group: 'G', stadium: 'SoFi Stadium, Inglewood' },
+    { homeTeam: 'Bélgica',      awayTeam: 'Egito',        datetime: '2026-06-15T19:00:00Z', group: 'G', stadium: 'Lumen Field, Seattle' },
+    { homeTeam: 'Irã',          awayTeam: 'Nova Zelândia',datetime: '2026-06-16T01:00:00Z', group: 'G', stadium: 'SoFi Stadium, Inglewood' },
     { homeTeam: 'Bélgica',      awayTeam: 'Irã',          datetime: '2026-06-21T19:00:00Z', group: 'G', stadium: 'SoFi Stadium, Inglewood' },
     { homeTeam: 'Nova Zelândia',awayTeam: 'Egito',        datetime: '2026-06-22T01:00:00Z', group: 'G', stadium: 'BC Place, Vancouver' },
     { homeTeam: 'Egito',        awayTeam: 'Irã',          datetime: '2026-06-27T03:00:00Z', group: 'G', stadium: 'Lumen Field, Seattle' },
     { homeTeam: 'Nova Zelândia',awayTeam: 'Bélgica',      datetime: '2026-06-27T03:00:00Z', group: 'G', stadium: 'BC Place, Vancouver' },
 
     // ── GRUPO H: Espanha | Cabo Verde | Arábia Saudita | Uruguai ─────────────
-    { homeTeam: 'Espanha',       awayTeam: 'Cabo Verde',    datetime: '2026-06-15T17:00:00Z', group: 'H', stadium: 'Mercedes-Benz Stadium, Atlanta' },
+    { homeTeam: 'Espanha',       awayTeam: 'Cabo Verde',    datetime: '2026-06-15T16:00:00Z', group: 'H', stadium: 'Mercedes-Benz Stadium, Atlanta' },
     { homeTeam: 'Arábia Saudita',awayTeam: 'Uruguai',       datetime: '2026-06-15T22:00:00Z', group: 'H', stadium: 'Hard Rock Stadium, Miami' },
     { homeTeam: 'Espanha',       awayTeam: 'Arábia Saudita',datetime: '2026-06-21T16:00:00Z', group: 'H', stadium: 'Mercedes-Benz Stadium, Atlanta' },
     { homeTeam: 'Uruguai',       awayTeam: 'Cabo Verde',    datetime: '2026-06-21T22:00:00Z', group: 'H', stadium: 'Hard Rock Stadium, Miami' },
@@ -83,16 +83,16 @@ export async function createGroupMatches2026(tournamentId: number, teamMap: { [k
     { homeTeam: 'França',   awayTeam: 'Senegal',  datetime: '2026-06-16T19:00:00Z', group: 'I', stadium: 'MetLife Stadium, East Rutherford' },
     { homeTeam: 'Iraque',   awayTeam: 'Noruega',  datetime: '2026-06-16T22:00:00Z', group: 'I', stadium: 'Gillette Stadium, Foxborough' },
     { homeTeam: 'França',   awayTeam: 'Iraque',   datetime: '2026-06-22T21:00:00Z', group: 'I', stadium: 'Lincoln Financial Field, Filadélfia' },
-    { homeTeam: 'Noruega',  awayTeam: 'Senegal',  datetime: '2026-06-23T00:00:00Z', group: 'I', stadium: 'MetLife Stadium, East Rutherford' },
+    { homeTeam: 'Noruega',  awayTeam: 'Senegal',  datetime: '2026-06-23T00:00:00Z', group: 'I', stadium: 'BMO Field, Toronto' },
     { homeTeam: 'Noruega',  awayTeam: 'França',   datetime: '2026-06-26T19:00:00Z', group: 'I', stadium: 'Gillette Stadium, Foxborough' },
     { homeTeam: 'Senegal',  awayTeam: 'Iraque',   datetime: '2026-06-26T19:00:00Z', group: 'I', stadium: 'BMO Field, Toronto' },
 
     // ── GRUPO J: Argentina | Argélia | Áustria | Jordânia ────────────────────
-    { homeTeam: 'Argentina', awayTeam: 'Argélia',  datetime: '2026-06-17T01:00:00Z', group: 'J', stadium: "Children's Mercy Park, Kansas City" },
+    { homeTeam: 'Argentina', awayTeam: 'Argélia',  datetime: '2026-06-17T01:00:00Z', group: 'J', stadium: 'Arrowhead Stadium, Kansas City' },
     { homeTeam: 'Áustria',   awayTeam: 'Jordânia', datetime: '2026-06-17T04:00:00Z', group: 'J', stadium: "Levi's Stadium, Santa Clara" },
     { homeTeam: 'Argentina', awayTeam: 'Áustria',  datetime: '2026-06-22T17:00:00Z', group: 'J', stadium: 'AT&T Stadium, Arlington' },
     { homeTeam: 'Jordânia',  awayTeam: 'Argélia',  datetime: '2026-06-23T03:00:00Z', group: 'J', stadium: "Levi's Stadium, Santa Clara" },
-    { homeTeam: 'Argélia',   awayTeam: 'Áustria',  datetime: '2026-06-28T02:00:00Z', group: 'J', stadium: "Children's Mercy Park, Kansas City" },
+    { homeTeam: 'Argélia',   awayTeam: 'Áustria',  datetime: '2026-06-28T02:00:00Z', group: 'J', stadium: 'Arrowhead Stadium, Kansas City' },
     { homeTeam: 'Jordânia',  awayTeam: 'Argentina',datetime: '2026-06-28T02:00:00Z', group: 'J', stadium: 'AT&T Stadium, Arlington' },
 
     // ── GRUPO K: Portugal | República Democrática do Congo | Uzbequistão | Colômbia
