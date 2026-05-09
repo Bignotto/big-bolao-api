@@ -40,12 +40,12 @@ export async function createGroupMatches2026(tournamentId: number, teamMap: { [k
     { homeTeam: 'Marrocos', awayTeam: 'Haiti',    datetime: '2026-06-24T22:00:00Z', group: 'C', stadium: 'Mercedes-Benz Stadium, Atlanta' },
 
     // ── GRUPO D: Estados Unidos | Paraguai | Austrália | Turquia ─────────────
-    { homeTeam: 'Estados Unidos', awayTeam: 'Paraguai',  datetime: '2026-06-13T01:00:00Z', group: 'D', stadium: 'SoFi Stadium, Inglewood' },
-    { homeTeam: 'Austrália',      awayTeam: 'Turquia',   datetime: '2026-06-13T04:00:00Z', group: 'D', stadium: 'BC Place, Vancouver' },
-    { homeTeam: 'Estados Unidos', awayTeam: 'Austrália', datetime: '2026-06-19T19:00:00Z', group: 'D', stadium: 'Lumen Field, Seattle' },
-    { homeTeam: 'Turquia',        awayTeam: 'Paraguai',  datetime: '2026-06-20T03:00:00Z', group: 'D', stadium: "Levi's Stadium, Santa Clara" },
-    { homeTeam: 'Austrália',      awayTeam: 'Paraguai',  datetime: '2026-06-24T19:00:00Z', group: 'D', stadium: 'Gillette Stadium, Foxborough' },
-    { homeTeam: 'Estados Unidos', awayTeam: 'Turquia',   datetime: '2026-06-24T19:00:00Z', group: 'D', stadium: 'AT&T Stadium, Arlington' },
+    { homeTeam: 'Estados Unidos', awayTeam: 'Paraguai',      datetime: '2026-06-13T01:00:00Z', group: 'D', stadium: 'SoFi Stadium, Inglewood' },
+    { homeTeam: 'Austrália',      awayTeam: 'Turquia',       datetime: '2026-06-13T04:00:00Z', group: 'D', stadium: 'BC Place, Vancouver' },
+    { homeTeam: 'Estados Unidos', awayTeam: 'Austrália',     datetime: '2026-06-19T19:00:00Z', group: 'D', stadium: 'Lumen Field, Seattle' },
+    { homeTeam: 'Turquia',        awayTeam: 'Paraguai',      datetime: '2026-06-20T03:00:00Z', group: 'D', stadium: "Levi's Stadium, Santa Clara" },
+    { homeTeam: 'Paraguai',       awayTeam: 'Austrália',     datetime: '2026-06-25T19:00:00Z', group: 'D', stadium: 'Gillette Stadium, Foxborough' },
+    { homeTeam: 'Turquia',        awayTeam: 'Estados Unidos',datetime: '2026-06-25T19:00:00Z', group: 'D', stadium: 'AT&T Stadium, Arlington' },
 
     // ── GRUPO E: Alemanha | Curaçao | Costa do Marfim | Equador ─────────────
     { homeTeam: 'Alemanha',       awayTeam: 'Curaçao',        datetime: '2026-06-14T17:00:00Z', group: 'E', stadium: 'NRG Stadium, Houston' },

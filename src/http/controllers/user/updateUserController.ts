@@ -5,7 +5,7 @@ import { ResourceNotFoundError } from '@/global/errors/ResourceNotFoundError';
 import { makeUpdateUserUseCase } from '@/useCases/users/factory/makeUpdateUserUseCase';
 
 const updateUserParamsSchema = z.object({
-  userId: z.string().cuid(),
+  userId: z.string().uuid(),
 });
 
 const updateUserBodySchema = z.object({
