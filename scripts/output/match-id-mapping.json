@@ -3,7 +3,7 @@
     "matchId": 1,
     "homeTeam": "México",
     "awayTeam": "África do Sul",
-    "matchDatetime": "2026-06-11T16:00:00.000Z",
+    "matchDatetime": "2026-06-11T19:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537327
   },
@@ -11,7 +11,7 @@
     "matchId": 2,
     "homeTeam": "Coreia do Sul",
     "awayTeam": "Tchéquia",
-    "matchDatetime": "2026-06-11T23:00:00.000Z",
+    "matchDatetime": "2026-06-12T02:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537328
   },
@@ -30,14 +30,6 @@
     "matchDatetime": "2026-06-13T01:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537345
-  },
-  {
-    "matchId": 20,
-    "homeTeam": "Austrália",
-    "awayTeam": "Turquia",
-    "matchDatetime": "2026-06-13T04:00:00.000Z",
-    "apiFootballId": null,
-    "footballDataOrgId": 537346
   },
   {
     "matchId": 8,
@@ -62,6 +54,14 @@
     "matchDatetime": "2026-06-14T01:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537340
+  },
+  {
+    "matchId": 20,
+    "homeTeam": "Austrália",
+    "awayTeam": "Turquia",
+    "matchDatetime": "2026-06-14T04:00:00.000Z",
+    "apiFootballId": null,
+    "footballDataOrgId": 537346
   },
   {
     "matchId": 25,
@@ -99,7 +99,7 @@
     "matchId": 43,
     "homeTeam": "Espanha",
     "awayTeam": "Cabo Verde",
-    "matchDatetime": "2026-06-15T17:00:00.000Z",
+    "matchDatetime": "2026-06-15T16:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537369
   },
@@ -107,7 +107,7 @@
     "matchId": 37,
     "homeTeam": "Bélgica",
     "awayTeam": "Egito",
-    "matchDatetime": "2026-06-15T22:00:00.000Z",
+    "matchDatetime": "2026-06-15T19:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537363
   },
@@ -123,7 +123,7 @@
     "matchId": 38,
     "homeTeam": "Irã",
     "awayTeam": "Nova Zelândia",
-    "matchDatetime": "2026-06-16T04:00:00.000Z",
+    "matchDatetime": "2026-06-16T01:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537364
   },
@@ -195,7 +195,7 @@
     "matchId": 3,
     "homeTeam": "Tchéquia",
     "awayTeam": "África do Sul",
-    "matchDatetime": "2026-06-18T13:00:00.000Z",
+    "matchDatetime": "2026-06-18T16:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537329
   },
@@ -400,14 +400,6 @@
     "footballDataOrgId": 537337
   },
   {
-    "matchId": 17,
-    "homeTeam": "Escócia",
-    "awayTeam": "Brasil",
-    "matchDatetime": "2026-06-24T22:00:00.000Z",
-    "apiFootballId": null,
-    "footballDataOrgId": 537343
-  },
-  {
     "matchId": 18,
     "homeTeam": "Marrocos",
     "awayTeam": "Haiti",
@@ -416,12 +408,12 @@
     "footballDataOrgId": 537344
   },
   {
-    "matchId": 6,
-    "homeTeam": "África do Sul",
-    "awayTeam": "Coreia do Sul",
-    "matchDatetime": "2026-06-25T01:00:00.000Z",
+    "matchId": 17,
+    "homeTeam": "Escócia",
+    "awayTeam": "Brasil",
+    "matchDatetime": "2026-06-24T22:00:00.000Z",
     "apiFootballId": null,
-    "footballDataOrgId": 537332
+    "footballDataOrgId": 537343
   },
   {
     "matchId": 5,
@@ -432,28 +424,12 @@
     "footballDataOrgId": 537331
   },
   {
-    "matchId": 23,
-    "homeTeam": "Paraguai",
-    "awayTeam": "Austrália",
-    "matchDatetime": "2026-06-25T19:00:00.000Z",
+    "matchId": 6,
+    "homeTeam": "África do Sul",
+    "awayTeam": "Coreia do Sul",
+    "matchDatetime": "2026-06-25T01:00:00.000Z",
     "apiFootballId": null,
-    "footballDataOrgId": 537350
-  },
-  {
-    "matchId": 24,
-    "homeTeam": "Turquia",
-    "awayTeam": "Estados Unidos",
-    "matchDatetime": "2026-06-25T19:00:00.000Z",
-    "apiFootballId": null,
-    "footballDataOrgId": 537349
-  },
-  {
-    "matchId": 29,
-    "homeTeam": "Equador",
-    "awayTeam": "Alemanha",
-    "matchDatetime": "2026-06-25T20:00:00.000Z",
-    "apiFootballId": null,
-    "footballDataOrgId": 537355
+    "footballDataOrgId": 537332
   },
   {
     "matchId": 30,
@@ -462,6 +438,14 @@
     "matchDatetime": "2026-06-25T20:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537356
+  },
+  {
+    "matchId": 29,
+    "homeTeam": "Equador",
+    "awayTeam": "Alemanha",
+    "matchDatetime": "2026-06-25T20:00:00.000Z",
+    "apiFootballId": null,
+    "footballDataOrgId": 537355
   },
   {
     "matchId": 35,
@@ -478,6 +462,22 @@
     "matchDatetime": "2026-06-25T23:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537361
+  },
+  {
+    "matchId": 24,
+    "homeTeam": "Turquia",
+    "awayTeam": "Estados Unidos",
+    "matchDatetime": "2026-06-26T02:00:00.000Z",
+    "apiFootballId": null,
+    "footballDataOrgId": 537349
+  },
+  {
+    "matchId": 23,
+    "homeTeam": "Paraguai",
+    "awayTeam": "Austrália",
+    "matchDatetime": "2026-06-26T02:00:00.000Z",
+    "apiFootballId": null,
+    "footballDataOrgId": 537350
   },
   {
     "matchId": 54,
@@ -528,20 +528,20 @@
     "footballDataOrgId": 537367
   },
   {
-    "matchId": 71,
-    "homeTeam": "Panamá",
-    "awayTeam": "Inglaterra",
-    "matchDatetime": "2026-06-27T21:00:00.000Z",
-    "apiFootballId": null,
-    "footballDataOrgId": 537413
-  },
-  {
     "matchId": 72,
     "homeTeam": "Croácia",
     "awayTeam": "Gana",
     "matchDatetime": "2026-06-27T21:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537414
+  },
+  {
+    "matchId": 71,
+    "homeTeam": "Panamá",
+    "awayTeam": "Inglaterra",
+    "matchDatetime": "2026-06-27T21:00:00.000Z",
+    "apiFootballId": null,
+    "footballDataOrgId": 537413
   },
   {
     "matchId": 65,
@@ -560,19 +560,19 @@
     "footballDataOrgId": 537408
   },
   {
-    "matchId": 60,
-    "homeTeam": "Jordânia",
-    "awayTeam": "Argentina",
-    "matchDatetime": "2026-06-28T02:00:00.000Z",
-    "apiFootballId": null,
-    "footballDataOrgId": 537401
-  },
-  {
     "matchId": 59,
     "homeTeam": "Argélia",
     "awayTeam": "Áustria",
     "matchDatetime": "2026-06-28T02:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537402
+  },
+  {
+    "matchId": 60,
+    "homeTeam": "Jordânia",
+    "awayTeam": "Argentina",
+    "matchDatetime": "2026-06-28T02:00:00.000Z",
+    "apiFootballId": null,
+    "footballDataOrgId": 537401
   }
 ]
