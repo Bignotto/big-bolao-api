@@ -92,7 +92,7 @@ describe('Update User Controller (e2e)', () => {
   });
 
   it('should return 404 when trying to update a non-existent user', async () => {
-    const nonExistentUserId = 'clqwertyuiop123456789012';
+    const nonExistentUserId = '00000000-0000-0000-0000-000000000000';
 
     const response = await request(app.server)
       .put(`/users/${nonExistentUserId}`)
@@ -124,7 +124,7 @@ describe('Update User Controller (e2e)', () => {
   });
 
   it('should validate the user ID parameter', async () => {
-    const invalidUserId = 'not-a-cuid';
+    const invalidUserId = 'not-a-uuid';
 
     const response = await request(app.server)
       .put(`/users/${invalidUserId}`)

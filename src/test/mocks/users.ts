@@ -16,7 +16,7 @@ export async function createUser(
   }
 ): Promise<User> {
   const user = await repository.create({
-    id: data.id,
+    id: data.id ?? faker.string.uuid(),
     fullName: data.fullName ?? faker.person.fullName(),
     email: data.email ?? faker.internet.email(),
     passwordHash: data.passwordHash ?? 'hashed_password_' + Math.random().toString(36).slice(2, 10),
