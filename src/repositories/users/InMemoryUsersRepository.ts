@@ -79,4 +79,9 @@ export class InMemoryUsersRepository implements IUsersRepository {
 
     return Promise.resolve(user);
   }
+
+  delete(id: string): Promise<void> {
+    this.users = this.users.filter((user) => user.id !== id);
+    return Promise.resolve();
+  }
 }

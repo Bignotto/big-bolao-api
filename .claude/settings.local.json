@@ -11,7 +11,11 @@
       "Bash(git push:*)",
       "Bash(Get-Content \"C:\\\\Users\\\\Thiago\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Thiago-Projects-big-bolao-api\\\\a3ecf3e5-0c61-4a9a-95cd-a69185d9c5df\\\\tasks\\\\bpydsc550.output\" -Wait -Tail 30)",
       "Bash(Select-Object -First 30)",
-      "mcp__plugin_context-mode_context-mode__ctx_fetch_and_index"
+      "mcp__plugin_context-mode_context-mode__ctx_fetch_and_index",
+      "mcp__plugin_context-mode_context-mode__ctx_execute_file",
+      "Bash(xargs grep -l \"calculatePoints\\\\|scoringPoints\\\\|exactScore\")",
+      "mcp__plugin_context-mode_context-mode__ctx_execute",
+      "Bash(npx tsc *)"
     ]
   }
 }

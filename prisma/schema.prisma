@@ -141,8 +141,8 @@ model PoolParticipant {
   poolId   Int
   userId   String
   joinedAt DateTime @default(now())
-  pool     Pool     @relation(fields: [poolId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+  pool     Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([poolId, userId])
   @@map("pool_participants")
@@ -158,7 +158,7 @@ model ScoringRule {
   specialEventPoints          Int     @default(0)
   knockoutMultiplier          Decimal @default(1.0) @db.Decimal(3, 2)
   finalMultiplier             Decimal @default(1.0) @db.Decimal(3, 2)
-  pool                        Pool    @relation(fields: [poolId], references: [id])
+  pool                        Pool    @relation(fields: [poolId], references: [id], onDelete: Cascade)
 
   @@map("scoring_rules")
 }
@@ -169,7 +169,7 @@ model SpecialEvent {
   name        String
   description String?
   points      Int                      @default(5)
-  pool        Pool                     @relation(fields: [poolId], references: [id])
+  pool        Pool                     @relation(fields: [poolId], references: [id], onDelete: Cascade)
   predictions SpecialEventPrediction[]
 
   @@map("special_events")
@@ -189,9 +189,9 @@ model Prediction {
   submittedAt               DateTime  @default(now())
   updatedAt                 DateTime?
   pointsEarned              Int?
-  pool                      Pool      @relation(fields: [poolId], references: [id])
+  pool                      Pool      @relation(fields: [poolId], references: [id], onDelete: Cascade)
   match                     Match     @relation(fields: [matchId], references: [id])
-  user                      User      @relation(fields: [userId], references: [id])
+  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([poolId, matchId, userId])
   @@map("predictions")
@@ -206,9 +206,9 @@ model SpecialEventPrediction {
   submittedAt  DateTime     @default(now())
   isCorrect    Boolean?
   pointsEarned Int?
-  event        SpecialEvent @relation(fields: [eventId], references: [id])
-  user         User         @relation(fields: [userId], references: [id])
-  pool         Pool         @relation(fields: [poolId], references: [id])
+  event        SpecialEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pool         Pool         @relation(fields: [poolId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId, poolId])
   @@map("special_event_predictions")
@@ -223,8 +223,8 @@ model Leaderboard {
   correctWinnersCount Int       @default(0)
   rank                Int?
   lastUpdated         DateTime?
-  pool                Pool      @relation(fields: [poolId], references: [id])
-  user                User      @relation(fields: [userId], references: [id])
+  pool                Pool      @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([poolId, userId])
   @@map("leaderboard")
@@ -237,7 +237,7 @@ model Notification {
   isRead           Boolean  @default(false)
   createdAt        DateTime @default(now())
   notificationType String?
-  user             User     @relation(fields: [userId], references: [id])
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
@@ -247,7 +247,7 @@ model PrizeInformation {
   poolId      Int
   rank        Int
   description String
-  pool        Pool   @relation(fields: [poolId], references: [id])
+  pool        Pool   @relation(fields: [poolId], references: [id], onDelete: Cascade)
 
   @@unique([poolId, rank])
   @@map("prize_information")
