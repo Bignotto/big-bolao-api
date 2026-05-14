@@ -20,7 +20,8 @@
     "test:ui": "vitest --ui --coverage.enabled=true",
     "test:all": "npm run test:run && npm run test:e2e",
     "lint": "eslint src --ext .ts",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint -- --fix",
+    "seed:demo": "tsx prisma/seeds/demoSeed.seed.ts"
   },
   "keywords": [],
   "author": "",

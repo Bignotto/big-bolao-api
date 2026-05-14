@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 
 import { createUserController } from '@/http/controllers/user/createUserController';
+import { deleteUserController } from '@/http/controllers/user/deleteUserController';
 import { getLoggedUserInfoController } from '@/http/controllers/user/getLoggedUserInfoController';
 import { getUserInfoController } from '@/http/controllers/user/getUserInfoController';
 import { getUserPoolsController } from '@/http/controllers/user/getUserPoolsController';
@@ -248,5 +249,31 @@ export function userRoutes(app: FastifyInstance): void {
       },
     },
     getUserPoolsStandingsController
+  );
+
+  app.delete(
+    '/users/me',
+    {
+      schema: {
+        tags: ['Users'],
+        summary: 'Delete authenticated user account',
+        description: 'Permanently deletes the authenticated user account and all associated data',
+        response: {
+          204: {
+            description: 'User account deleted successfully',
+            type: 'null',
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...commonSchemas.UnauthorizedError,
+          },
+          404: {
+            description: 'User not found',
+            ...userSchemas.ResourceNotFoundError,
+          },
+        },
+      },
+    },
+    deleteUserController
   );
 }

@@ -403,8 +403,10 @@ export class InMemoryPoolsRepository implements IPoolsRepository {
     const pool = this.pools.find((pool) => pool.name === name);
     return Promise.resolve(pool || null);
   }
-  deletePoolById(_poolId: number): Promise<void> {
-    throw new Error('Method not implemented.');
+  async deletePoolById(poolId: number): Promise<void> {
+    this.pools = this.pools.filter((pool) => pool.id !== poolId);
+    this.participants = this.participants.filter((p) => p.poolId !== poolId);
+    return Promise.resolve();
   }
 
   getPoolsWithUserPredictionForMatch({
