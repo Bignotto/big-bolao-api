@@ -2,12 +2,12 @@ import { FastifyInstance } from 'fastify';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { IPoolsRepository } from '@/repositories/pools/IPoolsRepository';
-import { IUsersRepository } from '@/repositories/users/IUsersRepository';
-import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
+import { PrismaPoolsRepository } from '@/repositories/pools/PrismaPoolsRepository';
 import { ITournamentsRepository } from '@/repositories/tournaments/ITournamentsRepository';
 import { PrismaTournamentsRepository } from '@/repositories/tournaments/PrismaTournamentsRepository';
+import { IUsersRepository } from '@/repositories/users/IUsersRepository';
+import { PrismaUsersRepository } from '@/repositories/users/PrismaUsersRepository';
 import { createTestApp } from '@/test/helper-e2e';
 import { getSupabaseAccessToken } from '@/test/mockJwt';
 import { createPool } from '@/test/mocks/pools';
