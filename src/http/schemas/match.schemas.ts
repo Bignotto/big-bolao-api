@@ -142,6 +142,8 @@ export const matchSchemas = {
   UpdateMatchRequest: {
     type: 'object',
     properties: {
+      homeTeam: { type: 'number', minimum: 1 },
+      awayTeam: { type: 'number', minimum: 1 },
       homeTeamScore: { type: 'number', minimum: 0, nullable: true },
       awayTeamScore: { type: 'number', minimum: 0, nullable: true },
       matchStatus: {
@@ -152,7 +154,20 @@ export const matchSchemas = {
       hasPenalties: { type: 'boolean' },
       penaltyHomeScore: { type: 'number', minimum: 0, nullable: true },
       penaltyAwayScore: { type: 'number', minimum: 0, nullable: true },
-      matchDatetime: { type: 'string', format: 'date-time' },
+      matchDate: { type: 'string', format: 'date-time' },
+      matchStage: {
+        type: 'string',
+        enum: [
+          'GROUP',
+          'ROUND_OF_32',
+          'ROUND_OF_16',
+          'QUARTER_FINAL',
+          'SEMI_FINAL',
+          'FINAL',
+          'THIRD_PLACE',
+          'LOSERS_MATCH',
+        ],
+      },
       stadium: { type: 'string', nullable: true },
     },
     additionalProperties: false,
