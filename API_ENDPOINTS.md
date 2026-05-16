@@ -51,12 +51,30 @@ For pools the user created: ownership is transferred to the earliest-joined othe
 
 ## Matches
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/matches/:matchId` | Get match details with team and tournament info |
-| `GET` | `/matches/:matchId/predictions` | Get all predictions for a match |
-| `GET` | `/matches/:matchId/predictions/me` | Get authenticated user's prediction for a match |
-| `PUT` | `/matches/:matchId` | Update match scores/status (admin only) |
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| `GET` | `/matches/:matchId` | Get match details with team and tournament info | Required |
+| `GET` | `/matches/:matchId/predictions` | Get all predictions for a match | Required |
+| `GET` | `/matches/:matchId/predictions/me` | Get authenticated user's prediction for a match | Required |
+| `PUT` | `/matches/:matchId` | Update match details — teams, scores, status, stage, extra time, penalties | Admin only |
+
+### PUT /matches/:matchId
+Updates any field on a match record. Intended for admins to manage live World Cup data, including:
+- Assigning real teams to knockout-stage placeholders (`homeTeam`, `awayTeam`)
+- Setting scores and match status (`IN_PROGRESS` → `COMPLETED`)
+- Recording extra time (`hasExtraTime`) and penalty shootouts (`hasPenalties`, `penaltyHomeScore`, `penaltyAwayScore`)
+
+Business rules enforced:
+- Scores, extra time, and penalties cannot be set on `SCHEDULED` matches
+- Group-stage matches cannot have extra time or penalties
+- Penalties require extra time, tied regular scores, and a decisive penalty score
+
+- **Response 200** — Match updated successfully
+- **Response 400** — Business rule violation
+- **Response 401** — Missing or invalid token
+- **Response 403** — Authenticated user does not have admin role
+- **Response 404** — Match not found
+- **Response 422** — Validation error
 
 ---
 

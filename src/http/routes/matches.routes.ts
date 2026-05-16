@@ -4,6 +4,7 @@ import { getMatchController } from '@/http/controllers/matches/getMatchControlle
 import { getMatchPredictionsController } from '@/http/controllers/matches/getMatchPredictionsController';
 import { updateMatchController } from '@/http/controllers/matches/updateMatchController';
 import { getMyMatchPredictionsController } from '@/http/controllers/predictions/getMyMatchPredictionsController';
+import { verifyAdminRole } from '@/http/middlewares/verifyAdminRole';
 import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { matchSchemas } from '@/http/schemas/match.schemas';
@@ -122,6 +123,7 @@ export function matchesRoutes(app: FastifyInstance): void {
   app.put(
     '/matches/:matchId',
     {
+      preHandler: [verifyAdminRole],
       schema: {
         tags: ['Matches'],
         summary: 'Update match information',
