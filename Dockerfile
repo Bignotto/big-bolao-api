@@ -1,13 +1,22 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm ci
-
-COPY . .
-RUN chmod +x scripts/start.sh
-RUN npm run build
+COPY prisma ./prisma
 RUN npx prisma generate
-RUN npm prune --production
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine AS production
+WORKDIR /app
+RUN apk add --no-cache openssl
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/build ./build
+COPY prisma ./prisma
+COPY scripts ./scripts
+RUN chmod +x scripts/start.sh
 
 CMD ["./scripts/start.sh"]

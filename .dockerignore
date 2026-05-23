@@ -1,0 +1,9 @@
+node_modules
+build
+.env
+.env.*
+.git
+.gitignore
+coverage
+**/*.spec.ts
+docker-compose*.yml

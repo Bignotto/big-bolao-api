@@ -1,0 +1,21 @@
+services:
+  bolao-api:
+    build: .
+    ports:
+      - '3333:3333'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - NODE_ENV=production
+      - PORT=3333
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgresql://devuser:devpass@host.docker.internal:5432/devdb
+      - THE_APP_NAME=${THE_APP_NAME}
+      - THE_APP_SECRET=${THE_APP_SECRET}
+      - THE_APP_VERSION=${THE_APP_VERSION}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - FOOTBALL_DATA_ORG_TOKEN=${FOOTBALL_DATA_ORG_TOKEN}
+      - API_FOOTBALL_KEY=${API_FOOTBALL_KEY}
+    restart: unless-stopped
