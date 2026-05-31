@@ -43,3 +43,4 @@ jobs:
           HOST: 0.0.0.0
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SYNC_API_SECRET: ${{ secrets.SYNC_API_SECRET }}
