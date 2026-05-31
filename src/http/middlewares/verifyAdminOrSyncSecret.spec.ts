@@ -2,6 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { verifyAdminOrSyncSecret } from './verifyAdminOrSyncSecret';
+import { verifyAdminRole } from './verifyAdminRole';
+import { verifySupabaseToken } from './verifySupabaseToken';
 
 vi.mock('@/env/config', () => ({
   env: { SYNC_API_SECRET: 'test-sync-secret' },
@@ -14,9 +16,6 @@ vi.mock('./verifyAdminRole', () => ({
 vi.mock('./verifySupabaseToken', () => ({
   verifySupabaseToken: vi.fn(),
 }));
-
-import { verifyAdminRole } from './verifyAdminRole';
-import { verifySupabaseToken } from './verifySupabaseToken';
 
 function makeRequest(authorization?: string): FastifyRequest {
   return {
@@ -45,6 +44,7 @@ describe('verifyAdminOrSyncSecret', () => {
     await verifyAdminOrSyncSecret(request, reply);
 
     expect(verifyAdminRole).not.toHaveBeenCalled();
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(reply.status).not.toHaveBeenCalled();
   });
 
@@ -70,7 +70,7 @@ describe('verifyAdminOrSyncSecret', () => {
 
   it('skips verifyAdminRole when verifySupabaseToken already sent a reply', async () => {
     const request = makeRequest('Bearer bad-token');
-    const reply = { ...makeReply(), sent: true } as unknown as FastifyReply;
+    const reply = Object.assign(makeReply(), { sent: true }) as unknown as FastifyReply;
     vi.mocked(verifySupabaseToken).mockImplementationOnce(async () => {});
 
     await verifyAdminOrSyncSecret(request, reply);

@@ -11,7 +11,7 @@ import { matchSchemas } from '@/http/schemas/match.schemas';
 
 export function matchesRoutes(app: FastifyInstance): void {
   // GET routes — scoped under verifySupabaseToken
-  app.register(async (scoped) => {
+  app.register((scoped) => {
     scoped.addHook('onRequest', verifySupabaseToken);
 
     scoped.get(

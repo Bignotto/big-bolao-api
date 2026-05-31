@@ -49,7 +49,7 @@ async function request<T>(path: string): Promise<T> {
 }
 
 export const apiFutebolClient = {
-  getMatch: (matchId: number) =>
+  getMatch: (matchId: number): Promise<ApiFutebolMatch> =>
     request<ApiFutebolMatch>(`/partidas/${matchId}`),
 
   getLiveMatches: async (championshipId?: number): Promise<ApiFutebolMatch[]> => {
