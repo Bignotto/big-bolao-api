@@ -384,20 +384,20 @@
     "footballDataOrgId": 537406
   },
   {
-    "matchId": 12,
-    "homeTeam": "Bósnia e Herzegovina",
-    "awayTeam": "Catar",
-    "matchDatetime": "2026-06-24T19:00:00.000Z",
-    "apiFootballId": null,
-    "footballDataOrgId": 537338
-  },
-  {
     "matchId": 11,
     "homeTeam": "Suíça",
     "awayTeam": "Canadá",
     "matchDatetime": "2026-06-24T19:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537337
+  },
+  {
+    "matchId": 12,
+    "homeTeam": "Bósnia e Herzegovina",
+    "awayTeam": "Catar",
+    "matchDatetime": "2026-06-24T19:00:00.000Z",
+    "apiFootballId": null,
+    "footballDataOrgId": 537338
   },
   {
     "matchId": 18,
@@ -432,14 +432,6 @@
     "footballDataOrgId": 537332
   },
   {
-    "matchId": 30,
-    "homeTeam": "Curaçao",
-    "awayTeam": "Costa do Marfim",
-    "matchDatetime": "2026-06-25T20:00:00.000Z",
-    "apiFootballId": null,
-    "footballDataOrgId": 537356
-  },
-  {
     "matchId": 29,
     "homeTeam": "Equador",
     "awayTeam": "Alemanha",
@@ -448,12 +440,12 @@
     "footballDataOrgId": 537355
   },
   {
-    "matchId": 35,
-    "homeTeam": "Japão",
-    "awayTeam": "Suécia",
-    "matchDatetime": "2026-06-25T23:00:00.000Z",
+    "matchId": 30,
+    "homeTeam": "Curaçao",
+    "awayTeam": "Costa do Marfim",
+    "matchDatetime": "2026-06-25T20:00:00.000Z",
     "apiFootballId": null,
-    "footballDataOrgId": 537362
+    "footballDataOrgId": 537356
   },
   {
     "matchId": 36,
@@ -462,6 +454,14 @@
     "matchDatetime": "2026-06-25T23:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537361
+  },
+  {
+    "matchId": 35,
+    "homeTeam": "Japão",
+    "awayTeam": "Suécia",
+    "matchDatetime": "2026-06-25T23:00:00.000Z",
+    "apiFootballId": null,
+    "footballDataOrgId": 537362
   },
   {
     "matchId": 24,
@@ -512,20 +512,20 @@
     "footballDataOrgId": 537374
   },
   {
-    "matchId": 41,
-    "homeTeam": "Egito",
-    "awayTeam": "Irã",
-    "matchDatetime": "2026-06-27T03:00:00.000Z",
-    "apiFootballId": null,
-    "footballDataOrgId": 537368
-  },
-  {
     "matchId": 42,
     "homeTeam": "Nova Zelândia",
     "awayTeam": "Bélgica",
     "matchDatetime": "2026-06-27T03:00:00.000Z",
     "apiFootballId": null,
     "footballDataOrgId": 537367
+  },
+  {
+    "matchId": 41,
+    "homeTeam": "Egito",
+    "awayTeam": "Irã",
+    "matchDatetime": "2026-06-27T03:00:00.000Z",
+    "apiFootballId": null,
+    "footballDataOrgId": 537368
   },
   {
     "matchId": 72,

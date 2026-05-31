@@ -5,7 +5,10 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
-    include: ['src/useCases/**/*.{test,spec}.{js,ts}'],
+    include: [
+      'src/useCases/**/*.{test,spec}.{js,ts}',
+      'src/http/middlewares/**/*.{test,spec}.{js,ts}',
+    ],
     globals: true,
     environment: 'node',
     coverage: {

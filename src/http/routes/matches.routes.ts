@@ -4,126 +4,130 @@ import { getMatchController } from '@/http/controllers/matches/getMatchControlle
 import { getMatchPredictionsController } from '@/http/controllers/matches/getMatchPredictionsController';
 import { updateMatchController } from '@/http/controllers/matches/updateMatchController';
 import { getMyMatchPredictionsController } from '@/http/controllers/predictions/getMyMatchPredictionsController';
-import { verifyAdminRole } from '@/http/middlewares/verifyAdminRole';
+import { verifyAdminOrSyncSecret } from '@/http/middlewares/verifyAdminOrSyncSecret';
 import { verifySupabaseToken } from '@/http/middlewares/verifySupabaseToken';
 import { commonSchemas } from '@/http/schemas/common.schemas';
 import { matchSchemas } from '@/http/schemas/match.schemas';
 
 export function matchesRoutes(app: FastifyInstance): void {
-  app.addHook('onRequest', verifySupabaseToken);
+  // GET routes — scoped under verifySupabaseToken
+  app.register((scoped) => {
+    scoped.addHook('onRequest', verifySupabaseToken);
 
-  app.get(
-    '/matches/:matchId',
-    {
-      schema: {
-        tags: ['Matches'],
-        summary: 'Get match details',
-        description:
-          'Retrieves detailed information about a specific match including team details and tournament information',
-        params: matchSchemas.MatchIdParam,
-        response: {
-          200: {
-            description: 'Match information retrieved successfully',
-            ...matchSchemas.GetMatchResponse,
-          },
-          401: {
-            description: 'Unauthorized access',
-            ...commonSchemas.UnauthorizedError,
-          },
-          404: {
-            description: 'Match not found',
-            ...commonSchemas.MatchNotFoundError,
-          },
-          422: {
-            description: 'Validation error',
-            ...matchSchemas.MatchValidationError,
-          },
-          500: {
-            description: 'Internal server error',
-            ...matchSchemas.MatchInternalServerError,
+    scoped.get(
+      '/matches/:matchId',
+      {
+        schema: {
+          tags: ['Matches'],
+          summary: 'Get match details',
+          description:
+            'Retrieves detailed information about a specific match including team details and tournament information',
+          params: matchSchemas.MatchIdParam,
+          response: {
+            200: {
+              description: 'Match information retrieved successfully',
+              ...matchSchemas.GetMatchResponse,
+            },
+            401: {
+              description: 'Unauthorized access',
+              ...commonSchemas.UnauthorizedError,
+            },
+            404: {
+              description: 'Match not found',
+              ...commonSchemas.MatchNotFoundError,
+            },
+            422: {
+              description: 'Validation error',
+              ...matchSchemas.MatchValidationError,
+            },
+            500: {
+              description: 'Internal server error',
+              ...matchSchemas.MatchInternalServerError,
+            },
           },
         },
       },
-    },
-    getMatchController
-  );
+      getMatchController
+    );
 
-  app.get(
-    '/matches/:matchId/predictions',
-    {
-      schema: {
-        tags: ['Matches'],
-        summary: 'Get match predictions',
-        description:
-          'Retrieves all predictions made for a specific match across all pools the user has access to',
-        params: matchSchemas.MatchIdParam,
-        response: {
-          200: {
-            description: 'Match predictions retrieved successfully',
-            ...matchSchemas.GetMatchPredictionsResponse,
-          },
-          401: {
-            description: 'Unauthorized access',
-            ...commonSchemas.UnauthorizedError,
-          },
-          404: {
-            description: 'Match not found',
-            ...commonSchemas.MatchNotFoundError,
-          },
-          422: {
-            description: 'Validation error',
-            ...matchSchemas.MatchValidationError,
-          },
-          500: {
-            description: 'Internal server error',
-            ...matchSchemas.MatchInternalServerError,
+    scoped.get(
+      '/matches/:matchId/predictions',
+      {
+        schema: {
+          tags: ['Matches'],
+          summary: 'Get match predictions',
+          description:
+            'Retrieves all predictions made for a specific match across all pools the user has access to',
+          params: matchSchemas.MatchIdParam,
+          response: {
+            200: {
+              description: 'Match predictions retrieved successfully',
+              ...matchSchemas.GetMatchPredictionsResponse,
+            },
+            401: {
+              description: 'Unauthorized access',
+              ...commonSchemas.UnauthorizedError,
+            },
+            404: {
+              description: 'Match not found',
+              ...commonSchemas.MatchNotFoundError,
+            },
+            422: {
+              description: 'Validation error',
+              ...matchSchemas.MatchValidationError,
+            },
+            500: {
+              description: 'Internal server error',
+              ...matchSchemas.MatchInternalServerError,
+            },
           },
         },
       },
-    },
-    getMatchPredictionsController
-  );
+      getMatchPredictionsController
+    );
 
-  app.get(
-    '/matches/:matchId/predictions/me',
-    {
-      schema: {
-        tags: ['Matches'],
-        summary: "Get my prediction status for a match",
-        description:
-          "Returns the authenticated user's prediction (or null if not submitted) for a specific match across all pools the user participates in for that tournament.",
-        params: matchSchemas.MatchIdParam,
-        response: {
-          200: {
-            description: 'Prediction status retrieved successfully',
-            ...matchSchemas.GetMyMatchPredictionsResponse,
-          },
-          401: {
-            description: 'Unauthorized access',
-            ...commonSchemas.UnauthorizedError,
-          },
-          404: {
-            description: 'Match not found',
-            ...commonSchemas.MatchNotFoundError,
-          },
-          422: {
-            description: 'Validation error',
-            ...matchSchemas.MatchValidationError,
-          },
-          500: {
-            description: 'Internal server error',
-            ...matchSchemas.MatchInternalServerError,
+    scoped.get(
+      '/matches/:matchId/predictions/me',
+      {
+        schema: {
+          tags: ['Matches'],
+          summary: "Get my prediction status for a match",
+          description:
+            "Returns the authenticated user's prediction (or null if not submitted) for a specific match across all pools the user participates in for that tournament.",
+          params: matchSchemas.MatchIdParam,
+          response: {
+            200: {
+              description: 'Prediction status retrieved successfully',
+              ...matchSchemas.GetMyMatchPredictionsResponse,
+            },
+            401: {
+              description: 'Unauthorized access',
+              ...commonSchemas.UnauthorizedError,
+            },
+            404: {
+              description: 'Match not found',
+              ...commonSchemas.MatchNotFoundError,
+            },
+            422: {
+              description: 'Validation error',
+              ...matchSchemas.MatchValidationError,
+            },
+            500: {
+              description: 'Internal server error',
+              ...matchSchemas.MatchInternalServerError,
+            },
           },
         },
       },
-    },
-    getMyMatchPredictionsController
-  );
+      getMyMatchPredictionsController
+    );
+  });
 
+  // PUT route — verifyAdminOrSyncSecret owns the full auth chain (no global Supabase hook)
   app.put(
     '/matches/:matchId',
     {
-      preHandler: [verifyAdminRole],
+      preHandler: [verifyAdminOrSyncSecret],
       schema: {
         tags: ['Matches'],
         summary: 'Update match information',

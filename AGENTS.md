@@ -61,6 +61,24 @@
 - **Testing**: Use `createTestApp()` for e2e, in-memory repositories for unit tests, mock factories in `@/test/mocks/`
 - **Format**: Prettier (semicolons, single quotes, 100 chars), ESLint with TypeScript strict rules
 
+## External APIs
+
+### Football-Data.org (free plan)
+- Purpose: one-time script to map internal match IDs to external IDs.
+- Script: `scripts/fetchExternalMatchIds.ts`
+- Env var: `FOOTBALL_DATA_ORG_TOKEN`
+- Stores IDs in `matches.footballDataOrgId`
+
+### API-Futebol (paid plan)
+- Purpose: live match data polling during the World Cup (scores, status, stage progression).
+- Base URL: `https://api.api-futebol.com.br/v1`
+- Auth: `Authorization: Bearer $API_FUTEBOL_KEY`
+- Env var: `API_FUTEBOL_KEY`
+- Client: `src/services/apiFutebol/apiFutebolClient.ts`
+- Stores IDs in `matches.apiFutebolId`
+- **Sync strategy**: scheduled polling job calls the client and feeds results into `updateMatchUseCase`.
+- After adding `apiFutebolId` to the schema, run: `npx prisma migrate dev --name add-api-futebol-id`
+
 ## Contributing
 
 - **Commits**: use [Conventional Commits](https://www.conventionalcommits.org/) (`type: short description`)

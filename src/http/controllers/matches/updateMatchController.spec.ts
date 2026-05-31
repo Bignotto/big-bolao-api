@@ -346,4 +346,39 @@ describe('Update Match Controller (e2e)', () => {
       expect(response.statusCode).toEqual(401);
     });
   });
+
+  describe('sync secret auth', () => {
+    it('should return 401 with wrong sync secret', async () => {
+      const response = await request(app.server)
+        .put('/matches/1')
+        .set('Authorization', 'Bearer wrong-secret')
+        .send({ stadium: 'Updated Stadium' });
+
+      expect(response.statusCode).toEqual(401);
+    });
+
+    it('should update match with valid sync secret', async () => {
+      const tournament = await createTournament(tournamentsRepository, {});
+      const { match } = await createMatchWithTeams(
+        { matchesRepository, teamsRepository },
+        {
+          tournamentId: tournament.id,
+          matchDatetime: new Date(),
+          matchStatus: 'IN_PROGRESS',
+          matchStage: 'GROUP',
+        }
+      );
+
+      const response = await request(app.server)
+        .put(`/matches/${match.id}`)
+        .set('Authorization', `Bearer ${process.env.SYNC_API_SECRET}`)
+        .send({ homeTeamScore: 2, awayTeamScore: 1, matchStatus: 'IN_PROGRESS' });
+
+      expect(response.statusCode).toEqual(200);
+      expect(response.body).toHaveProperty('match');
+      const body = response.body as UpdateMatchResponse;
+      expect(body.match).toHaveProperty('homeTeamScore', 2);
+      expect(body.match).toHaveProperty('awayTeamScore', 1);
+    });
+  });
 });
