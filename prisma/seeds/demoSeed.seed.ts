@@ -49,6 +49,13 @@ async function main() {
 
   const allNewUsers = [...subsolo2Users, ...familiaUsers];
 
+  // Ensure Thiago's user exists with the hardcoded ID used as pool creator
+  await prisma.user.upsert({
+    where: { id: THIAGO_ID },
+    update: {},
+    create: { id: THIAGO_ID, fullName: 'Thiago', email: 'bignotto@gmail.com', passwordHash },
+  });
+
   const createdUsers = await Promise.all(
     allNewUsers.map((u) =>
       prisma.user.upsert({

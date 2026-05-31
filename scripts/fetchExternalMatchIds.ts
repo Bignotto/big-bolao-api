@@ -21,20 +21,20 @@ interface DbMatch {
 
 interface FdOrgFixture {
   id: number;
-  homeCode: string | null; // tla
+  homeCode: string | null;
   awayCode: string | null;
   homeName: string;
   awayName: string;
   utcDate: string;
 }
 
-interface ApiFootballFixture {
+interface ApiFutebolFixture {
   id: number;
-  homeCode: string | null; // teams.home.code
+  homeCode: string | null;
   awayCode: string | null;
   homeName: string;
   awayName: string;
-  date: string;
+  date: string; // ISO date string, converted from DD/MM/YYYY HH:MM
 }
 
 interface MappingEntry {
@@ -42,7 +42,7 @@ interface MappingEntry {
   homeTeam: string;
   awayTeam: string;
   matchDatetime: string;
-  apiFootballId: number | null;
+  apiFutebolId: number | null;
   footballDataOrgId: number | null;
 }
 
@@ -133,7 +133,7 @@ function findMatch<T extends Fixture>(
     if (p1) return p1;
   }
 
-  // Pass 2: FIFA→ISO translated code match within ±1 day (fallback for code standard differences)
+  // Pass 2: FIFA→ISO translated code match within ±1 day
   if (dbHome && dbAway) {
     const p2 = fixtures.find((f) => nearDay(f) && codesMatch(f, true));
     if (p2) return p2;
@@ -179,39 +179,40 @@ async function fetchFootballDataOrg(): Promise<FdOrgFixture[]> {
   }));
 }
 
-async function fetchApiFootball(): Promise<ApiFootballFixture[]> {
-  const key = process.env.API_FOOTBALL_KEY;
-  if (!key) throw new Error('API_FOOTBALL_KEY is not set in .env');
+// Converts API-Futebol's "DD/MM/YYYY" + "HH:MM" into an ISO datetime string.
+function apiFutebolDateToIso(date: string, time: string): string {
+  const [day, month, year] = date.split('/');
+  return `${year}-${month}-${day}T${time}:00.000Z`;
+}
+
+async function fetchApiFutebol(): Promise<ApiFutebolFixture[]> {
+  const key = process.env.API_FUTEBOL_KEY;
+  if (!key) throw new Error('API_FUTEBOL_KEY is not set in .env');
+
+  const championshipId = process.env.API_FUTEBOL_CHAMPIONSHIP_ID;
+  if (!championshipId) throw new Error('API_FUTEBOL_CHAMPIONSHIP_ID is not set in .env');
 
   const res = await fetch(
-    'https://v3.football.api-sports.io/fixtures?league=1&season=2026',
-    { headers: { 'x-apisports-key': key } },
+    `https://api.api-futebol.com.br/v1/campeonatos/${championshipId}/partidas`,
+    { headers: { Authorization: `Bearer ${key}` } },
   );
-  if (!res.ok) throw new Error(`api-football: ${res.status} ${res.statusText}`);
+  if (!res.ok) throw new Error(`api-futebol: ${res.status} ${res.statusText}`);
 
-  const body = await res.json() as {
-    errors?: unknown;
-    results?: number;
-    response: Array<{
-      fixture: { id: number; date: string };
-      teams: {
-        home: { name: string; code: string | null };
-        away: { name: string; code: string | null };
-      };
-    }>;
-  };
+  const body = await res.json() as Array<{
+    partida_id: number;
+    data_realizacao: string;
+    hora_realizacao: string;
+    mandante: { nome_popular: string; sigla: string };
+    visitante: { nome_popular: string; sigla: string };
+  }>;
 
-  if (!body.response?.length) {
-    console.warn(`  api-football returned 0 fixtures. errors: ${JSON.stringify(body.errors)}, results: ${body.results}`);
-  }
-
-  return body.response.map((r) => ({
-    id: r.fixture.id,
-    homeCode: r.teams.home.code,
-    awayCode: r.teams.away.code,
-    homeName: r.teams.home.name,
-    awayName: r.teams.away.name,
-    date: r.fixture.date,
+  return body.map((m) => ({
+    id: m.partida_id,
+    homeCode: m.mandante.sigla,
+    awayCode: m.visitante.sigla,
+    homeName: m.mandante.nome_popular,
+    awayName: m.visitante.nome_popular,
+    date: apiFutebolDateToIso(m.data_realizacao, m.hora_realizacao),
   }));
 }
 
@@ -251,11 +252,11 @@ async function main() {
     console.error(`  ERROR: ${(e as Error).message}`);
   }
 
-  console.log('Fetching from api-football...');
-  let apifFixtures: ApiFootballFixture[] = [];
+  console.log('Fetching from api-futebol...');
+  let apiFutebolFixtures: ApiFutebolFixture[] = [];
   try {
-    apifFixtures = await fetchApiFootball();
-    console.log(`  Got ${apifFixtures.length} fixtures`);
+    apiFutebolFixtures = await fetchApiFutebol();
+    console.log(`  Got ${apiFutebolFixtures.length} fixtures`);
   } catch (e) {
     console.error(`  ERROR: ${(e as Error).message}`);
   }
@@ -264,8 +265,8 @@ async function main() {
   // Save API country code lists for comparison
   // ---------------------------------------------------------------------------
 
-  const codeOutputDir = path.resolve(process.cwd(), 'scripts/output');
-  fs.mkdirSync(codeOutputDir, { recursive: true });
+  const outputDir = path.resolve(process.cwd(), 'scripts/output');
+  fs.mkdirSync(outputDir, { recursive: true });
 
   const toTeamSet = (entries: Array<{ homeCode: string | null; awayCode: string | null; homeName: string; awayName: string }>) => {
     const map = new Map<string, string>();
@@ -280,10 +281,10 @@ async function main() {
 
   const codeReport = {
     footballDataOrg: toTeamSet(fdOrgFixtures),
-    apiFootball: toTeamSet(apifFixtures),
+    apiFutebol: toTeamSet(apiFutebolFixtures),
   };
 
-  const codeReportPath = path.join(codeOutputDir, 'api-country-codes.json');
+  const codeReportPath = path.join(outputDir, 'api-country-codes.json');
   fs.writeFileSync(codeReportPath, JSON.stringify(codeReport, null, 2));
   console.log(`\nWrote ${codeReportPath}`);
 
@@ -292,22 +293,22 @@ async function main() {
   // ---------------------------------------------------------------------------
 
   const mapping: MappingEntry[] = [];
-  let matchedApif = 0;
+  let matchedApiFutebol = 0;
   let matchedFdOrg = 0;
   const unmatched: string[] = [];
 
   for (const dbMatch of dbMatches) {
-    const apifMatch = apifFixtures.length
-      ? findMatch(dbMatch, apifFixtures, 'date')
+    const apiFutebolMatch = apiFutebolFixtures.length
+      ? findMatch(dbMatch, apiFutebolFixtures, 'date')
       : null;
 
     const fdOrgMatch = fdOrgFixtures.length
       ? findMatch(dbMatch, fdOrgFixtures, 'utcDate')
       : null;
 
-    if (apifMatch) matchedApif++;
+    if (apiFutebolMatch) matchedApiFutebol++;
     if (fdOrgMatch) matchedFdOrg++;
-    if (!apifMatch && !fdOrgMatch) {
+    if (!apiFutebolMatch && !fdOrgMatch) {
       const home = `${dbMatch.homeTeam.name} (${dbMatch.homeTeam.countryCode ?? '?'})`;
       const away = `${dbMatch.awayTeam.name} (${dbMatch.awayTeam.countryCode ?? '?'})`;
       const dbDay = toUtcDay(dbMatch.matchDatetime.toISOString());
@@ -342,7 +343,7 @@ async function main() {
       homeTeam: dbMatch.homeTeam.name,
       awayTeam: dbMatch.awayTeam.name,
       matchDatetime: dbMatch.matchDatetime.toISOString(),
-      apiFootballId: apifMatch?.id ?? null,
+      apiFutebolId: apiFutebolMatch?.id ?? null,
       footballDataOrgId: fdOrgMatch?.id ?? null,
     });
   }
@@ -350,9 +351,6 @@ async function main() {
   // ---------------------------------------------------------------------------
   // Merge with existing mapping (preserve IDs from previous runs)
   // ---------------------------------------------------------------------------
-
-  const outputDir = path.resolve(process.cwd(), 'scripts/output');
-  fs.mkdirSync(outputDir, { recursive: true });
 
   const jsonPath = path.join(outputDir, 'match-id-mapping.json');
 
@@ -362,7 +360,7 @@ async function main() {
     for (const entry of mapping) {
       const prev = existingById.get(entry.matchId);
       if (prev) {
-        if (entry.apiFootballId === null) entry.apiFootballId = prev.apiFootballId;
+        if (entry.apiFutebolId === null) entry.apiFutebolId = prev.apiFutebolId ?? null;
         if (entry.footballDataOrgId === null) entry.footballDataOrgId = prev.footballDataOrgId;
       }
     }
@@ -370,14 +368,14 @@ async function main() {
   }
 
   fs.writeFileSync(jsonPath, JSON.stringify(mapping, null, 2));
-  console.log(`\nWrote ${jsonPath}`);
+  console.log(`Wrote ${jsonPath}`);
 
   const sqlLines: string[] = [];
   for (const entry of mapping) {
-    if (entry.apiFootballId === null && entry.footballDataOrgId === null) continue;
+    if (entry.apiFutebolId === null && entry.footballDataOrgId === null) continue;
 
     const setClauses: string[] = [];
-    if (entry.apiFootballId !== null) setClauses.push(`"apiFootballId" = ${entry.apiFootballId}`);
+    if (entry.apiFutebolId !== null) setClauses.push(`"apiFutebolId" = ${entry.apiFutebolId}`);
     if (entry.footballDataOrgId !== null) setClauses.push(`"footballDataOrgId" = ${entry.footballDataOrgId}`);
 
     sqlLines.push(`UPDATE matches SET ${setClauses.join(', ')} WHERE id = ${entry.matchId};`);
@@ -392,9 +390,9 @@ async function main() {
   // ---------------------------------------------------------------------------
 
   console.log('\n=== Summary ===');
-  console.log(`Total matches in DB:          ${dbMatches.length}`);
-  console.log(`Matched to API-Football:      ${matchedApif}/${dbMatches.length}`);
-  console.log(`Matched to football-data.org: ${matchedFdOrg}/${dbMatches.length}`);
+  console.log(`Total matches in DB:       ${dbMatches.length}`);
+  console.log(`Matched to api-futebol:    ${matchedApiFutebol}/${dbMatches.length}`);
+  console.log(`Matched to fd.org:         ${matchedFdOrg}/${dbMatches.length}`);
   if (unmatched.length) {
     console.log(`\nUnmatched (neither API):`);
     unmatched.forEach((u) => console.log(`  - ${u}`));

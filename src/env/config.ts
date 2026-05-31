@@ -21,6 +21,9 @@ const envSchema = z.object({
   SUPABASE_ANON_KEY: z.string(),
   TEST_USER_PASSWORD: z.string().optional(),
   TEST_USER_EMAIL: z.string().optional(),
+  API_FUTEBOL_KEY: z.string().optional(),
+  API_FUTEBOL_CHAMPIONSHIP_ID: z.string().optional(),
+  SYNC_API_SECRET: z.string().optional(),
 }).superRefine((data, ctx) => {
   if (data.NODE_ENV === 'test') {
     if (!data.TEST_USER_EMAIL) {
