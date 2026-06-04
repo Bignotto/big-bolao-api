@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { verifyUserOrSyncSecret } from './verifyUserOrSyncSecret';
 import { verifySupabaseToken } from './verifySupabaseToken';
+import { verifyUserOrSyncSecret } from './verifyUserOrSyncSecret';
 
 vi.mock('@/env/config', () => ({
   env: { SYNC_API_SECRET: 'test-sync-secret' },
