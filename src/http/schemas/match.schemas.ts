@@ -22,6 +22,8 @@ export const matchSchemas = {
         ],
       },
       group: { type: 'string', nullable: true },
+      footballDataOrgId: { type: 'number', nullable: true },
+      apiFutebolId: { type: 'number', nullable: true },
       homeTeamScore: { type: 'number', nullable: true },
       awayTeamScore: { type: 'number', nullable: true },
       matchStatus: {
