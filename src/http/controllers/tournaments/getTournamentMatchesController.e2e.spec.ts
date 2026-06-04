@@ -84,4 +84,24 @@ describe('GET /tournaments/:tournamentId/matches', async () => {
 
     expect(response.status).toBe(400);
   });
+
+  describe('sync secret auth', () => {
+    it('should return matches with valid sync secret', async () => {
+      const response = await request(app.server)
+        .get(`/tournaments/${tournamentId}/matches`)
+        .set('Authorization', `Bearer ${process.env.SYNC_API_SECRET}`);
+
+      expect(response.status).toBe(200);
+      const body = response.body as TournamentMatchesResponse;
+      expect(body.matches).toBeInstanceOf(Array);
+    });
+
+    it('should return 401 with wrong sync secret', async () => {
+      const response = await request(app.server)
+        .get(`/tournaments/${tournamentId}/matches`)
+        .set('Authorization', 'Bearer wrong-secret');
+
+      expect(response.status).toBe(401);
+    });
+  });
 });
