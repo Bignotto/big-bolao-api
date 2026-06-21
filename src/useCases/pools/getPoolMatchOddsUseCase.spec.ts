@@ -70,7 +70,7 @@ describe('GetPoolMatchOddsUseCase', () => {
   it('should compute correct home win percentages', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOdds = async () => [
+    predictionsRepository.getMatchOdds = () => Promise.resolve([
       makeRaw({
         globalHomeWins: 6n,
         globalDraws: 2n,
@@ -81,7 +81,7 @@ describe('GetPoolMatchOddsUseCase', () => {
         poolAwayWins: 1n,
         poolTotal: 5n,
       }),
-    ];
+    ]);
 
     const { odds } = await sut.execute({ poolId: pool.id, userId: 'user-1' });
 
@@ -102,7 +102,7 @@ describe('GetPoolMatchOddsUseCase', () => {
   it('should compute correct draw percentages', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOdds = async () => [
+    predictionsRepository.getMatchOdds = () => Promise.resolve([
       makeRaw({
         globalHomeWins: 2n,
         globalDraws: 6n,
@@ -113,7 +113,7 @@ describe('GetPoolMatchOddsUseCase', () => {
         poolAwayWins: 0n,
         poolTotal: 4n,
       }),
-    ];
+    ]);
 
     const { odds } = await sut.execute({ poolId: pool.id, userId: 'user-1' });
 
@@ -124,7 +124,7 @@ describe('GetPoolMatchOddsUseCase', () => {
   it('should compute correct away win percentages', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOdds = async () => [
+    predictionsRepository.getMatchOdds = () => Promise.resolve([
       makeRaw({
         globalHomeWins: 1n,
         globalDraws: 1n,
@@ -135,7 +135,7 @@ describe('GetPoolMatchOddsUseCase', () => {
         poolAwayWins: 2n,
         poolTotal: 2n,
       }),
-    ];
+    ]);
 
     const { odds } = await sut.execute({ poolId: pool.id, userId: 'user-1' });
 
@@ -146,7 +146,7 @@ describe('GetPoolMatchOddsUseCase', () => {
   it('should return zero percentages for a match with no predictions at all', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOdds = async () => [makeRaw()];
+    predictionsRepository.getMatchOdds = () => Promise.resolve([makeRaw()]);
 
     const { odds } = await sut.execute({ poolId: pool.id, userId: 'user-1' });
 
@@ -167,7 +167,7 @@ describe('GetPoolMatchOddsUseCase', () => {
   it('should return zero pool percentages when pool has no predictions but global has some', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOdds = async () => [
+    predictionsRepository.getMatchOdds = () => Promise.resolve([
       makeRaw({
         globalHomeWins: 5n,
         globalDraws: 3n,
@@ -178,7 +178,7 @@ describe('GetPoolMatchOddsUseCase', () => {
         poolAwayWins: 0n,
         poolTotal: 0n,
       }),
-    ];
+    ]);
 
     const { odds } = await sut.execute({ poolId: pool.id, userId: 'user-1' });
 
@@ -193,7 +193,7 @@ describe('GetPoolMatchOddsUseCase', () => {
   it('should correctly map team information', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOdds = async () => [
+    predictionsRepository.getMatchOdds = () => Promise.resolve([
       makeRaw({
         matchId: 42n,
         homeTeamId: 10n,
@@ -207,7 +207,7 @@ describe('GetPoolMatchOddsUseCase', () => {
         globalTotal: 1n,
         globalHomeWins: 1n,
       }),
-    ];
+    ]);
 
     const { odds } = await sut.execute({ poolId: pool.id, userId: 'user-1' });
 
@@ -222,7 +222,7 @@ describe('GetPoolMatchOddsUseCase', () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
     // 1/3 each → 33.33%
-    predictionsRepository.getMatchOdds = async () => [
+    predictionsRepository.getMatchOdds = () => Promise.resolve([
       makeRaw({
         globalHomeWins: 1n,
         globalDraws: 1n,
@@ -230,7 +230,7 @@ describe('GetPoolMatchOddsUseCase', () => {
         globalTotal: 3n,
         poolTotal: 0n,
       }),
-    ];
+    ]);
 
     const { odds } = await sut.execute({ poolId: pool.id, userId: 'user-1' });
 
@@ -242,11 +242,11 @@ describe('GetPoolMatchOddsUseCase', () => {
   it('should handle multiple matches and return one entry per match', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOdds = async () => [
+    predictionsRepository.getMatchOdds = () => Promise.resolve([
       makeRaw({ matchId: 1n, globalTotal: 10n, globalHomeWins: 10n, globalDraws: 0n, globalAwayWins: 0n }),
       makeRaw({ matchId: 2n, globalTotal: 10n, globalHomeWins: 0n, globalDraws: 10n, globalAwayWins: 0n }),
       makeRaw({ matchId: 3n, globalTotal: 10n, globalHomeWins: 0n, globalDraws: 0n, globalAwayWins: 10n }),
-    ];
+    ]);
 
     const { odds } = await sut.execute({ poolId: pool.id, userId: 'user-1' });
 

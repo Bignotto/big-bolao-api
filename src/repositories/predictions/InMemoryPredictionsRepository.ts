@@ -132,12 +132,10 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getMatchOdds(_poolId: number, _tournamentId: number): Promise<MatchOddsRaw[]> {
     return Promise.resolve([]);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getMatchOddsByMatchId(_poolId: number, _tournamentId: number, _matchId: number): Promise<MatchOddsRaw | null> {
     return Promise.resolve(null);
   }

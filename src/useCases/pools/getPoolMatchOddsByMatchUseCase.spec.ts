@@ -75,7 +75,7 @@ describe('GetPoolMatchOddsByMatchUseCase', () => {
   it('should return a single MatchOdds object for a valid match', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOddsByMatchId = async () =>
+    predictionsRepository.getMatchOddsByMatchId = () => Promise.resolve(
       makeRaw({
         matchId: 5n,
         globalHomeWins: 4n,
@@ -86,7 +86,8 @@ describe('GetPoolMatchOddsByMatchUseCase', () => {
         poolDraws: 1n,
         poolAwayWins: 2n,
         poolTotal: 5n,
-      });
+      })
+    );
 
     const { odds } = await sut.execute({ poolId: pool.id, matchId: 5, userId: 'user-1' });
 
@@ -108,7 +109,7 @@ describe('GetPoolMatchOddsByMatchUseCase', () => {
   it('should return zero percentages for a match with no predictions', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOddsByMatchId = async () => makeRaw();
+    predictionsRepository.getMatchOddsByMatchId = () => Promise.resolve(makeRaw());
 
     const { odds } = await sut.execute({ poolId: pool.id, matchId: 1, userId: 'user-1' });
 
@@ -120,14 +121,15 @@ describe('GetPoolMatchOddsByMatchUseCase', () => {
   it('should return zero pool percentages when pool has no predictions but global has some', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOddsByMatchId = async () =>
+    predictionsRepository.getMatchOddsByMatchId = () => Promise.resolve(
       makeRaw({
         globalHomeWins: 7n,
         globalDraws: 2n,
         globalAwayWins: 1n,
         globalTotal: 10n,
         poolTotal: 0n,
-      });
+      })
+    );
 
     const { odds } = await sut.execute({ poolId: pool.id, matchId: 1, userId: 'user-1' });
 
@@ -140,7 +142,7 @@ describe('GetPoolMatchOddsByMatchUseCase', () => {
   it('should correctly map team information', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'user-1', tournamentId: 1 });
 
-    predictionsRepository.getMatchOddsByMatchId = async () =>
+    predictionsRepository.getMatchOddsByMatchId = () => Promise.resolve(
       makeRaw({
         matchId: 42n,
         homeTeamId: 10n,
@@ -151,7 +153,8 @@ describe('GetPoolMatchOddsByMatchUseCase', () => {
         awayTeamName: 'Argentina',
         awayTeamCountryCode: 'ARG',
         awayTeamFlagUrl: null,
-      });
+      })
+    );
 
     const { odds } = await sut.execute({ poolId: pool.id, matchId: 42, userId: 'user-1' });
 
@@ -162,7 +165,7 @@ describe('GetPoolMatchOddsByMatchUseCase', () => {
   it('should allow pool creator to access match odds', async () => {
     const pool = await createPool(poolsRepository, { creatorId: 'creator-user', tournamentId: 1 });
 
-    predictionsRepository.getMatchOddsByMatchId = async () => makeRaw();
+    predictionsRepository.getMatchOddsByMatchId = () => Promise.resolve(makeRaw());
 
     const { odds } = await sut.execute({ poolId: pool.id, matchId: 1, userId: 'creator-user' });
 
