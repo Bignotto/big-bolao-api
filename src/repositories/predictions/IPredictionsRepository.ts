@@ -1,5 +1,7 @@
 import { Prediction, Prisma } from '@prisma/client';
 
+import { MatchOddsRaw } from '@/global/types/matchOdds';
+
 export interface IPredictionsRepository {
   create(data: Prisma.PredictionCreateInput): Promise<Prediction>;
   findById(id: number): Promise<Prediction | null>;
@@ -14,4 +16,6 @@ export interface IPredictionsRepository {
   findByUserId(userId: string, poolId?: number): Promise<Prediction[]>;
   findByPoolId(poolId: number): Promise<Prediction[]>; // New method
   findByPoolIdAndMatchId(poolId: number, matchId: number): Promise<Prediction[]>;
+  getMatchOdds(poolId: number, tournamentId: number): Promise<MatchOddsRaw[]>;
+  getMatchOddsByMatchId(poolId: number, tournamentId: number, matchId: number): Promise<MatchOddsRaw | null>;
 }

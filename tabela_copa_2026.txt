@@ -1,0 +1,104 @@
+11/06/2026 16:00 México vs África do Sul
+11/06/2026 23:00 Coreia do Sul vs República Tcheca
+12/06/2026 16:00 Canadá vs Bósnia
+12/06/2026 22:00 Estados Unidos vs Paraguai
+13/06/2026 16:00 Catar vs Suíça
+13/06/2026 19:00 BRASIL vs Marrocos
+13/06/2026 22:00 Haiti vs Escócia
+14/06/2026 01:00 Austrália vs Turquia
+14/06/2026 14:00 Alemanha vs Curaçao
+14/06/2026 17:00 Holanda vs Japão
+14/06/2026 20:00 Costa do Marfim vs Equador
+14/06/2026 23:00 Suécia vs Tunísia
+15/06/2026 13:00 Espanha vs Cabo Verde
+15/06/2026 16:00 Bélgica vs Egito
+15/06/2026 19:00 Arábia Saudita vs Uruguai
+15/06/2026 22:00 Irã vs Nova Zelândia
+16/06/2026 16:00 França vs Senegal
+16/06/2026 19:00 Iraque vs Noruega
+16/06/2026 22:00 Argentina vs Argélia
+17/06/2026 01:00 Áustria vs Jordânia
+17/06/2026 14:00 Portugal vs RD Congo
+17/06/2026 17:00 Inglaterra vs Croácia
+17/06/2026 20:00 Gana vs Panamá
+17/06/2026 23:00 Uzbequistão vs Colômbia
+18/06/2026 13:00 República Tcheca vs África do Sul
+18/06/2026 16:00 Suíça vs Bósnia
+18/06/2026 19:00 Canadá vs Catar
+18/06/2026 22:00 México vs Coreia do Sul
+19/06/2026 16:00 Estados Unidos vs Austrália
+19/06/2026 19:00 Escócia vs Marrocos
+19/06/2026 21:30 BRASIL vs Haiti
+20/06/2026 01:00 Turquia vs Paraguai
+20/06/2026 14:00 Holanda vs Suécia
+20/06/2026 17:00 Alemanha vs Costa do Marfim
+20/06/2026 21:00 Equador vs Curaçao
+21/06/2026 01:00 Tunísia vs Japão
+21/06/2026 13:00 Espanha vs Arábia Saudita
+21/06/2026 16:00 Bélgica vs Irã
+21/06/2026 19:00 Uruguai vs Cabo Verde
+21/06/2026 22:00 Nova Zelândia vs Egito
+22/06/2026 14:00 Argentina vs Áustria
+22/06/2026 18:00 França vs Iraque
+22/06/2026 21:00 Noruega vs Senegal
+23/06/2026 00:00 Jordânia vs Argélia
+23/06/2026 14:00 Portugal vs Uzbequistão
+23/06/2026 17:00 Inglaterra vs Gana
+23/06/2026 20:00 Panamá vs Croácia
+23/06/2026 23:00 Colômbia vs RD Congo
+24/06/2026 16:00 Suíça vs Canadá
+24/06/2026 16:00 Bósnia vs Catar
+24/06/2026 19:00 Marrocos vs Haiti
+24/06/2026 19:00 Escócia vs BRASIL
+24/06/2026 22:00 África do Sul vs Coreia do Sul
+24/06/2026 22:00 República Tcheca vs México
+25/06/2026 17:00 Equador vs Alemanha
+25/06/2026 17:00 Curaçao vs Costa do Marfim
+25/06/2026 20:00 Tunísia vs Holanda
+25/06/2026 20:00 Japão vs Suécia
+25/06/2026 23:00 Turquia vs Estados Unidos
+25/06/2026 23:00 Paraguai vs Austrália
+26/06/2026 16:00 Senegal vs Iraque
+26/06/2026 16:00 Noruega vs França
+26/06/2026 21:00 Cabo Verde vs Arábia Saudita
+26/06/2026 21:00 Uruguai vs Espanha
+27/06/2026 00:00 Egito vs Irã
+27/06/2026 00:00 Nova Zelândia vs Bélgica
+27/06/2026 18:00 Croácia vs Gana
+27/06/2026 18:00 Panamá vs Inglaterra
+27/06/2026 20:30 RD Congo vs Uzbequistão
+27/06/2026 20:30 Colômbia vs Portugal
+27/06/2026 23:00 Jordânia vs Argentina
+27/06/2026 23:00 Argélia vs Áustria
+28/06/2026 16:00 2º A vs 2º B
+29/06/2026 14:00 1º C vs 2º F
+29/06/2026 17:30 1º E vs 3º ABCDF
+29/06/2026 22:00 1º F vs 2º C
+30/06/2026 14:00 2º E vs 2º I
+30/06/2026 18:00 1º I vs 3º CDFGH
+30/06/2026 22:00 1º A vs 3º CEFHI
+01/07/2026 13:00 1º L vs 3º EHIJK
+01/07/2026 17:00 1º G vs 3º AEHIJ
+01/07/2026 21:00 1º D vs 3º BEFIJ
+02/07/2026 16:00 1º H vs 2º J
+02/07/2026 20:00 2º K vs 2º L
+03/07/2026 00:00 1º B vs 3º EFGIJ
+03/07/2026 15:00 2º D vs 2º G
+03/07/2026 19:00 1º J vs 2º H
+03/07/2026 22:30 1º K vs 3º DEIJL
+04/07/2026 14:00 Venc. Segunda fase 3 vs Venc. Segunda fase 4
+04/07/2026 18:00 Venc. Segunda fase 1 vs Venc. Segunda fase 2
+05/07/2026 17:00 Venc. Segunda fase 9 vs Venc. Segunda fase 10
+05/07/2026 21:00 Venc. Segunda fase 11 vs Venc. Segunda fase 12
+06/07/2026 16:00 Venc. Segunda fase 5 vs Venc. Segunda fase 6
+06/07/2026 21:00 Venc. Segunda fase 7 vs Venc. Segunda fase 8
+07/07/2026 13:00 Venc. Segunda fase 13 vs Venc. Segunda fase 14
+07/07/2026 17:00 Venc. Segunda fase 15 vs Venc. Segunda fase 16
+09/07/2026 17:00 Venc. Oitavas 1 vs Venc. Oitavas 2
+10/07/2026 16:00 Venc. Oitavas 3 vs Venc. Oitavas 4
+11/07/2026 18:00 Venc. Oitavas 5 vs Venc. Oitavas 6
+11/07/2026 22:00 Venc. Oitavas 7 vs Venc. Oitavas 8
+14/07/2026 16:00 Venc. Quartas 1 vs Venc. Quartas 2
+15/07/2026 16:00 Venc. Quartas 3 vs Venc. Quartas 4
+18/07/2026 18:00 Perd. Semifinal 1 vs Perd. Semifinal 2
+19/07/2026 16:00 Venc. Semifinal 1 vs Venc. Semifinal 2

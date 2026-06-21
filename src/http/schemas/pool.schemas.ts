@@ -617,6 +617,65 @@ export const poolSchemas = {
     },
   },
 
+  // Match odds stats block (used for both global and pool-scoped)
+  MatchOddsStats: {
+    type: 'object',
+    properties: {
+      total: { type: 'number', description: 'Total number of predictions' },
+      homeWinsPercentage: { type: 'number', description: 'Percentage predicting home win' },
+      drawPercentage: { type: 'number', description: 'Percentage predicting a draw' },
+      awayWinsPercentage: { type: 'number', description: 'Percentage predicting away win' },
+    },
+    required: ['total', 'homeWinsPercentage', 'drawPercentage', 'awayWinsPercentage'],
+  },
+
+  // Single match odds entry
+  MatchOdds: {
+    type: 'object',
+    properties: {
+      matchId: { type: 'number' },
+      homeTeam: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          name: { type: 'string' },
+          countryCode: { type: 'string', nullable: true },
+          flagUrl: { type: 'string', nullable: true },
+        },
+      },
+      awayTeam: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          name: { type: 'string' },
+          countryCode: { type: 'string', nullable: true },
+          flagUrl: { type: 'string', nullable: true },
+        },
+      },
+      global: { $ref: 'MatchOddsStats#' },
+      pool: { $ref: 'MatchOddsStats#' },
+    },
+  },
+
+  // Get Pool Match Odds Response (all matches)
+  GetPoolMatchOddsResponse: {
+    type: 'object',
+    properties: {
+      odds: {
+        type: 'array',
+        items: { $ref: 'MatchOdds#' },
+      },
+    },
+  },
+
+  // Get Pool Match Odds By Match Response (single match)
+  GetPoolMatchOddsByMatchResponse: {
+    type: 'object',
+    properties: {
+      odds: { $ref: 'MatchOdds#' },
+    },
+  },
+
   // Error responses specific to pools
   InvalidPoolCodeError: {
     type: 'object',

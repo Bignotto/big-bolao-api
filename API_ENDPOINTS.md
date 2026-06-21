@@ -44,8 +44,37 @@ For pools the user created: ownership is transferred to the earliest-joined othe
 | `GET` | `/pools/:poolId/predictions` | Get all predictions in a pool |
 | `GET` | `/pools/:poolId/matches/:matchId/predictions` | Get prediction status per participant for a match |
 | `GET` | `/pools/:poolId/standings` | Get pool leaderboard |
+| `GET` | `/pools/:poolId/odds` | Get home/draw/away prediction odds for all tournament matches (pool-scoped and global) |
+| `GET` | `/pools/:poolId/matches/:matchId/odds` | Get home/draw/away prediction odds for a single match (pool-scoped and global) |
 | `GET` | `/pool-invites/:inviteCode` | Get pool info by invite code (no join) |
 | `POST` | `/pool-invites/:inviteCode` | Join a pool using invite code (public or private) |
+
+### GET /pools/:poolId/odds and GET /pools/:poolId/matches/:matchId/odds
+
+Both endpoints require the authenticated user to be a pool participant or creator. They return prediction percentage breakdowns computed from two scopes simultaneously:
+
+- **`pool`** — predictions made within this specific pool only
+- **`global`** — predictions across all pools for the same match
+
+The all-matches endpoint returns an array; the per-match endpoint returns a single object.
+
+Each entry shape:
+```json
+{
+  "matchId": 1,
+  "homeTeam": { "id": 1, "name": "Brazil", "countryCode": "BRA", "flagUrl": "..." },
+  "awayTeam": { "id": 2, "name": "Argentina", "countryCode": "ARG", "flagUrl": "..." },
+  "global": { "total": 150, "homeWinsPercentage": 45.33, "drawPercentage": 22.00, "awayWinsPercentage": 32.67 },
+  "pool":   { "total": 12,  "homeWinsPercentage": 50.00, "drawPercentage": 16.67, "awayWinsPercentage": 33.33 }
+}
+```
+
+Matches with zero predictions return `total: 0` and all percentages `0`.
+
+- **Response 200** — Odds returned successfully
+- **Response 401** — Missing or invalid token
+- **Response 403** — User is not a pool participant or creator
+- **Response 404** — Pool not found (or match not found, for the per-match endpoint)
 
 ---
 

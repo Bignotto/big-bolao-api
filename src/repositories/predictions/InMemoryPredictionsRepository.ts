@@ -1,5 +1,7 @@
 import { Prediction, Prisma } from '@prisma/client';
 
+import { MatchOddsRaw } from '@/global/types/matchOdds';
+
 import { IPredictionsRepository } from './IPredictionsRepository';
 
 export class InMemoryPredictionsRepository implements IPredictionsRepository {
@@ -128,5 +130,13 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
         (prediction) => prediction.poolId === poolId && prediction.matchId === matchId
       )
     );
+  }
+
+  getMatchOdds(_poolId: number, _tournamentId: number): Promise<MatchOddsRaw[]> {
+    return Promise.resolve([]);
+  }
+
+  getMatchOddsByMatchId(_poolId: number, _tournamentId: number, _matchId: number): Promise<MatchOddsRaw | null> {
+    return Promise.resolve(null);
   }
 }
