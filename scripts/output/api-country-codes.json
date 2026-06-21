@@ -193,5 +193,198 @@
       "name": "Uzbekistan"
     }
   ],
-  "apiFootball": []
+  "apiFutebol": [
+    {
+      "code": "AFS",
+      "name": "África do Sul"
+    },
+    {
+      "code": "AGL",
+      "name": "Argélia"
+    },
+    {
+      "code": "ALE",
+      "name": "Alemanha"
+    },
+    {
+      "code": "ARA",
+      "name": "Arábia Saudita"
+    },
+    {
+      "code": "ARG",
+      "name": "Argentina"
+    },
+    {
+      "code": "AUS",
+      "name": "Austrália"
+    },
+    {
+      "code": "AUT",
+      "name": "Áustria"
+    },
+    {
+      "code": "BEL",
+      "name": "Bélgica"
+    },
+    {
+      "code": "BOS",
+      "name": "Bósnia"
+    },
+    {
+      "code": "BRA",
+      "name": "Brasil"
+    },
+    {
+      "code": "CAB",
+      "name": "Cabo Verde"
+    },
+    {
+      "code": "CAN",
+      "name": "Canadá"
+    },
+    {
+      "code": "CAT",
+      "name": "Catar"
+    },
+    {
+      "code": "CDM",
+      "name": "Costa do Marfim"
+    },
+    {
+      "code": "COL",
+      "name": "Colômbia"
+    },
+    {
+      "code": "COR",
+      "name": "Coreia do Sul"
+    },
+    {
+      "code": "CRO",
+      "name": "Croácia"
+    },
+    {
+      "code": "CUR",
+      "name": "Curaçao"
+    },
+    {
+      "code": "EGI",
+      "name": "Egito"
+    },
+    {
+      "code": "EQU",
+      "name": "Equador"
+    },
+    {
+      "code": "ESC",
+      "name": "Escócia"
+    },
+    {
+      "code": "ESP",
+      "name": "Espanha"
+    },
+    {
+      "code": "EUA",
+      "name": "Estados Unidos"
+    },
+    {
+      "code": "FRA",
+      "name": "França"
+    },
+    {
+      "code": "GAN",
+      "name": "Gana"
+    },
+    {
+      "code": "HAI",
+      "name": "Haiti"
+    },
+    {
+      "code": "HOL",
+      "name": "Holanda"
+    },
+    {
+      "code": "ING",
+      "name": "Inglaterra"
+    },
+    {
+      "code": "IRA",
+      "name": "Irã"
+    },
+    {
+      "code": "IRQ",
+      "name": "Iraque"
+    },
+    {
+      "code": "JAP",
+      "name": "Japão"
+    },
+    {
+      "code": "JOR",
+      "name": "Jordânia"
+    },
+    {
+      "code": "MAR",
+      "name": "Marrocos"
+    },
+    {
+      "code": "MEX",
+      "name": "México"
+    },
+    {
+      "code": "NOR",
+      "name": "Noruega"
+    },
+    {
+      "code": "NZL",
+      "name": "Nova Zelândia"
+    },
+    {
+      "code": "PAN",
+      "name": "Panamá"
+    },
+    {
+      "code": "PAR",
+      "name": "Paraguai"
+    },
+    {
+      "code": "POR",
+      "name": "Portugal"
+    },
+    {
+      "code": "RDC",
+      "name": "RD Congo"
+    },
+    {
+      "code": "SEN",
+      "name": "Senegal"
+    },
+    {
+      "code": "SUE",
+      "name": "Suécia"
+    },
+    {
+      "code": "SUI",
+      "name": "Suíça"
+    },
+    {
+      "code": "TCH",
+      "name": "República Tcheca"
+    },
+    {
+      "code": "TUN",
+      "name": "Tunísia"
+    },
+    {
+      "code": "TUR",
+      "name": "Turquia"
+    },
+    {
+      "code": "URU",
+      "name": "Uruguai"
+    },
+    {
+      "code": "UZB",
+      "name": "Uzbequistão"
+    }
+  ]
 }

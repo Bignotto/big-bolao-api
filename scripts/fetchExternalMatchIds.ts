@@ -81,6 +81,11 @@ const FIFA_TO_ISO: Record<string, string> = {
   TRI: 'TTO', TUN: 'TUN', TUR: 'TUR', UAE: 'ARE', UGA: 'UGA', UKR: 'UKR',
   URU: 'URY', USA: 'USA', UZB: 'UZB', VEN: 'VEN', VIE: 'VNM', WAL: 'WAL',
   YEM: 'YEM', ZAM: 'ZMB', ZIM: 'ZWE',
+  // API-Futebol Portuguese abbreviations
+  AFS: 'ZAF', AGL: 'DZA', ALE: 'DEU', ARA: 'SAU', BOS: 'BIH', CAB: 'CPV',
+  CAT: 'QAT', CDM: 'CIV', COR: 'KOR', EGI: 'EGY', EQU: 'ECU', ESC: 'SCO',
+  EUA: 'USA', GAN: 'GHA', HOL: 'NLD', ING: 'ENG', IRA: 'IRN', JAP: 'JPN',
+  RDC: 'COD', SUE: 'SWE', TCH: 'CZE',
 };
 
 function toUtcDay(dateStr: string): string {
@@ -124,7 +129,9 @@ function findMatch<T extends Fixture>(
     if (!f.homeCode || !f.awayCode) return false;
     const fHome = translate ? toIso(f.homeCode) : normalizeCode(f.homeCode);
     const fAway = translate ? toIso(f.awayCode) : normalizeCode(f.awayCode);
-    return fHome === dbHome && fAway === dbAway;
+    const refHome = translate ? toIso(dbHome) : dbHome;
+    const refAway = translate ? toIso(dbAway) : dbAway;
+    return fHome === refHome && fAway === refAway;
   };
 
   // Pass 1: exact code match within ±1 day
@@ -179,12 +186,6 @@ async function fetchFootballDataOrg(): Promise<FdOrgFixture[]> {
   }));
 }
 
-// Converts API-Futebol's "DD/MM/YYYY" + "HH:MM" into an ISO datetime string.
-function apiFutebolDateToIso(date: string, time: string): string {
-  const [day, month, year] = date.split('/');
-  return `${year}-${month}-${day}T${time}:00.000Z`;
-}
-
 async function fetchApiFutebol(): Promise<ApiFutebolFixture[]> {
   const key = process.env.API_FUTEBOL_KEY;
   if (!key) throw new Error('API_FUTEBOL_KEY is not set in .env');
@@ -198,21 +199,31 @@ async function fetchApiFutebol(): Promise<ApiFutebolFixture[]> {
   );
   if (!res.ok) throw new Error(`api-futebol: ${res.status} ${res.statusText}`);
 
-  const body = await res.json() as Array<{
+  type ApiFutebolPartida = {
     partida_id: number;
-    data_realizacao: string;
-    hora_realizacao: string;
-    mandante: { nome_popular: string; sigla: string };
-    visitante: { nome_popular: string; sigla: string };
-  }>;
+    data_realizacao_iso: string;
+    time_mandante: { nome_popular: string; sigla: string };
+    time_visitante: { nome_popular: string; sigla: string };
+  };
+  const body = await res.json() as {
+    partidas: {
+      'fase-de-grupos': Record<string, ApiFutebolPartida[]>;
+      [key: string]: unknown;
+    };
+  };
 
-  return body.map((m) => ({
+  const rounds = body.partidas?.['fase-de-grupos'] ?? {};
+  const all: ApiFutebolPartida[] = Object.values(rounds).flat().filter(
+    (m) => m.time_mandante && m.time_visitante,
+  );
+
+  return all.map((m) => ({
     id: m.partida_id,
-    homeCode: m.mandante.sigla,
-    awayCode: m.visitante.sigla,
-    homeName: m.mandante.nome_popular,
-    awayName: m.visitante.nome_popular,
-    date: apiFutebolDateToIso(m.data_realizacao, m.hora_realizacao),
+    homeCode: m.time_mandante.sigla,
+    awayCode: m.time_visitante.sigla,
+    homeName: m.time_mandante.nome_popular,
+    awayName: m.time_visitante.nome_popular,
+    date: m.data_realizacao_iso,
   }));
 }
 

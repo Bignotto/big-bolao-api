@@ -5,6 +5,8 @@ import { getPoolByInviteController } from '@/http/controllers/pools/getPoolByInv
 import { getPoolController } from '@/http/controllers/pools/getPoolController';
 import { getPoolMatchPredictionsController } from '@/http/controllers/pools/getPoolMatchPredictionsController';
 import { getPoolPredictionsController } from '@/http/controllers/pools/getPoolPredictionsController';
+import { getPoolMatchOddsByMatchController } from '@/http/controllers/pools/getPoolMatchOddsByMatchController';
+import { getPoolMatchOddsController } from '@/http/controllers/pools/getPoolMatchOddsController';
 import { getPoolStandingsController } from '@/http/controllers/pools/getPoolStandingsController';
 import { getPoolUsersController } from '@/http/controllers/pools/getPoolUsersController';
 import { joinPoolByIdController } from '@/http/controllers/pools/joinPoolByIdController';
@@ -522,6 +524,78 @@ export function poolRoutes(app: FastifyInstance): void {
       },
     },
     getPoolPredictionsController
+  );
+
+  app.get(
+    '/pools/:poolId/odds',
+    {
+      schema: {
+        tags: ['Pools'],
+        summary: 'Get match prediction odds for a pool',
+        description:
+          'Returns home/draw/away prediction percentages for every match, scoped to this pool and globally across all pools.',
+        params: poolSchemas.PoolIdParam,
+        response: {
+          200: {
+            description: 'Match odds retrieved successfully',
+            ...poolSchemas.GetPoolMatchOddsResponse,
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...commonSchemas.UnauthorizedError,
+          },
+          403: {
+            description: 'User is not a member of this pool',
+            ...commonSchemas.NotPoolMemberError,
+          },
+          404: {
+            description: 'Pool not found',
+            ...commonSchemas.PoolNotFoundError,
+          },
+          422: {
+            description: 'Validation error',
+            ...poolSchemas.PoolValidationError,
+          },
+        },
+      },
+    },
+    getPoolMatchOddsController
+  );
+
+  app.get(
+    '/pools/:poolId/matches/:matchId/odds',
+    {
+      schema: {
+        tags: ['Pools'],
+        summary: 'Get prediction odds for a specific match in a pool',
+        description:
+          'Returns home/draw/away prediction percentages for a single match, scoped to this pool and globally across all pools.',
+        params: poolSchemas.PoolMatchPredictionsParams,
+        response: {
+          200: {
+            description: 'Match odds retrieved successfully',
+            ...poolSchemas.GetPoolMatchOddsByMatchResponse,
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...commonSchemas.UnauthorizedError,
+          },
+          403: {
+            description: 'User is not a member of this pool',
+            ...commonSchemas.NotPoolMemberError,
+          },
+          404: {
+            description: 'Pool or match not found',
+            ...commonSchemas.PoolNotFoundError,
+          },
+          422: {
+            description: 'Validation error',
+            ...poolSchemas.PoolValidationError,
+          },
+        },
+      },
+    },
+    getPoolMatchOddsByMatchController
   );
 
   app.get(
