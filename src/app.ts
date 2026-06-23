@@ -3,6 +3,7 @@ import fastifyJwt from '@fastify/jwt';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import fastify, { FastifyInstance } from 'fastify';
+import type { OpenAPIV3 } from 'openapi-types';
 import { ZodError } from 'zod';
 
 import { env } from './env/config';
@@ -43,9 +44,9 @@ export const createServer = async (): Promise<FastifyInstance> => {
   const { tournamentSchemas } = await import('./http/schemas/tournament.schemas');
 
   // Combine all schemas and remove duplicates
-  const allSchemas: Record<string, unknown> = {};
+  const allSchemas: Record<string, OpenAPIV3.SchemaObject> = {};
 
-  const mergeSchemas = (schemas: Record<string, unknown>) => {
+  const mergeSchemas = (schemas: Record<string, OpenAPIV3.SchemaObject>) => {
     Object.entries(schemas).forEach(([key, schema]) => {
       if (allSchemas[key]) {
         server.log.warn(`Duplicate schema detected for ${key}, keeping existing definition.`);
