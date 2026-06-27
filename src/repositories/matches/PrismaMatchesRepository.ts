@@ -54,6 +54,22 @@ export class PrismaMatchesRepository implements IMatchesRepository {
     return matches;
   }
 
+  async findRecentByTeamId(teamId: number, limit: number): Promise<MatchWithTeams[]> {
+    const matches = await prisma.match.findMany({
+      where: {
+        OR: [{ homeTeamId: teamId }, { awayTeamId: teamId }],
+        matchStatus: MatchStatus.COMPLETED,
+        homeTeamScore: { not: null },
+        awayTeamScore: { not: null },
+      },
+      orderBy: { matchDatetime: 'desc' },
+      take: limit,
+      include: { homeTeam: true, awayTeam: true },
+    });
+
+    return matches.reverse();
+  }
+
   async update(id: number, data: Prisma.MatchUpdateInput): Promise<Match> {
     const match = await prisma.match.update({
       where: { id },

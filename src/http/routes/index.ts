@@ -3,6 +3,7 @@ import { FastifyInstance } from 'fastify';
 import { matchesRoutes } from '@/http/routes/matches.routes';
 import { poolRoutes } from '@/http/routes/pools.routes';
 import { predictionsRoutes } from '@/http/routes/predictions.routes';
+import { teamsRoutes } from '@/http/routes/teams.routes';
 import { tournamentsRoutes } from '@/http/routes/tournaments.routes';
 import { userRoutes } from '@/http/routes/user.routes';
 
@@ -12,4 +13,5 @@ export function routes(app: FastifyInstance): void {
   app.register(poolRoutes);
   app.register(predictionsRoutes);
   app.register(tournamentsRoutes);
+  app.register(teamsRoutes);
 }

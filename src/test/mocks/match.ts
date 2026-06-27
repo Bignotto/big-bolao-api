@@ -25,7 +25,7 @@ export async function createMatch(
 
   const match = await repository.create({
     tournament: { connect: { id: data.tournamentId ?? Math.floor(Math.random() * 100) } },
-    matchDatetime: new Date('2026-06-15T15:00:00Z'),
+    matchDatetime: data.matchDatetime ?? new Date('2026-06-15T15:00:00Z'),
     stadium: data.stadium ?? `Stadium ${randomMatchNumber}`,
     stage: data.matchStage ?? MatchStage.GROUP,
     homeTeam: { connect: { id: homeTeam.id } },
