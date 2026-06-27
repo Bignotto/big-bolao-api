@@ -8,6 +8,7 @@ export interface IMatchesRepository {
   findByTournamentId(tournamentId: number): Promise<MatchWithTeams[]>;
   findUpcomingMatches(tournamentId: number): Promise<Match[]>;
   findCompletedMatches(tournamentId: number): Promise<Match[]>;
+  findRecentByTeamId(teamId: number, limit: number): Promise<MatchWithTeams[]>;
   update(id: number, data: Prisma.MatchUpdateInput): Promise<Match>;
   getMatchWithTeams(id: number): Promise<Match | null>;
 }

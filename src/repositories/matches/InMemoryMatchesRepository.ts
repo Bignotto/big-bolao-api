@@ -73,6 +73,27 @@ export class InMemoryMatchesRepository implements IMatchesRepository {
     return Promise.resolve(matches);
   }
 
+  findRecentByTeamId(teamId: number, limit: number): Promise<MatchWithTeams[]> {
+    const matches = this.matches
+      .filter(
+        (match) =>
+          (match.homeTeamId === teamId || match.awayTeamId === teamId) &&
+          match.matchStatus === MatchStatus.COMPLETED &&
+          match.homeTeamScore !== null &&
+          match.awayTeamScore !== null
+      )
+      .sort((a, b) => b.matchDatetime.getTime() - a.matchDatetime.getTime())
+      .slice(0, limit)
+      .reverse()
+      .map((match) => ({
+        ...match,
+        homeTeam: this.teams.find((t) => t.id === match.homeTeamId) as Team,
+        awayTeam: this.teams.find((t) => t.id === match.awayTeamId) as Team,
+      }));
+
+    return Promise.resolve(matches);
+  }
+
   update(id: number, data: Prisma.MatchUpdateInput): Promise<Match> {
     const matchIndex = this.matches.findIndex((match) => match.id === id);
 
