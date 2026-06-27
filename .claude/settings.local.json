@@ -18,7 +18,8 @@
       "Bash(npx tsc *)",
       "Bash(npm run *)",
       "Bash(npx tsx *)",
-      "mcp__plugin_context-mode_context-mode__ctx_stats"
+      "mcp__plugin_context-mode_context-mode__ctx_stats",
+      "Bash(npx eslint *)"
     ]
   }
 }

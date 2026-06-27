@@ -15,6 +15,24 @@ import { createMatch } from '@/test/mocks/match';
 import { createTeam } from '@/test/mocks/teams';
 import { createTournament } from '@/test/mocks/tournament';
 
+type FormResultEntry = {
+  matchId: number;
+  result: 'W' | 'D' | 'L';
+  teamScore: number;
+  opponentScore: number;
+  opponentId: number;
+  opponentName: string;
+  opponentCode: string | null;
+  matchDatetime: string;
+  stage: string;
+  decidedOnPenalties: boolean;
+};
+
+type RecentFormBody = {
+  teamId: number;
+  results: FormResultEntry[];
+};
+
 describe('Get Team Recent Form Controller (e2e)', () => {
   let app: FastifyInstance;
   let token: string;
@@ -58,9 +76,10 @@ describe('Get Team Recent Form Controller (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
+    const body = response.body as unknown as RecentFormBody;
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toHaveProperty('teamId', teamA.id);
-    expect(response.body.results).toHaveLength(0);
+    expect(body).toHaveProperty('teamId', teamA.id);
+    expect(body.results).toHaveLength(0);
   });
 
   it('should return W for a home win from the home team perspective', async () => {
@@ -85,14 +104,15 @@ describe('Get Team Recent Form Controller (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
+    const body = response.body as unknown as RecentFormBody;
     expect(response.statusCode).toEqual(200);
-    expect(response.body.results).toHaveLength(1);
-    expect(response.body.results[0].result).toBe('W');
-    expect(response.body.results[0].teamScore).toBe(3);
-    expect(response.body.results[0].opponentScore).toBe(1);
-    expect(response.body.results[0].opponentId).toBe(teamB.id);
-    expect(response.body.results[0].opponentName).toBe(teamB.name);
-    expect(response.body.results[0].opponentCode).toBe('ARG');
+    expect(body.results).toHaveLength(1);
+    expect(body.results[0].result).toBe('W');
+    expect(body.results[0].teamScore).toBe(3);
+    expect(body.results[0].opponentScore).toBe(1);
+    expect(body.results[0].opponentId).toBe(teamB.id);
+    expect(body.results[0].opponentName).toBe(teamB.name);
+    expect(body.results[0].opponentCode).toBe('ARG');
   });
 
   it('should return L for the same match from the away team perspective', async () => {
@@ -117,10 +137,11 @@ describe('Get Team Recent Form Controller (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
+    const body = response.body as unknown as RecentFormBody;
     expect(response.statusCode).toEqual(200);
-    expect(response.body.results[0].result).toBe('L');
-    expect(response.body.results[0].teamScore).toBe(1);
-    expect(response.body.results[0].opponentScore).toBe(3);
+    expect(body.results[0].result).toBe('L');
+    expect(body.results[0].teamScore).toBe(1);
+    expect(body.results[0].opponentScore).toBe(3);
   });
 
   it('should return D and set decidedOnPenalties when match had penalties', async () => {
@@ -148,9 +169,10 @@ describe('Get Team Recent Form Controller (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
+    const body = response.body as unknown as RecentFormBody;
     expect(response.statusCode).toEqual(200);
-    expect(response.body.results[0].result).toBe('D');
-    expect(response.body.results[0].decidedOnPenalties).toBe(true);
+    expect(body.results[0].result).toBe('D');
+    expect(body.results[0].decidedOnPenalties).toBe(true);
   });
 
   it('should respect the limit query parameter', async () => {
@@ -178,8 +200,9 @@ describe('Get Team Recent Form Controller (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
+    const body = response.body as unknown as RecentFormBody;
     expect(response.statusCode).toEqual(200);
-    expect(response.body.results).toHaveLength(2);
+    expect(body.results).toHaveLength(2);
   });
 
   it('should return results ordered oldest to newest', async () => {
@@ -213,13 +236,13 @@ describe('Get Team Recent Form Controller (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
+    const body = response.body as unknown as RecentFormBody;
     expect(response.statusCode).toEqual(200);
-    const results = response.body.results as { matchDatetime: string }[];
-    expect(new Date(results[0].matchDatetime).getTime()).toBeLessThan(
-      new Date(results[1].matchDatetime).getTime()
+    expect(new Date(body.results[0].matchDatetime).getTime()).toBeLessThan(
+      new Date(body.results[1].matchDatetime).getTime()
     );
-    expect(new Date(results[1].matchDatetime).getTime()).toBeLessThan(
-      new Date(results[2].matchDatetime).getTime()
+    expect(new Date(body.results[1].matchDatetime).getTime()).toBeLessThan(
+      new Date(body.results[2].matchDatetime).getTime()
     );
   });
 });
