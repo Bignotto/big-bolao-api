@@ -8,6 +8,7 @@ import { getPoolMatchOddsController } from '@/http/controllers/pools/getPoolMatc
 import { getPoolMatchPredictionsController } from '@/http/controllers/pools/getPoolMatchPredictionsController';
 import { getPoolPredictionsController } from '@/http/controllers/pools/getPoolPredictionsController';
 import { getPoolStandingsController } from '@/http/controllers/pools/getPoolStandingsController';
+import { getPoolUserPredictionsController } from '@/http/controllers/pools/getPoolUserPredictionsController';
 import { getPoolUsersController } from '@/http/controllers/pools/getPoolUsersController';
 import { joinPoolByIdController } from '@/http/controllers/pools/joinPoolByIdController';
 import { joinPoolByInviteController } from '@/http/controllers/pools/joinPoolByInviteController';
@@ -596,6 +597,85 @@ export function poolRoutes(app: FastifyInstance): void {
       },
     },
     getPoolMatchOddsByMatchController
+  );
+
+  app.get(
+    '/pools/:poolId/users/:userId/predictions',
+    {
+      schema: {
+        tags: ['Pools'],
+        summary: 'Get user predictions for a pool',
+        description:
+          'Returns completed match predictions with points for a specific user in a pool. Any authenticated pool member can call this for any userId within the same pool.',
+        params: poolSchemas.RemoveUserFromPoolParams,
+        response: {
+          200: {
+            description: 'User predictions retrieved successfully',
+            type: 'object',
+            properties: {
+              predictions: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    predictionId: { type: 'number' },
+                    matchId: { type: 'number' },
+                    predictedHomeScore: { type: 'number' },
+                    predictedAwayScore: { type: 'number' },
+                    predictedHasExtraTime: { type: 'boolean' },
+                    predictedHasPenalties: { type: 'boolean' },
+                    pointsEarned: { type: 'number' },
+                    exactScore: { type: 'boolean' },
+                    correctWinner: { type: 'boolean' },
+                    match: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'number' },
+                        matchDate: { type: 'string', format: 'date-time' },
+                        status: { type: 'string' },
+                        homeScore: { type: 'number' },
+                        awayScore: { type: 'number' },
+                        homeTeam: {
+                          type: 'object',
+                          properties: {
+                            name: { type: 'string' },
+                            flag: { type: 'string', nullable: true },
+                          },
+                        },
+                        awayTeam: {
+                          type: 'object',
+                          properties: {
+                            name: { type: 'string' },
+                            flag: { type: 'string', nullable: true },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Unauthorized access',
+            ...commonSchemas.UnauthorizedError,
+          },
+          403: {
+            description: 'User is not a member of this pool',
+            ...commonSchemas.NotPoolMemberError,
+          },
+          404: {
+            description: 'Pool or user not found',
+            ...commonSchemas.PoolNotFoundError,
+          },
+          422: {
+            description: 'Validation error',
+            ...poolSchemas.PoolValidationError,
+          },
+        },
+      },
+    },
+    getPoolUserPredictionsController
   );
 
   app.get(

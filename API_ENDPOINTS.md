@@ -117,6 +117,46 @@ Business rules enforced:
 
 ---
 
+## Teams
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| `GET` | `/teams/:teamId/recent-form` | Get a team's last N finished results (W/D/L) | Required |
+
+### GET /teams/:teamId/recent-form
+
+Returns a team's most recent completed matches from that team's perspective, ordered oldest → newest. Use the optional `?limit` query parameter to control how many results are returned (default: 3, max: 10).
+
+Response shape:
+```json
+{
+  "teamId": 12,
+  "results": [
+    {
+      "matchId": 387,
+      "result": "W",
+      "teamScore": 2,
+      "opponentScore": 0,
+      "opponentId": 7,
+      "opponentName": "Croácia",
+      "opponentCode": "CRO",
+      "matchDatetime": "2026-06-12T18:00:00.000Z",
+      "stage": "GROUP",
+      "decidedOnPenalties": false
+    }
+  ]
+}
+```
+
+- `result` is always from the requested team's perspective (`W` / `D` / `L`)
+- A knockout draw won on penalties remains `D`; `decidedOnPenalties` is set to `true`
+- Returns fewer than `limit` entries (or `[]`) when the team has played fewer completed matches
+
+- **Response 200** — Results returned successfully (may be empty array)
+- **Response 401** — Missing or invalid token
+
+---
+
 ## Tournaments
 
 | Method | Path | Description |

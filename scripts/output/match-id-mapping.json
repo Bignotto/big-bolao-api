@@ -416,20 +416,20 @@
     "footballDataOrgId": 537344
   },
   {
-    "matchId": 5,
-    "homeTeam": "Tchéquia",
-    "awayTeam": "México",
-    "matchDatetime": "2026-06-24T22:00:00.000Z",
-    "apiFutebolId": 27372,
-    "footballDataOrgId": 537331
-  },
-  {
     "matchId": 6,
     "homeTeam": "África do Sul",
     "awayTeam": "Coreia do Sul",
     "matchDatetime": "2026-06-24T22:00:00.000Z",
     "apiFutebolId": 27373,
     "footballDataOrgId": 537332
+  },
+  {
+    "matchId": 5,
+    "homeTeam": "Tchéquia",
+    "awayTeam": "México",
+    "matchDatetime": "2026-06-24T22:00:00.000Z",
+    "apiFutebolId": 27372,
+    "footballDataOrgId": 537331
   },
   {
     "matchId": 30,
@@ -448,14 +448,6 @@
     "footballDataOrgId": 537355
   },
   {
-    "matchId": 35,
-    "homeTeam": "Japão",
-    "awayTeam": "Suécia",
-    "matchDatetime": "2026-06-25T20:00:00.000Z",
-    "apiFutebolId": 27403,
-    "footballDataOrgId": 537362
-  },
-  {
     "matchId": 36,
     "homeTeam": "Tunísia",
     "awayTeam": "Holanda",
@@ -464,12 +456,12 @@
     "footballDataOrgId": 537361
   },
   {
-    "matchId": 24,
-    "homeTeam": "Turquia",
-    "awayTeam": "Estados Unidos",
-    "matchDatetime": "2026-06-25T23:00:00.000Z",
-    "apiFutebolId": 27390,
-    "footballDataOrgId": 537349
+    "matchId": 35,
+    "homeTeam": "Japão",
+    "awayTeam": "Suécia",
+    "matchDatetime": "2026-06-25T20:00:00.000Z",
+    "apiFutebolId": 27403,
+    "footballDataOrgId": 537362
   },
   {
     "matchId": 23,
@@ -480,12 +472,12 @@
     "footballDataOrgId": 537350
   },
   {
-    "matchId": 54,
-    "homeTeam": "Senegal",
-    "awayTeam": "Iraque",
-    "matchDatetime": "2026-06-26T16:00:00.000Z",
-    "apiFutebolId": 27421,
-    "footballDataOrgId": 537396
+    "matchId": 24,
+    "homeTeam": "Turquia",
+    "awayTeam": "Estados Unidos",
+    "matchDatetime": "2026-06-25T23:00:00.000Z",
+    "apiFutebolId": 27390,
+    "footballDataOrgId": 537349
   },
   {
     "matchId": 53,
@@ -496,12 +488,12 @@
     "footballDataOrgId": 537395
   },
   {
-    "matchId": 47,
-    "homeTeam": "Cabo Verde",
-    "awayTeam": "Arábia Saudita",
-    "matchDatetime": "2026-06-26T21:00:00.000Z",
-    "apiFutebolId": 27415,
-    "footballDataOrgId": 537374
+    "matchId": 54,
+    "homeTeam": "Senegal",
+    "awayTeam": "Iraque",
+    "matchDatetime": "2026-06-26T16:00:00.000Z",
+    "apiFutebolId": 27421,
+    "footballDataOrgId": 537396
   },
   {
     "matchId": 48,
@@ -512,12 +504,12 @@
     "footballDataOrgId": 537373
   },
   {
-    "matchId": 41,
-    "homeTeam": "Egito",
-    "awayTeam": "Irã",
-    "matchDatetime": "2026-06-27T00:00:00.000Z",
-    "apiFutebolId": 27409,
-    "footballDataOrgId": 537368
+    "matchId": 47,
+    "homeTeam": "Cabo Verde",
+    "awayTeam": "Arábia Saudita",
+    "matchDatetime": "2026-06-26T21:00:00.000Z",
+    "apiFutebolId": 27415,
+    "footballDataOrgId": 537374
   },
   {
     "matchId": 42,
@@ -526,6 +518,14 @@
     "matchDatetime": "2026-06-27T00:00:00.000Z",
     "apiFutebolId": 27408,
     "footballDataOrgId": 537367
+  },
+  {
+    "matchId": 41,
+    "homeTeam": "Egito",
+    "awayTeam": "Irã",
+    "matchDatetime": "2026-06-27T00:00:00.000Z",
+    "apiFutebolId": 27409,
+    "footballDataOrgId": 537368
   },
   {
     "matchId": 72,
@@ -544,20 +544,20 @@
     "footballDataOrgId": 537413
   },
   {
-    "matchId": 66,
-    "homeTeam": "República Democrática do Congo",
-    "awayTeam": "Uzbequistão",
-    "matchDatetime": "2026-06-27T20:30:00.000Z",
-    "apiFutebolId": 27433,
-    "footballDataOrgId": 537408
-  },
-  {
     "matchId": 65,
     "homeTeam": "Colômbia",
     "awayTeam": "Portugal",
     "matchDatetime": "2026-06-27T20:30:00.000Z",
     "apiFutebolId": 27432,
     "footballDataOrgId": 537407
+  },
+  {
+    "matchId": 66,
+    "homeTeam": "República Democrática do Congo",
+    "awayTeam": "Uzbequistão",
+    "matchDatetime": "2026-06-27T20:30:00.000Z",
+    "apiFutebolId": 27433,
+    "footballDataOrgId": 537408
   },
   {
     "matchId": 60,
@@ -574,5 +574,261 @@
     "matchDatetime": "2026-06-27T23:00:00.000Z",
     "apiFutebolId": 27427,
     "footballDataOrgId": 537402
+  },
+  {
+    "matchId": 73,
+    "homeTeam": "África do Sul",
+    "awayTeam": "Canadá",
+    "matchDatetime": "2026-06-28T16:00:00.000Z",
+    "apiFutebolId": 32309,
+    "footballDataOrgId": 537417
+  },
+  {
+    "matchId": 76,
+    "homeTeam": "Brasil",
+    "awayTeam": "Japão",
+    "matchDatetime": "2026-06-29T14:00:00.000Z",
+    "apiFutebolId": 32313,
+    "footballDataOrgId": 537423
+  },
+  {
+    "matchId": 74,
+    "homeTeam": "Alemanha",
+    "awayTeam": "Paraguai",
+    "matchDatetime": "2026-06-29T17:30:00.000Z",
+    "apiFutebolId": 32310,
+    "footballDataOrgId": 537415
+  },
+  {
+    "matchId": 75,
+    "homeTeam": "Marrocos",
+    "awayTeam": "Holanda",
+    "matchDatetime": "2026-06-29T22:00:00.000Z",
+    "apiFutebolId": 32311,
+    "footballDataOrgId": 537418
+  },
+  {
+    "matchId": 79,
+    "homeTeam": "Costa do Marfim",
+    "awayTeam": "Noruega",
+    "matchDatetime": "2026-06-30T14:00:00.000Z",
+    "apiFutebolId": 32333,
+    "footballDataOrgId": 537424
+  },
+  {
+    "matchId": 77,
+    "homeTeam": "França",
+    "awayTeam": "Suécia",
+    "matchDatetime": "2026-06-30T18:00:00.000Z",
+    "apiFutebolId": 32336,
+    "footballDataOrgId": 537416
+  },
+  {
+    "matchId": 78,
+    "homeTeam": "México",
+    "awayTeam": "Equador",
+    "matchDatetime": "2026-06-30T22:00:00.000Z",
+    "apiFutebolId": 32314,
+    "footballDataOrgId": 537425
+  },
+  {
+    "matchId": 82,
+    "homeTeam": "Inglaterra",
+    "awayTeam": "República Democrática do Congo",
+    "matchDatetime": "2026-07-01T13:00:00.000Z",
+    "apiFutebolId": 32340,
+    "footballDataOrgId": 537426
+  },
+  {
+    "matchId": 80,
+    "homeTeam": "Bélgica",
+    "awayTeam": "Senegal",
+    "matchDatetime": "2026-07-01T17:00:00.000Z",
+    "apiFutebolId": 32338,
+    "footballDataOrgId": 537422
+  },
+  {
+    "matchId": 81,
+    "homeTeam": "Estados Unidos",
+    "awayTeam": "Bósnia e Herzegovina",
+    "matchDatetime": "2026-07-01T21:00:00.000Z",
+    "apiFutebolId": 32312,
+    "footballDataOrgId": 537421
+  },
+  {
+    "matchId": 83,
+    "homeTeam": "Espanha",
+    "awayTeam": "Áustria",
+    "matchDatetime": "2026-07-02T16:00:00.000Z",
+    "apiFutebolId": 32337,
+    "footballDataOrgId": 537420
+  },
+  {
+    "matchId": 84,
+    "homeTeam": "Portugal",
+    "awayTeam": "Croácia",
+    "matchDatetime": "2026-07-02T20:00:00.000Z",
+    "apiFutebolId": 32339,
+    "footballDataOrgId": 537419
+  },
+  {
+    "matchId": 88,
+    "homeTeam": "Suíça",
+    "awayTeam": "Argélia",
+    "matchDatetime": "2026-07-03T00:00:00.000Z",
+    "apiFutebolId": 32316,
+    "footballDataOrgId": 537429
+  },
+  {
+    "matchId": 85,
+    "homeTeam": "Austrália",
+    "awayTeam": "Egito",
+    "matchDatetime": "2026-07-03T15:00:00.000Z",
+    "apiFutebolId": 32335,
+    "footballDataOrgId": 537428
+  },
+  {
+    "matchId": 86,
+    "homeTeam": "Argentina",
+    "awayTeam": "Cabo Verde",
+    "matchDatetime": "2026-07-03T19:00:00.000Z",
+    "apiFutebolId": 32315,
+    "footballDataOrgId": 537427
+  },
+  {
+    "matchId": 87,
+    "homeTeam": "Colômbia",
+    "awayTeam": "Gana",
+    "matchDatetime": "2026-07-03T22:30:00.000Z",
+    "apiFutebolId": 32341,
+    "footballDataOrgId": 537430
+  },
+  {
+    "matchId": 89,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-04T14:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 90,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-04T18:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 92,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-05T17:00:00.000Z",
+    "apiFutebolId": 32341,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 91,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-05T21:00:00.000Z",
+    "apiFutebolId": 32341,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 94,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-06T16:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 93,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-06T21:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 95,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-07T13:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 96,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-07T17:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 97,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-09T17:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 98,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-10T16:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 100,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-11T18:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 99,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-11T22:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 101,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-14T16:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 102,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-15T16:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 103,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-18T18:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
+  },
+  {
+    "matchId": 104,
+    "homeTeam": "TBD Knockout",
+    "awayTeam": "TBD Knockout",
+    "matchDatetime": "2026-07-19T16:00:00.000Z",
+    "apiFutebolId": null,
+    "footballDataOrgId": null
   }
 ]
