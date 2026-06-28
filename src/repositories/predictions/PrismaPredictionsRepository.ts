@@ -2,7 +2,7 @@ import { Prediction, Prisma } from '@prisma/client';
 
 import { MatchOddsRaw } from '@/global/types/matchOdds';
 
-import { IPredictionsRepository } from './IPredictionsRepository';
+import { IPredictionsRepository, UserPredictionWithPoints } from './IPredictionsRepository';
 import { prisma } from '../../lib/prisma';
 
 export class PrismaPredictionsRepository implements IPredictionsRepository {
@@ -230,5 +230,83 @@ export class PrismaPredictionsRepository implements IPredictionsRepository {
     `;
 
     return results[0] ?? null;
+  }
+
+  async findCompletedWithPointsByUserAndPool(
+    userId: string,
+    poolId: number
+  ): Promise<UserPredictionWithPoints[]> {
+    type RawRow = {
+      predictionId: number;
+      matchId: number;
+      predictedHomeScore: number;
+      predictedAwayScore: number;
+      predictedHasExtraTime: boolean;
+      predictedHasPenalties: boolean;
+      pointsEarned: number;
+      exactScore: boolean;
+      correctWinner: boolean;
+      matchDate: Date;
+      status: string;
+      homeScore: number;
+      awayScore: number;
+      homeTeamName: string;
+      homeTeamFlag: string | null;
+      awayTeamName: string;
+      awayTeamFlag: string | null;
+    };
+
+    const rows = await prisma.$queryRaw<RawRow[]>`
+      SELECT
+        pp."Prediction"                                         AS "predictionId",
+        pp."matchId",
+        pp."predictedHome"                                      AS "predictedHomeScore",
+        pp."predictedAway"                                      AS "predictedAwayScore",
+        pp."predictedHasExtraTime",
+        pp."predictedHasPenalties",
+        CAST(pp."TotalPoints" AS FLOAT)                        AS "pointsEarned",
+        CASE WHEN pp."exactScore" = 1 THEN true ELSE false END AS "exactScore",
+        CASE
+          WHEN sign((pp."predictedHome" - pp."predictedAway")::float)
+             = sign((pp."homeTeamScore" - pp."awayTeamScore")::float)
+          THEN true ELSE false
+        END                                                     AS "correctWinner",
+        m."matchDatetime"                                       AS "matchDate",
+        m."matchStatus"                                         AS "status",
+        pp."homeTeamScore"                                      AS "homeScore",
+        pp."awayTeamScore"                                      AS "awayScore",
+        ht.name                                                 AS "homeTeamName",
+        ht."flagUrl"                                            AS "homeTeamFlag",
+        at.name                                                 AS "awayTeamName",
+        at."flagUrl"                                            AS "awayTeamFlag"
+      FROM prediction_points pp
+      JOIN matches m ON m.id = pp."matchId"
+      JOIN teams ht  ON ht.id = m."homeTeamId"
+      JOIN teams at  ON at.id = m."awayTeamId"
+      WHERE pp."userId" = ${userId}
+        AND pp."poolId" = ${poolId}
+      ORDER BY m."matchDatetime" DESC
+    `;
+
+    return rows.map((row) => ({
+      predictionId: row.predictionId,
+      matchId: row.matchId,
+      predictedHomeScore: row.predictedHomeScore,
+      predictedAwayScore: row.predictedAwayScore,
+      predictedHasExtraTime: row.predictedHasExtraTime,
+      predictedHasPenalties: row.predictedHasPenalties,
+      pointsEarned: row.pointsEarned ?? 0,
+      exactScore: row.exactScore,
+      correctWinner: row.correctWinner,
+      match: {
+        id: row.matchId,
+        matchDate: row.matchDate,
+        status: row.status,
+        homeScore: row.homeScore,
+        awayScore: row.awayScore,
+        homeTeam: { name: row.homeTeamName, flag: row.homeTeamFlag },
+        awayTeam: { name: row.awayTeamName, flag: row.awayTeamFlag },
+      },
+    }));
   }
 }

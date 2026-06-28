@@ -1,11 +1,13 @@
-import { Prediction, Prisma } from '@prisma/client';
+import { Match, Prediction, Prisma, Team } from '@prisma/client';
 
 import { MatchOddsRaw } from '@/global/types/matchOdds';
 
-import { IPredictionsRepository } from './IPredictionsRepository';
+import { IPredictionsRepository, UserPredictionWithPoints } from './IPredictionsRepository';
 
 export class InMemoryPredictionsRepository implements IPredictionsRepository {
   public predictions: Prediction[] = [];
+  public matches: Match[] = [];
+  public teams: Team[] = [];
 
   create(data: Prisma.PredictionCreateInput): Promise<Prediction> {
     const newId = this.predictions.length + 1;
@@ -138,5 +140,49 @@ export class InMemoryPredictionsRepository implements IPredictionsRepository {
 
   getMatchOddsByMatchId(_poolId: number, _tournamentId: number, _matchId: number): Promise<MatchOddsRaw | null> {
     return Promise.resolve(null);
+  }
+
+  findCompletedWithPointsByUserAndPool(
+    userId: string,
+    poolId: number
+  ): Promise<UserPredictionWithPoints[]> {
+    const results = this.predictions
+      .filter((p) => p.userId === userId && p.poolId === poolId)
+      .flatMap((p) => {
+        const match = this.matches.find((m) => m.id === p.matchId);
+        if (!match || match.matchStatus !== 'COMPLETED') return [];
+        const homeTeam = this.teams.find((t) => t.id === match.homeTeamId);
+        const awayTeam = this.teams.find((t) => t.id === match.awayTeamId);
+        const exactScore =
+          p.predictedHomeScore === match.homeTeamScore &&
+          p.predictedAwayScore === match.awayTeamScore;
+        const predictedSign = Math.sign(p.predictedHomeScore - p.predictedAwayScore);
+        const actualSign = Math.sign((match.homeTeamScore ?? 0) - (match.awayTeamScore ?? 0));
+        const correctWinner = predictedSign === actualSign;
+        return [
+          {
+            predictionId: p.id,
+            matchId: p.matchId,
+            predictedHomeScore: p.predictedHomeScore,
+            predictedAwayScore: p.predictedAwayScore,
+            predictedHasExtraTime: p.predictedHasExtraTime,
+            predictedHasPenalties: p.predictedHasPenalties,
+            pointsEarned: p.pointsEarned ?? 0,
+            exactScore,
+            correctWinner,
+            match: {
+              id: match.id,
+              matchDate: match.matchDatetime,
+              status: match.matchStatus,
+              homeScore: match.homeTeamScore ?? 0,
+              awayScore: match.awayTeamScore ?? 0,
+              homeTeam: { name: homeTeam?.name ?? '', flag: homeTeam?.flagUrl ?? null },
+              awayTeam: { name: awayTeam?.name ?? '', flag: awayTeam?.flagUrl ?? null },
+            },
+          } as UserPredictionWithPoints,
+        ];
+      });
+
+    return Promise.resolve(results);
   }
 }

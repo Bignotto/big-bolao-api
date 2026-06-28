@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { PrismaClient, MatchStage } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,6 +14,7 @@ const prisma = new PrismaClient();
 
 interface DbMatch {
   id: number;
+  stage: string;
   matchDatetime: Date;
   homeTeam: { name: string; countryCode: string | null };
   awayTeam: { name: string; countryCode: string | null };
@@ -146,7 +147,16 @@ function findMatch<T extends Fixture>(
     if (p2) return p2;
   }
 
-  // Pass 3: sole fixture within ±1 day
+  // Pass 3: swapped home/away with FIFA→ISO translation (some sources invert sides)
+  if (dbHome && dbAway) {
+    const p3 = fixtures.find((f) => {
+      if (!f.homeCode || !f.awayCode) return false;
+      return nearDay(f) && toIso(f.homeCode) === toIso(dbAway) && toIso(f.awayCode) === toIso(dbHome);
+    });
+    if (p3) return p3;
+  }
+
+  // Pass 4: sole fixture within ±1 day (last resort)
   const nearby = fixtures.filter(nearDay);
   if (nearby.length === 1) return nearby[0];
 
@@ -206,16 +216,39 @@ async function fetchApiFutebol(): Promise<ApiFutebolFixture[]> {
     time_visitante: { nome_popular: string; sigla: string };
   };
   const body = await res.json() as {
-    partidas: {
-      'fase-de-grupos': Record<string, ApiFutebolPartida[]>;
-      [key: string]: unknown;
-    };
+    partidas: Record<string, Record<string, ApiFutebolPartida[]> | ApiFutebolPartida[]>;
   };
 
-  const rounds = body.partidas?.['fase-de-grupos'] ?? {};
-  const all: ApiFutebolPartida[] = Object.values(rounds).flat().filter(
-    (m) => m.time_mandante && m.time_visitante,
-  );
+  const phaseKeys = Object.keys(body.partidas ?? {});
+  console.log(`  api-futebol phases found: ${phaseKeys.join(', ') || '(none)'}`);
+
+  const all: ApiFutebolPartida[] = [];
+  for (const [key, phase] of Object.entries(body.partidas ?? {})) {
+    if (Array.isArray(phase)) {
+      const filtered = phase.filter((m) => m.time_mandante && m.time_visitante);
+      console.log(`    phase "${key}" (flat array): ${filtered.length} matches`);
+      all.push(...filtered);
+    } else if (phase && typeof phase === 'object') {
+      const vals = Object.values(phase as Record<string, unknown>);
+      // "segunda-fase" uses { "chave-1": { "ida": {...match...} }, ... }
+      const isChaveStructure = vals.some(
+        (v) => v && typeof v === 'object' && !Array.isArray(v) && 'ida' in (v as object),
+      );
+      if (isChaveStructure) {
+        const matches = vals
+          .map((v) => (v as { ida?: ApiFutebolPartida }).ida)
+          .filter((m): m is ApiFutebolPartida => !!m?.time_mandante && !!m?.time_visitante);
+        console.log(`    phase "${key}" (bracket/chave): ${matches.length} matches`);
+        all.push(...matches);
+      } else {
+        const flat = (vals as ApiFutebolPartida[][]).flat().filter(
+          (m) => m.time_mandante && m.time_visitante,
+        );
+        console.log(`    phase "${key}" (nested rounds): ${flat.length} matches`);
+        all.push(...flat);
+      }
+    }
+  }
 
   return all.map((m) => ({
     id: m.partida_id,
@@ -239,12 +272,10 @@ async function main() {
   if (!tournament) throw new Error('Tournament "FIFA World Cup 2026" not found in database');
 
   const dbMatches: DbMatch[] = await prisma.match.findMany({
-    where: {
-      tournamentId: tournament.id,
-      stage: MatchStage.GROUP,
-    },
+    where: { tournamentId: tournament.id },
     select: {
       id: true,
+      stage: true,
       matchDatetime: true,
       homeTeam: { select: { name: true, countryCode: true } },
       awayTeam: { select: { name: true, countryCode: true } },
@@ -252,7 +283,7 @@ async function main() {
     orderBy: { matchDatetime: 'asc' },
   });
 
-  console.log(`  Found ${dbMatches.length} GROUP stage matches`);
+  console.log(`  Found ${dbMatches.length} matches across all stages`);
 
   console.log('Fetching from football-data.org...');
   let fdOrgFixtures: FdOrgFixture[] = [];
