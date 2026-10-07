@@ -44,10 +44,52 @@ For pools the user created: ownership is transferred to the earliest-joined othe
 | `GET` | `/pools/:poolId/predictions` | Get all predictions in a pool |
 | `GET` | `/pools/:poolId/matches/:matchId/predictions` | Get prediction status per participant for a match |
 | `GET` | `/pools/:poolId/standings` | Get pool leaderboard |
+| `GET` | `/pools/:poolId/users/:userId/predictions` | Get completed predictions with points for a specific user in a pool |
 | `GET` | `/pools/:poolId/odds` | Get home/draw/away prediction odds for all tournament matches (pool-scoped and global) |
 | `GET` | `/pools/:poolId/matches/:matchId/odds` | Get home/draw/away prediction odds for a single match (pool-scoped and global) |
 | `GET` | `/pool-invites/:inviteCode` | Get pool info by invite code (no join) |
 | `POST` | `/pool-invites/:inviteCode` | Join a pool using invite code (public or private) |
+
+### GET /pools/:poolId/users/:userId/predictions
+
+Returns completed match predictions with points for a specific user in a pool. Any authenticated pool member can call this for any `userId` within the same pool (same visibility rule as the standings tab). Points are computed live from the pool's current scoring rules.
+
+Response shape:
+```json
+{
+  "predictions": [
+    {
+      "predictionId": 1,
+      "matchId": 1,
+      "predictedHomeScore": 2,
+      "predictedAwayScore": 1,
+      "predictedHasExtraTime": false,
+      "predictedHasPenalties": false,
+      "pointsEarned": 10,
+      "exactScore": true,
+      "correctWinner": true,
+      "match": {
+        "id": 1,
+        "matchDate": "2026-06-15T18:00:00.000Z",
+        "status": "COMPLETED",
+        "homeScore": 2,
+        "awayScore": 1,
+        "homeTeam": { "name": "Brazil", "flag": "https://..." },
+        "awayTeam": { "name": "Argentina", "flag": "https://..." }
+      }
+    }
+  ]
+}
+```
+
+Results are ordered by match date descending (most recent first).
+
+- **Response 200** — Predictions returned (empty array if none yet)
+- **Response 401** — Missing or invalid token
+- **Response 403** — Authenticated user is not a pool participant or creator
+- **Response 404** — Pool not found, or `userId` is not a member of the pool
+
+---
 
 ### GET /pools/:poolId/odds and GET /pools/:poolId/matches/:matchId/odds
 
